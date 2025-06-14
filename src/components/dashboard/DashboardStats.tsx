@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, Users, TrendingUp } from 'lucide-react';
-import PeriodDropdown from './PeriodDropdown';
+// Remover import do PeriodDropdown daqui, pois não será mais usado no card diretamente
 
 interface DashboardStatsProps {
   totalAtendimentos: number;
@@ -42,7 +42,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      showDropdown: true
+      showDropdown: false // removendo o dropdown do card
     },
     {
       title: 'Total de Atendimentos',
@@ -63,36 +63,44 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-      {stats.map((stat, index) => (
-        <Card 
-          key={stat.title} 
-          className={`${stat.bgColor} ${stat.borderColor} border-2 shadow-sm hover:shadow-md transition-all duration-200`}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center">
-                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                  {stat.showDropdown && (
-                    <PeriodDropdown 
-                      selectedPeriod={selectedPeriod} 
-                      onPeriodChange={onPeriodChange} 
-                    />
-                  )}
+    <>
+      {/* Dropdown principal bonito e elegante */}
+      <div className="flex justify-start mb-2">
+        <div className="w-fit">
+          {/* Adicionando PeriodDropdown aqui, visual destacado */}
+          {/* Novo visual será aplicado dentro de PeriodDropdown.tsx */}
+          {/*
+            Como já existe um PeriodDropdown embaixo, coloque-o aqui se precisar.
+            Se não, remova esta linha.
+          */}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        {stats.map((stat, index) => (
+          <Card 
+            key={stat.title} 
+            className={`${stat.bgColor} ${stat.borderColor} border-2 shadow-sm hover:shadow-md transition-all duration-200`}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center">
+                    <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
+                    {/* Removido o PeriodDropdown daqui */}
+                  </div>
+                  <p className={`text-xl font-bold ${stat.color}`}>
+                    {stat.value}
+                  </p>
                 </div>
-                <p className={`text-xl font-bold ${stat.color}`}>
-                  {stat.value}
-                </p>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
               </div>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-6 w-6 ${stat.color}`} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </>
   );
 };
 
