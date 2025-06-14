@@ -489,7 +489,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
 
     // Log de renderização do painel expandido
     if (hasAdditionalPayments && expanded) {
-      console.log("[PaymentOverviewModal] Renderizando lista expandida do cliente:", group.clientName, group.additionalPayments);
+      console.log("[DEBUG] Renderizando lista expandida do cliente:", group.clientName, group.additionalPayments);
     }
 
     return (
@@ -529,7 +529,14 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         
         {/* Lista de pagamentos adicionais se expandido */}
         {hasAdditionalPayments && expanded && (
-          <div className="space-y-2 mt-2">
+          <div
+            className="space-y-2 mt-2 border-2 border-dashed border-red-600 bg-red-100/60 p-2 rounded-lg"
+            style={{ position: 'relative', zIndex: 2 }}
+          >
+            <div className="text-xs text-red-800 font-bold mb-2 uppercase">
+              [DEBUG] Lista expandida aberta para {group.clientName}
+            </div>
+            {console.log('[DEBUG] Bloco visível mais interno do expandido!', group.clientName, group.additionalPayments)}
             {group.additionalPayments.map((payment) => (
               <PaymentCard 
                 key={payment.id} 
