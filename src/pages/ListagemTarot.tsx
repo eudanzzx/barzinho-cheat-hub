@@ -31,6 +31,7 @@ import TarotCounterPriorityNotifications from "@/components/TarotCounterPriority
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import PlanoPaymentButton from "@/components/tarot/PlanoPaymentButton";
 import SemanalPaymentButton from "@/components/tarot/SemanalPaymentButton";
+import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 
 const ListagemTarot = () => {
   const navigate = useNavigate();
@@ -39,6 +40,13 @@ const ListagemTarot = () => {
   const [filteredAnalises, setFilteredAnalises] = useState([]);
   const [activeTab, setActiveTab] = useState("todas");
   const [aniversarianteHoje, setAniversarianteHoje] = useState(null);
+  const [periodo, setPeriodo] = useState<'semana' | 'mes' | 'ano' | 'total'>('total');
+  const [recebidoStats, setRecebidoStats] = useState({
+    total: 0,
+    semana: 0,
+    mes: 0,
+    ano: 0,
+  });
   const { getAllTarotAnalyses, deleteTarotAnalysis, saveAllTarotAnalyses } = useUserDataService();
   const { toast } = useToast();
 
@@ -274,6 +282,39 @@ const ListagemTarot = () => {
   const analisesToShow = useMemo(() => getFilteredAnalisesByTab(), [activeTab, filteredAnalises]);
   const { finalizados, emAndamento, atencao } = useMemo(() => getStatusCounts(), [analises]);
 
+  useEffect(() => {
+    calculaStatsRecebido();
+  }, [analises]);
+
+  function calculaStatsRecebido() {
+    const now = new Date();
+    let total = 0, semana = 0, mes = 0, ano = 0;
+
+    analises.forEach(a => {
+      const date = new Date(a.dataInicio || a.dataAtendimento);
+      const preco = parseFloat(a.preco || "150");
+      total += preco;
+      if (!isNaN(date.getTime())) {
+        // ÚLTIMA SEMANA
+        const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
+
+        // Últimos 7 dias
+        if (diffDays <= 7) semana += preco;
+        // Este mês
+        if (date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) mes += preco;
+        // Este ano
+        if (date.getFullYear() === now.getFullYear()) ano += preco;
+      }
+    });
+
+    setRecebidoStats({
+      total,
+      semana,
+      mes,
+      ano,
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#ede9fe] via-[#f3e8ff] to-[#f8fafc] relative overflow-hidden">
       {/* Fundo animado igual ao dashboard */}
@@ -298,50 +339,18 @@ const ListagemTarot = () => {
           </div>
         )}
 
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between animate-fade-in gap-4" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-center gap-4">
-            <div className="transform hover:scale-110 transition-all duration-300 hover:rotate-12">
-              <Logo height={50} width={50} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#673193] to-purple-600 bg-clip-text text-transparent">
-                Tarot Frequencial
-              </h1>
-              <p className="text-[#673193]/80 mt-1 opacity-80">Análises e acompanhamentos</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-[#7c3aed]/80">
-            <Sparkles className="h-5 w-5 animate-pulse" />
-            <span className="text-sm font-medium">Sistema Místico</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <DashboardCard 
-            title="Total Recebido" 
-            value={`R$ ${getTotalValue()}`} 
-            icon={<DollarSign className="h-8 w-8 text-[#673193]" />} 
-            delay="0s"
-          />
-          <DashboardCard 
-            title="Total Análises" 
-            value={analises.length.toString()} 
-            icon={<Users className="h-8 w-8 text-[#673193]" />} 
-            delay="0.1s"
-          />
-          <DashboardCard 
-            title="Finalizados" 
-            value={finalizados.toString()} 
-            icon={<CheckCircle className="h-8 w-8 text-[#673193]" />} 
-            delay="0.2s"
-          />
-          <DashboardCard 
-            title="Lembretes" 
-            value={analises.filter(a => a.lembretes && a.lembretes.length > 0).length.toString()} 
-            icon={<BellRing className="h-8 w-8 text-[#673193]" />} 
-            delay="0.3s"
-          />
-        </div>
+        {/* NOVOS CARDS DE STATS IGUAIS AO DASHBOARD */}
+        <TarotStatsCards
+          totalAnalises={analises.length}
+          totalRecebido={recebidoStats.total}
+          totalRecebidoSemana={recebidoStats.semana}
+          totalRecebidoMes={recebidoStats.mes}
+          totalRecebidoAno={recebidoStats.ano}
+          finalizados={analises.filter(a => a.finalizado).length}
+          lembretes={analises.filter(a => a.lembretes && a.lembretes.length > 0).length}
+          selectedPeriod={periodo}
+          onPeriodChange={setPeriodo}
+        />
 
         <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="border-b border-[#ede9fe] pb-4">
@@ -480,13 +489,10 @@ const ListagemTarot = () => {
                                   </div>
                                 </div>
                                 <div className="flex gap-2 ml-0 md:ml-4">
+                                  {/* BOTÃO FINALIZAR */}
                                   <Button
                                     size="sm"
                                     variant={analise.finalizado ? "destructive" : "default"}
-                                    className={`transition-all duration-200 font-semibold border ${analise.finalizado 
-                                        ? "border-destructive bg-destructive text-white hover:bg-destructive/90"
-                                        : "border-tarot-primary bg-tarot-primary text-white hover:bg-tarot-primary/80"
-                                      }`}
                                     onClick={() => handleToggleFinished(analise.id)}
                                   >
                                     {analise.finalizado ? (
@@ -495,22 +501,20 @@ const ListagemTarot = () => {
                                       <Check className="h-4 w-4" />
                                     )}
                                   </Button>
-                                  
+                                  {/* BOTÃO EDITAR */}
                                   <Button
                                     size="sm"
-                                    variant="outline"
-                                    className="font-semibold border-tarot-primary text-tarot-primary hover:bg-tarot-primary/10 hover:border-tarot-primary transition-all duration-200"
+                                    variant="secondary"
                                     onClick={() => navigate(`/editar-analise-frequencial/${analise.id}`)}
                                   >
                                     <Edit3 className="h-4 w-4" />
                                   </Button>
-                                  
+                                  {/* EXCLUIR */}
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                       <Button
                                         size="sm"
                                         variant="destructive"
-                                        className="font-semibold transition-all duration-200"
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
