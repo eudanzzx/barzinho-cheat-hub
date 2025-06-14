@@ -22,6 +22,13 @@ const periodLabels = {
   total: "Total",
 };
 
+// Cores principais do tarot (roxo)
+const mainColor = "#673193";
+const bgCard = "bg-[#f3e8ff]"; // roxo claro, mantendo leveza semelhante ao azul claro
+const borderCard = "border-[#bda3f2]"; // roxo bem suave
+
+const iconColor = mainColor;
+
 const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
   totalAnalises,
   totalRecebido,
@@ -57,91 +64,62 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
             aria-pressed={selectedPeriod === per}
             onClick={() => onPeriodChange(per)}
             className={`
-              min-w-[94px] max-w-fit px-5 py-2 rounded-xl font-semibold border
+              min-w-[94px] max-w-fit px-5 py-2 rounded-lg font-semibold border
+              bg-[#f3e8ff] border-[#bda3f2] text-[#673193] shadow-sm
               transition-all duration-150 text-sm
-              focus:outline-none shadow-md
-              border-tarot-primary
-              ${
-                selectedPeriod === per
-                  ? "bg-tarot-primary text-white scale-[1.04] shadow-[0_4px_24px_0_rgba(103,49,147,0.10)] border-tarot-primary"
-                  : "bg-white/80 text-tarot-primary hover:bg-[#ede9fe]/80 hover:border-tarot-primary"
-              }
+              focus:outline-none 
+              ${selectedPeriod === per
+                ? "ring-2 ring-[#a21caf] font-bold bg-[#ede9fe] scale-[1.05]"
+                : "hover:bg-[#ede9fe]/80 hover:border-[#a21caf]"}
             `}
-            style={{
-              boxShadow:
-                selectedPeriod === per
-                  ? "0 8px 28px 0 rgba(103,49,147,0.14)"
-                  : "0 1.5px 6px 0 rgba(103,49,147,0.07)",
-            }}
           >
             {periodLabels[per]}
           </button>
         ))}
       </div>
-      {/* Cards com visual igual dashboard, mas cor do tarot */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+      {/* Cards no estilo da sua referência, só que usando tons de roxo */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recebido */}
-        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
-          <CardContent className="pt-6">
-            <div className="flex gap-4 items-center">
-              <div>
-                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Recebido</p>
-                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
-                  R$ {getRecebido().toFixed(2)}
-                </p>
-              </div>
-              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
-                <DollarSign className="h-7 w-7 text-tarot-primary" />
+        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
+          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+            <div>
+              <div className="text-sm text-[#673193] mb-1">Recebido</div>
+              <div className="text-[1.5rem] font-bold text-[#673193]">
+                R$ {getRecebido().toFixed(2)}
               </div>
             </div>
+            <DollarSign className="w-7 h-7 text-[#673193]" />
           </CardContent>
         </Card>
         {/* Total Análises */}
-        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
-          <CardContent className="pt-6">
-            <div className="flex gap-4 items-center">
-              <div>
-                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Total Análises</p>
-                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
-                  {totalAnalises}
-                </p>
-              </div>
-              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
-                <Users className="h-7 w-7 text-tarot-primary" />
-              </div>
+        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
+          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+            <div>
+              <div className="text-sm text-[#673193] mb-1">Total Análises</div>
+              <div className="text-[1.5rem] font-bold text-[#673193]">{totalAnalises}</div>
             </div>
+            <Users className="w-7 h-7 text-[#673193]" />
           </CardContent>
         </Card>
         {/* Finalizados */}
-        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
-          <CardContent className="pt-6">
-            <div className="flex gap-4 items-center">
-              <div>
-                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Finalizados</p>
-                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
-                  {finalizados}
-                </p>
-              </div>
-              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
-                <CheckCircle className="h-7 w-7 text-tarot-primary" />
-              </div>
+        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
+          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+            <div>
+              <div className="text-sm text-[#673193] mb-1">Finalizados</div>
+              <div className="text-[1.5rem] font-bold text-[#673193]">{finalizados}</div>
             </div>
+            <CheckCircle className="w-7 h-7 text-[#673193]" />
           </CardContent>
         </Card>
         {/* Lembretes */}
-        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
-          <CardContent className="pt-6">
-            <div className="flex gap-4 items-center">
-              <div>
-                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Lembretes</p>
-                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
-                  {lembretes}
-                </p>
-              </div>
-              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
-                <BellRing className="h-7 w-7 text-tarot-primary" />
-              </div>
+        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
+          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+            <div>
+              <div className="text-sm text-[#673193] mb-1">Lembretes</div>
+              <div className="text-[1.5rem] font-bold text-[#673193]">{lembretes}</div>
             </div>
+            <BellRing className="w-7 h-7 text-[#673193]" />
           </CardContent>
         </Card>
       </div>
