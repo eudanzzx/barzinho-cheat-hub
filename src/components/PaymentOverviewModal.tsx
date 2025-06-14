@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
+import PaymentSection from "./payment-overview/PaymentSection";
 
 interface PaymentOverviewModalProps {
   children: React.ReactNode;
@@ -414,57 +415,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     return `${daysUntilDue} ${daysUntilDue === 1 ? 'dia' : 'dias'} restantes`;
   };
 
-  const PaymentCard = ({ payment, isAdditional = false }: { payment: PlanoMensal | PlanoSemanal; isAdditional?: boolean }) => {
-    const daysUntilDue = getDaysUntilDue(payment.dueDate);
-    const urgencyLevel = getUrgencyLevel(daysUntilDue);
-    const urgencyColor = getUrgencyColor(urgencyLevel, !payment.analysisId);
-    const formattedDate = formatDate(payment.dueDate);
-    
-    return (
-      <div className={`p-3 rounded-lg border transition-all duration-200 ${urgencyColor} ${isAdditional ? 'ml-4 mt-2' : ''}`}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            {payment.type === 'plano' ? (
-              <CreditCard className="h-4 w-4" />
-            ) : (
-              <Clock className="h-4 w-4" />
-            )}
-            <Badge 
-              variant="outline" 
-              className={`${urgencyColor} font-medium text-xs`}
-            >
-              {payment.type === 'plano' ? 'Mensal' : 'Semanal'}
-            </Badge>
-            {payment.analysisId && (
-              <Badge 
-                variant="outline" 
-                className="bg-purple-100 text-purple-600 border-purple-200 text-xs"
-              >
-                Tarot
-              </Badge>
-            )}
-          </div>
-          <span className="text-lg font-bold text-green-600">
-            R$ {payment.amount.toFixed(2)}
-          </span>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-3 w-3" />
-              <span className="font-medium">
-                {formattedDate.date}
-              </span>
-            </div>
-          </div>
-          <div className="text-sm font-medium">
-            {getUrgencyText(daysUntilDue)}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   // Novo state: manter quais clientes estão abertos (normalizados)
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
 
@@ -477,126 +427,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         : prev.filter((c) => c !== normalizedClientName)
     });
   }, []);
-
-  const ClientPaymentGroup = ({
-    group,
-    isPrincipal,
-    expanded,
-    onToggleExpand
-  }: {
-    group: GroupedPayment;
-    isPrincipal: boolean;
-    expanded: boolean;
-    onToggleExpand: (normalizedClientName: string) => void;
-  }) => {
-    const hasAdditionalPayments = group.additionalPayments.length > 0;
-
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">
-              {group.clientName}
-            </span>
-            {hasAdditionalPayments && (
-              <Badge variant="secondary" className="text-xs">
-                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
-              </Badge>
-            )}
-          </div>
-          {hasAdditionalPayments && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-6 w-6 p-0 hover:bg-gray-100"
-              onClick={() => {
-                onToggleExpand(normalizeClientName(group.clientName))
-              }}
-              aria-label={expanded ? "Fechar vencimentos do cliente" : "Abrir vencimentos do cliente"}
-            >
-              {expanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          )}
-        </div>
-        
-        <PaymentCard payment={group.mostUrgent} />
-        
-        {/* Lista de pagamentos adicionais se expandido */}
-        {hasAdditionalPayments && expanded && (
-          <div
-            className="space-y-2 mt-2 border-2 border-dashed border-red-600 bg-red-100/60 p-2 rounded-lg"
-            style={{ position: 'relative', zIndex: 2 }}
-          >
-            <div className="text-xs text-red-800 font-bold mb-2 uppercase">
-              [DEBUG] Lista expandida aberta para {group.clientName}
-            </div>
-            {group.additionalPayments.map((payment) => (
-              <PaymentCard 
-                key={payment.id} 
-                payment={payment} 
-                isAdditional={true}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderPaymentSection = (
-    groupedPayments: GroupedPayment[], 
-    title: string, 
-    icon: React.ReactNode, 
-    emptyMessage: string,
-    isPrincipal: boolean = true
-  ) => {
-    const sectionColor = isPrincipal ? 'blue' : 'purple';
-    const totalClients = groupedPayments.length;
-    const totalPayments = groupedPayments.reduce((acc, group) => acc + group.totalPayments, 0);
-    
-    return (
-      <div className="space-y-4">
-        <div className={`flex items-center gap-2 pb-2 border-b border-${sectionColor}-200`}>
-          {icon}
-          <h3 className={`text-lg font-semibold text-${sectionColor}-800`}>{title}</h3>
-          <div className="ml-auto flex gap-2">
-            <Badge variant="secondary" className={`bg-${sectionColor}-100 text-${sectionColor}-600 border-${sectionColor}-200`}>
-              {totalClients} cliente{totalClients !== 1 ? 's' : ''}
-            </Badge>
-            <Badge variant="secondary" className={`bg-${sectionColor}-100 text-${sectionColor}-600 border-${sectionColor}-200`}>
-              {totalPayments} vencimento{totalPayments !== 1 ? 's' : ''}
-            </Badge>
-          </div>
-        </div>
-        
-        {groupedPayments.length === 0 ? (
-          <div className="text-center py-6">
-            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-            <p className="text-slate-500 text-sm">{emptyMessage}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {groupedPayments.map((group) => {
-              const normalizedName = normalizeClientName(group.clientName);
-              return (
-                <ClientPaymentGroup 
-                  key={group.clientName}
-                  group={group}
-                  isPrincipal={isPrincipal}
-                  expanded={expandedClients.includes(normalizedName)}
-                  onToggleExpand={toggleExpandClient}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const getFilteredPayments = () => {
     switch (context) {
@@ -638,7 +468,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
             Visualize e gerencie os próximos vencimentos de pagamentos.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {totalGroups === 0 ? (
             <Card className="border-slate-200">
@@ -662,30 +492,46 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                     <CardTitle className="text-blue-800">Atendimentos Principais</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {renderPaymentSection(
-                      filteredPayments.principal,
-                      "",
-                      <Users className="h-5 w-5 text-blue-600" />,
-                      "Nenhum vencimento de atendimentos principais",
-                      true
-                    )}
+                    <PaymentSection
+                      groupedPayments={filteredPayments.principal}
+                      title=""
+                      icon={<Users className="h-5 w-5 text-blue-600" />}
+                      emptyMessage="Nenhum vencimento de atendimentos principais"
+                      isPrincipal={true}
+                      expandedClients={expandedClients}
+                      toggleExpandClient={toggleExpandClient}
+                      normalizeClientName={normalizeClientName}
+                      getDaysUntilDue={getDaysUntilDue}
+                      getUrgencyLevel={getUrgencyLevel}
+                      getUrgencyColor={getUrgencyColor}
+                      getUrgencyText={getUrgencyText}
+                      formatDate={formatDate}
+                    />
                   </CardContent>
                 </Card>
               )}
-              
+
               {(context === 'tarot' || context === 'all') && filteredPayments.tarot.length > 0 && (
                 <Card className="border-purple-200 bg-purple-50/30">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-purple-800">Análises de Tarot</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {renderPaymentSection(
-                      filteredPayments.tarot,
-                      "",
-                      <Sparkles className="h-5 w-5 text-purple-600" />,
-                      "Nenhum vencimento de análises de tarot",
-                      false
-                    )}
+                    <PaymentSection
+                      groupedPayments={filteredPayments.tarot}
+                      title=""
+                      icon={<Sparkles className="h-5 w-5 text-purple-600" />}
+                      emptyMessage="Nenhum vencimento de análises de tarot"
+                      isPrincipal={false}
+                      expandedClients={expandedClients}
+                      toggleExpandClient={toggleExpandClient}
+                      normalizeClientName={normalizeClientName}
+                      getDaysUntilDue={getDaysUntilDue}
+                      getUrgencyLevel={getUrgencyLevel}
+                      getUrgencyColor={getUrgencyColor}
+                      getUrgencyText={getUrgencyText}
+                      formatDate={formatDate}
+                    />
                   </CardContent>
                 </Card>
               )}
