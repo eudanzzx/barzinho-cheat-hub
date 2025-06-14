@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -463,8 +462,19 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     );
   };
 
-  const ClientPaymentGroup = ({ group, isPrincipal }: { group: GroupedPayment; isPrincipal: boolean }) => {
-    const [isGroupOpen, setIsGroupOpen] = useState(false);
+  // Novo state: manter quais clientes estão abertos
+  const [expandedClients, setExpandedClients] = useState<string[]>([]);
+
+  // Handler para expand/collapse
+  const toggleExpandClient = useCallback((clientName: string) => {
+    setExpandedClients((prev) =>
+      prev.includes(clientName)
+        ? prev.filter((c) => c !== clientName)
+        : [...prev, clientName]
+    );
+  }, []);
+
+  const ClientPaymentGroup = ({ group, isPrincipal, expanded, onToggleExpand }: { group: GroupedPayment; isPrincipal: boolean; expanded: boolean; onToggleExpand: (clientName: string) => void }) => {
     const hasAdditionalPayments = group.additionalPayments.length > 0;
 
     console.log('ClientPaymentGroup - Renderizando grupo:', {
@@ -474,15 +484,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       isGroupOpen,
       isPrincipal: isPrincipal
     });
-
-    const handleToggle = (event: React.MouseEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      console.log('ClientPaymentGroup - ANTES Toggle clicado para:', group.clientName, 'Estado atual:', isGroupOpen, 'Novo estado:', !isGroupOpen);
-      const newState = !isGroupOpen;
-      setIsGroupOpen(newState);
-      console.log('ClientPaymentGroup - DEPOIS Toggle clicado para:', group.clientName, 'Estado definido:', newState);
-    };
 
     return (
       <div className="space-y-2">
@@ -502,12 +503,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
               variant="ghost" 
               size="sm" 
               className="h-6 w-6 p-0 hover:bg-gray-100"
-              onClick={(e) => {
-                console.log('ClientPaymentGroup - Button onClick DISPARADO para:', group.clientName);
-                handleToggle(e);
-              }}
+              onClick={() => onToggleExpand(group.clientName)}
             >
-              {isGroupOpen ? (
+              {expanded ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
                 <ChevronRight className="h-4 w-4" />
@@ -518,11 +516,8 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         
         <PaymentCard payment={group.mostUrgent} />
         
-        {hasAdditionalPayments && isGroupOpen && (
+        {hasAdditionalPayments && expanded && (
           <div className="space-y-2 mt-2">
-            <div className="text-xs text-gray-500 ml-4">
-              DEBUG: Mostrando {group.additionalPayments.length} pagamentos adicionais
-            </div>
             {group.additionalPayments.map((payment) => (
               <PaymentCard 
                 key={payment.id} 
@@ -574,6 +569,8 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                 key={group.clientName}
                 group={group}
                 isPrincipal={isPrincipal}
+                expanded={expandedClients.includes(group.clientName)}
+                onToggleExpand={toggleExpandClient}
               />
             ))}
           </div>
