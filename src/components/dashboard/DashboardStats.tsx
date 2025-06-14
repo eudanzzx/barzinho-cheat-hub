@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, Users, TrendingUp, Calendar } from 'lucide-react';
+import { DollarSign, Users, TrendingUp } from 'lucide-react';
 import PeriodDropdown from './PeriodDropdown';
 
 interface DashboardStatsProps {
@@ -59,19 +59,11 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200'
-    },
-    {
-      title: 'Meta Mensal',
-      value: 'R$ 5.000',
-      icon: Calendar,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200'
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {stats.map((stat, index) => (
         <Card 
           key={stat.title} 
