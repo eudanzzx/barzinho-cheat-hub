@@ -343,7 +343,7 @@ const ListagemTarot = () => {
           />
         </div>
 
-        <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="border-b border-[#ede9fe] pb-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="flex items-center gap-2">
@@ -482,12 +482,11 @@ const ListagemTarot = () => {
                                 <div className="flex gap-2 ml-0 md:ml-4">
                                   <Button
                                     size="sm"
-                                    variant="outline"
-                                    className={`transition-all duration-300 hover:scale-105 ${
-                                      analise.finalizado 
-                                        ? "border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
-                                        : "border-emerald-300 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-400"
-                                    }`}
+                                    variant={analise.finalizado ? "destructive" : "default"}
+                                    className={`transition-all duration-200 font-semibold border ${analise.finalizado 
+                                        ? "border-destructive bg-destructive text-white hover:bg-destructive/90"
+                                        : "border-tarot-primary bg-tarot-primary text-white hover:bg-tarot-primary/80"
+                                      }`}
                                     onClick={() => handleToggleFinished(analise.id)}
                                   >
                                     {analise.finalizado ? (
@@ -500,7 +499,7 @@ const ListagemTarot = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="border-[#a78bfa] text-[#673193] hover:bg-[#ede9fe]/50 hover:border-[#9f69b8] transition-all duration-300 hover:scale-105"
+                                    className="font-semibold border-tarot-primary text-tarot-primary hover:bg-tarot-primary/10 hover:border-tarot-primary transition-all duration-200"
                                     onClick={() => navigate(`/editar-analise-frequencial/${analise.id}`)}
                                   >
                                     <Edit3 className="h-4 w-4" />
@@ -510,8 +509,8 @@ const ListagemTarot = () => {
                                     <AlertDialogTrigger asChild>
                                       <Button
                                         size="sm"
-                                        variant="outline"
-                                        className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all duration-300 hover:scale-105"
+                                        variant="destructive"
+                                        className="font-semibold transition-all duration-200"
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
