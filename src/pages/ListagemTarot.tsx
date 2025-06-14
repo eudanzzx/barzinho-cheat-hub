@@ -1,9 +1,7 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
@@ -38,10 +36,9 @@ const ListagemTarot = () => {
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
-      {/* Sombra e layout igual Dashboard */}
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
+        {/* Alerta de prioridade e aniversariante */}
         <TarotCounterPriorityNotifications analises={analises} />
-
         {aniversarianteHoje && (
           <div className="animate-scale-in mb-6">
             <ClientBirthdayAlert
@@ -52,6 +49,7 @@ const ListagemTarot = () => {
           </div>
         )}
 
+        {/* Cards de estatísticas */}
         <TarotStatsCards
           totalAnalises={analises.length}
           totalRecebido={recebidoStats.total}
@@ -65,30 +63,36 @@ const ListagemTarot = () => {
           variant="tarot"
         />
 
-        <Card className="bg-white shadow-sm border border-gray-100 rounded-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6 flex-col md:flex-row gap-4">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-tarot-primary">Lista de Análises Frequenciais</h2>
-                <span className="text-sm text-purple-700 bg-purple-50 px-3 py-1 rounded-full">
-                  {analises.length} análises
-                </span>
-              </div>
-              <div className="w-full md:w-auto">
-                <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
-              </div>
+        {/* Header igual ao dashboard principal */}
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#6B21A8]">
+                Lista de Análises Frequenciais
+              </h1>
+              <p className="text-gray-600 mt-1 text-sm hidden sm:block">
+                Gerencie suas análises frequenciais, utilize os filtros para encontrar rapidamente o que busca.
+              </p>
             </div>
+            <div className="w-full sm:w-auto">
+              <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
+            </div>
+          </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TarotTabsFilter
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                total={analises.length}
-                finalizados={counts.finalizados}
-                emAndamento={counts.emAndamento}
-                atencao={counts.atencao}
-              />
-              <TabsContent value={activeTab} className="space-y-4">
+          {/* Abas de filtro */}
+          <TarotTabsFilter
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            total={analises.length}
+            finalizados={counts.finalizados}
+            emAndamento={counts.emAndamento}
+            atencao={counts.atencao}
+          />
+
+          {/* Card de listagem com sombra e animação igual Dashboard */}
+          <Card className="bg-white/90 border border-gray-100 rounded-xl shadow-lg transition-shadow duration-200 animate-fade-in">
+            <CardContent className="px-0 sm:px-0 pt-0 pb-2">
+              <div className="w-full">
                 {tabAnalises.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <FileText className="h-12 w-12 text-purple-300 mb-4 animate-pulse" />
@@ -102,22 +106,25 @@ const ListagemTarot = () => {
                     </p>
                   </div>
                 ) : (
-                  <TarotAnalysisList
-                    analises={tabAnalises}
-                    calculateTimeRemaining={() => null}
-                    formatTimeRemaining={() => null}
-                    onToggleFinished={handleToggleFinished}
-                    onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
-                    onDelete={handleDelete}
-                  />
+                  <div className="animate-fade-in">
+                    <TarotAnalysisList
+                      analises={tabAnalises}
+                      calculateTimeRemaining={() => null}
+                      formatTimeRemaining={() => null}
+                      onToggleFinished={handleToggleFinished}
+                      onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
+                      onDelete={handleDelete}
+                    />
+                  </div>
                 )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );
 };
 
 export default ListagemTarot;
+
