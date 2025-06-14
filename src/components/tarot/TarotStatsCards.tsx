@@ -48,7 +48,7 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Estilo fiel aos botões da dashboard, mas destaque tarot */}
+      {/* Botões de período */}
       <div className="flex gap-2 mb-4">
         {(["semana", "mes", "ano", "total"] as const).map((per) => (
           <button
@@ -57,77 +57,88 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
             aria-pressed={selectedPeriod === per}
             onClick={() => onPeriodChange(per)}
             className={`
-              min-w-[94px] max-w-fit px-5 py-2 rounded-lg font-semibold border
+              min-w-[94px] max-w-fit px-5 py-2 rounded-xl font-semibold border
               transition-all duration-150 text-sm
-              shadow-sm focus:ring-2 focus:ring-tarot-primary/50 focus:outline-none
+              focus:outline-none shadow-md
+              border-tarot-primary
               ${
                 selectedPeriod === per
-                  ? "bg-tarot-primary text-white border-tarot-primary shadow-[0_1px_8px_0_rgba(103,49,147,0.13)] scale-[1.03]"
-                  : "bg-white text-tarot-primary border-[#ede9fe] hover:bg-[#ede9fe]/60 hover:border-tarot-primary"
+                  ? "bg-tarot-primary text-white scale-[1.04] shadow-[0_4px_24px_0_rgba(103,49,147,0.10)] border-tarot-primary"
+                  : "bg-white/80 text-tarot-primary hover:bg-[#ede9fe]/80 hover:border-tarot-primary"
               }
             `}
             style={{
               boxShadow:
                 selectedPeriod === per
-                  ? "0 4px 20px 0 rgba(103,49,147,0.10)"
-                  : "0 1px 3px 0 rgba(103,49,147,0.06)",
+                  ? "0 8px 28px 0 rgba(103,49,147,0.14)"
+                  : "0 1.5px 6px 0 rgba(103,49,147,0.07)",
             }}
           >
             {periodLabels[per]}
           </button>
         ))}
       </div>
-      {/* Cards */}
+      {/* Cards com visual igual dashboard, mas cor do tarot */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-white/95 border border-[#ede9fe] shadow-sm rounded-2xl">
+        {/* Recebido */}
+        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
           <CardContent className="pt-6">
             <div className="flex gap-4 items-center">
               <div>
-                <p className="text-sm font-medium text-tarot-primary mb-1">Recebido</p>
-                <p className="text-2xl font-bold text-tarot-primary">
+                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Recebido</p>
+                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
                   R$ {getRecebido().toFixed(2)}
                 </p>
               </div>
-              <div className="rounded-xl p-2 bg-[#ede9fe]">
+              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
                 <DollarSign className="h-7 w-7 text-tarot-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white/95 border border-[#ede9fe] shadow-sm rounded-2xl">
+        {/* Total Análises */}
+        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
           <CardContent className="pt-6">
             <div className="flex gap-4 items-center">
               <div>
-                <p className="text-sm font-medium text-tarot-primary mb-1">Total Análises</p>
-                <p className="text-2xl font-bold text-tarot-primary">{totalAnalises}</p>
+                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Total Análises</p>
+                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
+                  {totalAnalises}
+                </p>
               </div>
-              <div className="rounded-xl p-2 bg-[#ede9fe]">
+              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
                 <Users className="h-7 w-7 text-tarot-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white/95 border border-[#ede9fe] shadow-sm rounded-2xl">
+        {/* Finalizados */}
+        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
           <CardContent className="pt-6">
             <div className="flex gap-4 items-center">
               <div>
-                <p className="text-sm font-medium text-tarot-primary mb-1">Finalizados</p>
-                <p className="text-2xl font-bold text-tarot-primary">{finalizados}</p>
+                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Finalizados</p>
+                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
+                  {finalizados}
+                </p>
               </div>
-              <div className="rounded-xl p-2 bg-[#ede9fe]">
+              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
                 <CheckCircle className="h-7 w-7 text-tarot-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white/95 border border-[#ede9fe] shadow-sm rounded-2xl">
+        {/* Lembretes */}
+        <Card className="bg-white/90 border border-tarot-primary shadow-lg rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group">
           <CardContent className="pt-6">
             <div className="flex gap-4 items-center">
               <div>
-                <p className="text-sm font-medium text-tarot-primary mb-1">Lembretes</p>
-                <p className="text-2xl font-bold text-tarot-primary">{lembretes}</p>
+                <p className="text-sm font-semibold text-tarot-primary mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">Lembretes</p>
+                <p className="text-3xl font-bold text-tarot-primary group-hover:text-[#7c3aed] transition-colors duration-300">
+                  {lembretes}
+                </p>
               </div>
-              <div className="rounded-xl p-2 bg-[#ede9fe]">
+              <div className="rounded-full p-3 bg-[#ede9fe]/90 group-hover:bg-[#e9d5ff]/80 transition-all duration-200 shadow ring-2 ring-tarot-primary">
                 <BellRing className="h-7 w-7 text-tarot-primary" />
               </div>
             </div>
@@ -139,4 +150,3 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 };
 
 export default TarotStatsCards;
-
