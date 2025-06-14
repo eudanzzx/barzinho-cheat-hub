@@ -474,29 +474,25 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     });
 
     return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">
-              {group.clientName}
-            </span>
+      <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-800">
+                {group.clientName}
+              </span>
+              {hasAdditionalPayments && (
+                <Badge variant="secondary" className="text-xs">
+                  +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
             {hasAdditionalPayments && (
-              <Badge variant="secondary" className="text-xs">
-                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
-              </Badge>
-            )}
-          </div>
-          {hasAdditionalPayments && (
-            <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
               <CollapsibleTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="h-6 w-6 p-0 hover:bg-gray-100"
-                  onClick={() => {
-                    console.log('Botão clicado, mudando estado de:', isGroupOpen, 'para:', !isGroupOpen);
-                    setIsGroupOpen(!isGroupOpen);
-                  }}
                 >
                   {isGroupOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -505,14 +501,12 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                   )}
                 </Button>
               </CollapsibleTrigger>
-            </Collapsible>
-          )}
-        </div>
-        
-        <PaymentCard payment={group.mostUrgent} />
-        
-        {hasAdditionalPayments && (
-          <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
+            )}
+          </div>
+          
+          <PaymentCard payment={group.mostUrgent} />
+          
+          {hasAdditionalPayments && (
             <CollapsibleContent className="space-y-2 mt-2">
               {group.additionalPayments.map((payment) => (
                 <PaymentCard 
@@ -522,9 +516,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                 />
               ))}
             </CollapsibleContent>
-          </Collapsible>
-        )}
-      </div>
+          )}
+        </div>
+      </Collapsible>
     );
   };
 
