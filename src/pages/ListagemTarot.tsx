@@ -352,6 +352,32 @@ const ListagemTarot = () => {
           onPeriodChange={setPeriodo}
         />
 
+        <div className="mb-6">
+          {/* Tabs/filtros de análises com estilo padronizado de botões */}
+          <div className="flex w-full gap-2 bg-white/70 border border-[#ede9fe] rounded-xl mb-6 p-1">
+            {[
+              { key: "todas", label: `Todas (${analises.length})` },
+              { key: "finalizadas", label: `Finalizadas (${finalizados})` },
+              { key: "pendentes", label: `Pendentes (${emAndamento})` },
+              { key: "atencao", label: `Atenção (${atencao})` }
+            ].map(tab => (
+              <Button
+                key={tab.key}
+                variant={activeTab === tab.key ? "default" : "outline"}
+                size="sm"
+                className={
+                  activeTab === tab.key
+                    ? "bg-tarot-primary text-white border-tarot-primary hover:bg-tarot-primary"
+                    : "border-[#ede9fe] text-tarot-primary hover:bg-[#ede9fe] w-full"
+                }
+                onClick={() => setActiveTab(tab.key)}
+                type="button"
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
+        </div>
         <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="border-b border-[#ede9fe] pb-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -489,10 +515,15 @@ const ListagemTarot = () => {
                                   </div>
                                 </div>
                                 <div className="flex gap-2 ml-0 md:ml-4">
-                                  {/* BOTÃO FINALIZAR */}
+                                  {/* Botão finalizar */}
                                   <Button
                                     size="sm"
-                                    variant={analise.finalizado ? "destructive" : "default"}
+                                    variant={analise.finalizado ? "outline" : "default"}
+                                    className={
+                                      analise.finalizado
+                                        ? "border-emerald-400 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                                        : "bg-tarot-primary text-white border-tarot-primary hover:bg-tarot-primary"
+                                    }
                                     onClick={() => handleToggleFinished(analise.id)}
                                   >
                                     {analise.finalizado ? (
@@ -501,10 +532,11 @@ const ListagemTarot = () => {
                                       <Check className="h-4 w-4" />
                                     )}
                                   </Button>
-                                  {/* BOTÃO EDITAR */}
+                                  {/* Botão editar */}
                                   <Button
                                     size="sm"
-                                    variant="secondary"
+                                    variant="outline"
+                                    className="border-[#ede9fe] text-tarot-primary hover:bg-[#ede9fe]"
                                     onClick={() => navigate(`/editar-analise-frequencial/${analise.id}`)}
                                   >
                                     <Edit3 className="h-4 w-4" />
@@ -515,6 +547,7 @@ const ListagemTarot = () => {
                                       <Button
                                         size="sm"
                                         variant="destructive"
+                                        className="border-red-200 text-red-700 bg-red-50 hover:bg-red-100"
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
