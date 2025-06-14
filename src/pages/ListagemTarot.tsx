@@ -12,7 +12,7 @@ import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
-import { Tabs } from "@/components/ui/tabs"; // Import Tabs
+import { Tabs } from "@/components/ui/tabs";
 
 const ListagemTarot = () => {
   const navigate = useNavigate();
@@ -35,70 +35,75 @@ const ListagemTarot = () => {
   const counts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-[#ede9fe] to-[#f9f7fe]">
       <DashboardHeader />
-      <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
-        {/* Alerta de prioridade e aniversariante */}
-        <TarotCounterPriorityNotifications analises={analises} />
-        {aniversarianteHoje && (
-          <div className="animate-scale-in mb-6">
-            <ClientBirthdayAlert
-              clientName={aniversarianteHoje.nome}
-              birthDate={aniversarianteHoje.dataNascimento}
-              context="tarot"
-            />
-          </div>
-        )}
+      <main className="container mx-auto px-2 sm:px-6 py-8 sm:py-12">
+        {/* Notificações e aniversariante */}
+        <div className="mb-6 animate-fade-in">
+          <TarotCounterPriorityNotifications analises={analises} />
+          {aniversarianteHoje && (
+            <div className="animate-scale-in mt-4">
+              <ClientBirthdayAlert
+                clientName={aniversarianteHoje.nome}
+                birthDate={aniversarianteHoje.dataNascimento}
+                context="tarot"
+              />
+            </div>
+          )}
+        </div>
 
         {/* Cards de estatísticas */}
-        <TarotStatsCards
-          totalAnalises={analises.length}
-          totalRecebido={recebidoStats.total}
-          totalRecebidoSemana={recebidoStats.semana}
-          totalRecebidoMes={recebidoStats.mes}
-          totalRecebidoAno={recebidoStats.ano}
-          finalizados={counts.finalizados}
-          lembretes={analises.filter((a) => a.lembretes && a.lembretes.length > 0).length}
-          selectedPeriod={"total"}
-          onPeriodChange={() => null}
-          variant="tarot"
-        />
+        <div className="mb-8">
+          <TarotStatsCards
+            totalAnalises={analises.length}
+            totalRecebido={recebidoStats.total}
+            totalRecebidoSemana={recebidoStats.semana}
+            totalRecebidoMes={recebidoStats.mes}
+            totalRecebidoAno={recebidoStats.ano}
+            finalizados={counts.finalizados}
+            lembretes={analises.filter((a) => a.lembretes && a.lembretes.length > 0).length}
+            selectedPeriod="total"
+            onPeriodChange={() => null}
+            variant="tarot"
+          />
+        </div>
 
-        <div className="space-y-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#6B21A8]">
-                Lista de Análises Frequenciais
-              </h1>
-              <p className="text-gray-600 mt-1 text-sm hidden sm:block">
-                Gerencie suas análises frequenciais, utilize os filtros para encontrar rapidamente o que busca.
-              </p>
-            </div>
-            <div className="w-full sm:w-auto">
-              <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
-            </div>
+        {/* Header igual ao dashboard principal */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 animate-fade-in">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-tarot-primary tracking-tight drop-shadow leading-tight">
+              Análises Frequenciais
+            </h1>
+            <p className="mt-1 text-gray-600 text-sm sm:text-base font-medium">
+              Gerencie suas análises frequenciais, utilize os filtros para encontrar rapidamente o que busca.
+            </p>
           </div>
+          <div className="w-full sm:w-auto flex-shrink-0">
+            <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
+          </div>
+        </div>
 
-          {/* Corrigido: Tabs envolvendo o filtro */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TarotTabsFilter
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              total={analises.length}
-              finalizados={counts.finalizados}
-              emAndamento={counts.emAndamento}
-              atencao={counts.atencao}
-            />
-          </Tabs>
+        {/* Abas de filtro */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TarotTabsFilter
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            total={analises.length}
+            finalizados={counts.finalizados}
+            emAndamento={counts.emAndamento}
+            atencao={counts.atencao}
+          />
+        </Tabs>
 
-          {/* Card de listagem com sombra e animação igual Dashboard */}
-          <Card className="bg-white/90 border border-gray-100 rounded-xl shadow-lg transition-shadow duration-200 animate-fade-in">
+        {/* Card de listagem centralizada igual Dashboard */}
+        <section className="flex flex-col items-center justify-center w-full">
+          <Card className="w-full max-w-4xl bg-white/80 border border-[#ede9fe] rounded-2xl shadow-2xl hover:shadow-[0_8px_32px_rgb(107,33,168,0.11)] transition-shadow duration-300 animate-fade-in">
             <CardContent className="px-0 sm:px-0 pt-0 pb-2">
               <div className="w-full">
                 {tabAnalises.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
                     <FileText className="h-12 w-12 text-purple-300 mb-4 animate-pulse" />
-                    <h3 className="text-lg font-medium text-gray-600 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-600 mb-2">
                       Nenhuma análise encontrada
                     </h3>
                     <p className="text-gray-500 text-center">
@@ -122,11 +127,10 @@ const ListagemTarot = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </section>
       </main>
     </div>
   );
 };
 
 export default ListagemTarot;
-
