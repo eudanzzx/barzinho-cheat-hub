@@ -353,32 +353,6 @@ const ListagemTarot = () => {
           variant="tarot"
         />
 
-        <div className="mb-6">
-          {/* Tabs/filtros de análises com estilo padronizado de botões */}
-          <div className="flex w-full gap-2 bg-white/70 border border-[#ede9fe] rounded-xl mb-6 p-1">
-            {[
-              { key: "todas", label: `Todas (${analises.length})` },
-              { key: "finalizadas", label: `Finalizadas (${finalizados})` },
-              { key: "pendentes", label: `Pendentes (${emAndamento})` },
-              { key: "atencao", label: `Atenção (${atencao})` }
-            ].map(tab => (
-              <Button
-                key={tab.key}
-                variant={activeTab === tab.key ? "default" : "outline"}
-                size="sm"
-                className={
-                  activeTab === tab.key
-                    ? "bg-tarot-primary text-white border-tarot-primary hover:bg-tarot-primary"
-                    : "border-[#ede9fe] text-tarot-primary hover:bg-[#ede9fe] w-full"
-                }
-                onClick={() => setActiveTab(tab.key)}
-                type="button"
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
-        </div>
         <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl animate-fade-in" style={{ animationDelay: '0.4s' }}>
           <CardHeader className="border-b border-[#ede9fe] pb-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
