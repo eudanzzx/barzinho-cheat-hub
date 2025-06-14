@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -36,23 +36,10 @@ const ListagemTarot = () => {
   const counts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ede9fe] via-[#f3e8ff] to-[#f8fafc] relative overflow-hidden">
-      {/* Fundo animado igual ao dashboard */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#c7d2fe]/30 to-[#ede9fe]/30 rounded-full blur-3xl animate-pulse"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-[#ddd6fe]/20 to-[#feedfa]/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#ede9fe]/10 to-[#f3e8ff]/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "4s" }}
-        ></div>
-      </div>
-
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
-
-      <main className="pt-20 p-4 animate-fade-in relative z-10 max-w-6xl mx-auto">
+      {/* Sombra e layout igual Dashboard */}
+      <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         <TarotCounterPriorityNotifications analises={analises} />
 
         {aniversarianteHoje && (
@@ -78,21 +65,20 @@ const ListagemTarot = () => {
           variant="tarot"
         />
 
-        <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl animate-fade-in" style={{ animationDelay: "0.4s" }}>
-          <CardHeader className="border-b border-[#ede9fe] pb-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#673193] to-purple-600 bg-clip-text text-transparent">
-                  Análises Frequenciais
-                </CardTitle>
-                <Badge variant="secondary" className="bg-[#e9d5ff]/30 text-[#673193] border-[#e9d5ff]/30">
-                  {analises.length} análises
-                </Badge>
-              </div>
-              <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
-            </div>
-          </CardHeader>
+        <Card className="bg-white shadow-sm border border-gray-100 rounded-xl">
           <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold text-tarot-primary">Lista de Análises Frequenciais</h2>
+                <span className="text-sm text-purple-700 bg-purple-50 px-3 py-1 rounded-full">
+                  {analises.length} análises
+                </span>
+              </div>
+              <div className="w-full md:w-auto">
+                <TarotSearchInput value={searchTerm} onChange={setSearchTerm} />
+              </div>
+            </div>
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TarotTabsFilter
                 activeTab={activeTab}
@@ -102,15 +88,17 @@ const ListagemTarot = () => {
                 emAndamento={counts.emAndamento}
                 atencao={counts.atencao}
               />
-              <TabsContent value={activeTab} className="space-y-4 animate-fade-in">
+              <TabsContent value={activeTab} className="space-y-4">
                 {tabAnalises.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <FileText className="h-16 w-16 text-[#bda3f2] mb-4 animate-pulse" />
-                    <h3 className="text-xl font-medium text-[#673193]">Nenhuma análise encontrada</h3>
-                    <p className="text-[#7c3aed]/80 mt-2">
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <FileText className="h-12 w-12 text-purple-300 mb-4 animate-pulse" />
+                    <h3 className="text-lg font-medium text-gray-600 mb-2">
+                      Nenhuma análise encontrada
+                    </h3>
+                    <p className="text-gray-500 text-center">
                       {searchTerm
-                        ? "Tente ajustar sua busca ou limpar o filtro"
-                        : "Comece criando sua primeira análise frequencial"}
+                        ? "Não há análises que correspondam à sua busca."
+                        : "Não há análises frequenciais registradas ainda."}
                     </p>
                   </div>
                 ) : (
