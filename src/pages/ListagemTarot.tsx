@@ -36,7 +36,7 @@ const ListagemTarot = () => {
   const counts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
 
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
@@ -56,10 +56,10 @@ const ListagemTarot = () => {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
                 Análises Frequenciais
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-slate-600 mt-1">
                 Gerencie suas análises frequenciais e acompanhe estatísticas
               </p>
             </div>
@@ -86,7 +86,7 @@ const ListagemTarot = () => {
                 placeholder="Buscar por nome..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full sm:w-64"
+                className="pl-10 w-full sm:w-64 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg"
               />
             </div>
           </div>
@@ -104,7 +104,7 @@ const ListagemTarot = () => {
           </Tabs>
 
           {tabAnalises.length === 0 ? (
-            <Card>
+            <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
               <CardContent className="flex flex-col items-center justify-center py-16">
                 <FileText className="h-12 w-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-600 mb-2">
@@ -118,7 +118,7 @@ const ListagemTarot = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
               <CardContent className="p-0">
                 <TarotAnalysisList
                   analises={tabAnalises}
