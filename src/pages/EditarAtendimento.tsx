@@ -107,15 +107,11 @@ const EditarAtendimento = () => {
     diaVencimento: "sexta",
   });
 
-  const diasVencimento = [
-    { value: "1", label: "Dia 1" },
-    { value: "5", label: "Dia 5" },
-    { value: "10", label: "Dia 10" },
-    { value: "15", label: "Dia 15" },
-    { value: "20", label: "Dia 20" },
-    { value: "25", label: "Dia 25" },
-    { value: "30", label: "Dia 30" },
-  ];
+  // Alterado: todos os dias do mês, de 1 a 31
+  const diasVencimento = Array.from({ length: 31 }, (_, i) => ({
+    value: String(i + 1),
+    label: `Dia ${i + 1}`,
+  }));
 
   const diasSemana = [
     { value: "domingo", label: "Domingo" },
