@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -276,17 +275,17 @@ const ListagemTarot = () => {
   const { finalizados, emAndamento, atencao } = useMemo(() => getStatusCounts(), [analises]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 relative overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-[#ede9fe] via-[#f3e8ff] to-[#f8fafc] relative overflow-hidden">
+      {/* Fundo animado igual ao dashboard */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-violet-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-300/20 to-violet-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-100/10 to-violet-100/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#c7d2fe]/30 to-[#ede9fe]/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-[#ddd6fe]/20 to-[#feedfa]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#ede9fe]/10 to-[#f3e8ff]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       <DashboardHeader />
 
-      <main className="pt-20 p-4 animate-fade-in relative z-10">
+      <main className="pt-20 p-4 animate-fade-in relative z-10 max-w-6xl mx-auto">
         <TarotCounterPriorityNotifications analises={analises} />
         
         {aniversarianteHoje && (
@@ -299,98 +298,98 @@ const ListagemTarot = () => {
           </div>
         )}
 
-        <div className="mb-8 flex items-center justify-between animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between animate-fade-in gap-4" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center gap-4">
             <div className="transform hover:scale-110 transition-all duration-300 hover:rotate-12">
               <Logo height={50} width={50} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-tarot-primary to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#673193] to-purple-600 bg-clip-text text-transparent">
                 Tarot Frequencial
               </h1>
-              <p className="text-tarot-primary/80 mt-1 opacity-80">Análises e acompanhamentos</p>
+              <p className="text-[#673193]/80 mt-1 opacity-80">Análises e acompanhamentos</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2 text-tarot-primary/60">
+          <div className="flex items-center gap-2 text-[#7c3aed]/80">
             <Sparkles className="h-5 w-5 animate-pulse" />
             <span className="text-sm font-medium">Sistema Místico</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <DashboardCard 
             title="Total Recebido" 
             value={`R$ ${getTotalValue()}`} 
-            icon={<DollarSign className="h-8 w-8 text-tarot-primary" />} 
+            icon={<DollarSign className="h-8 w-8 text-[#673193]" />} 
             delay="0s"
           />
           <DashboardCard 
             title="Total Análises" 
             value={analises.length.toString()} 
-            icon={<Users className="h-8 w-8 text-tarot-primary" />} 
+            icon={<Users className="h-8 w-8 text-[#673193]" />} 
             delay="0.1s"
           />
           <DashboardCard 
             title="Finalizados" 
             value={finalizados.toString()} 
-            icon={<CheckCircle className="h-8 w-8 text-tarot-primary" />} 
+            icon={<CheckCircle className="h-8 w-8 text-[#673193]" />} 
             delay="0.2s"
           />
           <DashboardCard 
             title="Lembretes" 
             value={analises.filter(a => a.lembretes && a.lembretes.length > 0).length.toString()} 
-            icon={<BellRing className="h-8 w-8 text-tarot-primary" />} 
+            icon={<BellRing className="h-8 w-8 text-[#673193]" />} 
             delay="0.3s"
           />
         </div>
 
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <CardHeader className="border-b border-slate-200/50 pb-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-tarot-primary to-purple-600 bg-clip-text text-transparent">
+        <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <CardHeader className="border-b border-[#ede9fe] pb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#673193] to-purple-600 bg-clip-text text-transparent">
                   Análises Frequenciais
                 </CardTitle>
-                <Badge variant="secondary" className="bg-tarot-primary/10 text-tarot-primary border-tarot-primary/20">
+                <Badge variant="secondary" className="bg-[#e9d5ff]/30 text-[#673193] border-[#e9d5ff]/30">
                   {analises.length} análises
                 </Badge>
               </div>
-              <div className="relative group">
+              <div className="relative group w-full sm:w-auto">
                 <Input 
                   type="text" 
                   placeholder="Buscar cliente..." 
-                  className="pr-10 bg-white/90 border-white/30 focus:border-tarot-primary focus:ring-tarot-primary/20 transition-all duration-300 hover:bg-white hover:shadow-lg transform hover:scale-105"
+                  className="pr-10 bg-white/80 border-[#ede9fe] focus:border-[#673193] focus:ring-[#673193]/20 transition-all duration-300 hover:bg-white hover:shadow-lg transform hover:scale-105"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-tarot-primary transition-colors duration-300" />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#bda3f2] group-hover:text-[#673193] transition-colors duration-300" />
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-white/50 border border-white/30 rounded-xl mb-6">
+              <TabsList className="grid w-full grid-cols-4 bg-white/70 border border-[#ede9fe] rounded-xl mb-6">
                 <TabsTrigger 
                   value="todas" 
-                  className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white transition-all duration-300 hover:bg-tarot-primary/10"
+                  className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10"
                 >
                   Todas ({analises.length})
                 </TabsTrigger>
                 <TabsTrigger 
                   value="finalizadas" 
-                  className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white transition-all duration-300 hover:bg-tarot-primary/10"
+                  className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10"
                 >
                   Finalizadas ({finalizados})
                 </TabsTrigger>
                 <TabsTrigger 
                   value="pendentes" 
-                  className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white transition-all duration-300 hover:bg-tarot-primary/10"
+                  className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10"
                 >
                   Pendentes ({emAndamento})
                 </TabsTrigger>
                 <TabsTrigger 
                   value="atencao" 
-                  className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white transition-all duration-300 hover:bg-tarot-primary/10"
+                  className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10"
                 >
                   Atenção ({atencao})
                 </TabsTrigger>
@@ -399,9 +398,9 @@ const ListagemTarot = () => {
               <TabsContent value={activeTab} className="space-y-4 animate-fade-in">
                 {analisesToShow.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <FileText className="h-16 w-16 text-slate-300 mb-4 animate-pulse" />
-                    <h3 className="text-xl font-medium text-slate-600">Nenhuma análise encontrada</h3>
-                    <p className="text-slate-500 mt-2">
+                    <FileText className="h-16 w-16 text-[#bda3f2] mb-4 animate-pulse" />
+                    <h3 className="text-xl font-medium text-[#673193]">Nenhuma análise encontrada</h3>
+                    <p className="text-[#7c3aed]/80 mt-2">
                       {searchTerm 
                         ? "Tente ajustar sua busca ou limpar o filtro" 
                         : "Comece criando sua primeira análise frequencial"
@@ -419,14 +418,14 @@ const ListagemTarot = () => {
                       return (
                         <div key={analise.id}>
                           <Card 
-                            className="bg-white/80 border border-white/30 hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
+                            className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
                             style={{ animationDelay: `${index * 0.1}s` }}
                           >
                             <CardContent className="p-6">
-                              <div className="flex justify-between items-start">
+                              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                                 <div className="flex-1">
-                                  <div className="flex items-center gap-3 mb-3">
-                                    <h3 className="text-lg font-semibold text-slate-800 group-hover:text-tarot-primary transition-colors duration-300 flex items-center gap-2">
+                                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                                    <h3 className="text-lg font-semibold text-[#32204a] group-hover:text-[#673193] transition-colors duration-300 flex items-center gap-2">
                                       {analise.nomeCliente}
                                       {formattedTime && (
                                         <Badge 
@@ -436,7 +435,7 @@ const ListagemTarot = () => {
                                               ? "border-red-300 text-red-600 bg-red-50" 
                                               : timeRemaining?.days === 1
                                               ? "border-amber-300 text-amber-600 bg-amber-50"
-                                              : "border-blue-300 text-blue-600 bg-blue-50"
+                                              : "border-[#bda3f2] text-[#673193] bg-[#ede9fe]/50"
                                           }`}
                                         >
                                           <Clock className="h-3 w-3" />
@@ -458,9 +457,9 @@ const ListagemTarot = () => {
                                       {analise.finalizado ? "Finalizada" : "Em andamento"}
                                     </Badge>
                                   </div>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-600">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
                                     <div className="flex items-center gap-2">
-                                      <Calendar className="h-4 w-4 text-tarot-primary" />
+                                      <Calendar className="h-4 w-4 text-[#673193]" />
                                       <span>
                                         {analise.dataInicio 
                                           ? new Date(analise.dataInicio).toLocaleDateString('pt-BR')
@@ -480,7 +479,7 @@ const ListagemTarot = () => {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex gap-2 ml-4">
+                                <div className="flex gap-2 ml-0 md:ml-4">
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -501,7 +500,7 @@ const ListagemTarot = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="border-tarot-primary/30 text-tarot-primary hover:bg-tarot-primary/10 hover:border-tarot-primary transition-all duration-300 hover:scale-105"
+                                    className="border-[#a78bfa] text-[#673193] hover:bg-[#ede9fe]/50 hover:border-[#9f69b8] transition-all duration-300 hover:scale-105"
                                     onClick={() => navigate(`/editar-analise-frequencial/${analise.id}`)}
                                   >
                                     <Edit3 className="h-4 w-4" />
@@ -517,7 +516,7 @@ const ListagemTarot = () => {
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="bg-white/95 backdrop-blur-sm">
+                                    <AlertDialogContent className="bg-white/98 backdrop-blur-md">
                                       <AlertDialogHeader>
                                         <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                                         <AlertDialogDescription>
@@ -577,14 +576,14 @@ const ListagemTarot = () => {
 };
 
 const DashboardCard = ({ title, value, icon, delay = "0s" }) => (
-  <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 group hover:bg-white hover:-translate-y-2 hover:scale-105 animate-fade-in" style={{ animationDelay: delay }}>
+  <Card className="bg-white/95 backdrop-blur-lg border border-[#ede9fe] shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 group hover:bg-white hover:-translate-y-2 hover:scale-105 animate-fade-in" style={{ animationDelay: delay }}>
     <CardContent className="pt-6">
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">{title}</p>
-          <p className="text-3xl font-bold text-slate-800 group-hover:text-tarot-primary transition-colors duration-300">{value}</p>
+          <p className="text-sm font-medium text-[#6B21A8] mb-1 group-hover:text-[#7c3aed] transition-colors duration-300">{title}</p>
+          <p className="text-3xl font-bold text-[#673193] group-hover:text-[#7c3aed] transition-colors duration-300">{value}</p>
         </div>
-        <div className="rounded-xl p-3 bg-tarot-primary/10 group-hover:bg-tarot-primary/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+        <div className="rounded-xl p-3 bg-[#ede9fe]/70 group-hover:bg-[#e9d5ff]/70 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
           {icon}
         </div>
       </div>
