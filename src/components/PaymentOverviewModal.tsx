@@ -470,55 +470,60 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       clientName: group.clientName,
       hasAdditionalPayments,
       additionalCount: group.additionalPayments.length,
-      isGroupOpen
+      isGroupOpen,
+      isPrincipal: isPrincipal
     });
 
+    const handleToggle = (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      console.log('ClientPaymentGroup - Toggle clicado para:', group.clientName, 'Estado atual:', isGroupOpen, 'Novo estado:', !isGroupOpen);
+      setIsGroupOpen(!isGroupOpen);
+    };
+
     return (
-      <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800">
-                {group.clientName}
-              </span>
-              {hasAdditionalPayments && (
-                <Badge variant="secondary" className="text-xs">
-                  +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
-                </Badge>
-              )}
-            </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-800">
+              {group.clientName}
+            </span>
             {hasAdditionalPayments && (
-              <CollapsibleTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-6 w-6 p-0 hover:bg-gray-100"
-                >
-                  {isGroupOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
+              <Badge variant="secondary" className="text-xs">
+                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
+              </Badge>
             )}
           </div>
-          
-          <PaymentCard payment={group.mostUrgent} />
-          
           {hasAdditionalPayments && (
-            <CollapsibleContent className="space-y-2 mt-2">
-              {group.additionalPayments.map((payment) => (
-                <PaymentCard 
-                  key={payment.id} 
-                  payment={payment} 
-                  isAdditional={true}
-                />
-              ))}
-            </CollapsibleContent>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-6 w-6 p-0 hover:bg-gray-100"
+              onClick={handleToggle}
+            >
+              {isGroupOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
           )}
         </div>
-      </Collapsible>
+        
+        <PaymentCard payment={group.mostUrgent} />
+        
+        {hasAdditionalPayments && isGroupOpen && (
+          <div className="space-y-2 mt-2">
+            {group.additionalPayments.map((payment) => (
+              <PaymentCard 
+                key={payment.id} 
+                payment={payment} 
+                isAdditional={true}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     );
   };
 
