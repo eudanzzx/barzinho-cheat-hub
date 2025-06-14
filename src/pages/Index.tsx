@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import useUserDataService from "@/services/userDataService";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
@@ -6,29 +7,22 @@ import AtendimentosTable from "@/components/dashboard/AtendimentosTable";
 import AtendimentosCompactTable from "@/components/dashboard/AtendimentosCompactTable";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import PeriodDropdown from "@/components/dashboard/PeriodDropdown";
-import PaymentOverviewModal from "@/components/PaymentOverviewModal";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
-  Calendar, 
   Search, 
-  CreditCard,
-  Clock,
   AlertTriangle 
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index: React.FC = () => {
-  const { getAtendimentos, checkClientBirthday, getPlanos, saveAtendimentos } = useUserDataService();
+  const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useUserDataService();
   const [atendimentos, setAtendimentos] = useState<any[]>([]);
   const [filteredAtendimentos, setFilteredAtendimentos] = useState<any[]>([]);
   const [periodoVisualizacao, setPeriodoVisualizacao] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
   const [searchTerm, setSearchTerm] = useState('');
   const [aniversarianteHoje, setAniversarianteHoje] = useState<{ nome: string; dataNascimento: string } | null>(null);
-  const [upcomingPayments, setUpcomingPayments] = useState<any[]>([]);
   const isMobile = useIsMobile();
 
   const loadAtendimentos = useCallback(() => {
@@ -53,33 +47,6 @@ const Index: React.FC = () => {
       setAniversarianteHoje(null);
     }
   }, [getAtendimentos, periodoVisualizacao, searchTerm, checkClientBirthday]);
-
-  const loadUpcomingPayments = useCallback(() => {
-    const allPlanos = getPlanos();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-
-    const upcomingPlanos = allPlanos.filter(plano => {
-      if (!plano.active || plano.analysisId) return false;
-      
-      const dueDate = new Date(plano.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      
-      return dueDate >= today && dueDate <= nextWeek;
-    });
-
-    upcomingPlanos.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-    
-    setUpcomingPayments(upcomingPlanos.slice(0, 5));
-  }, [getPlanos]);
-
-  useEffect(() => {
-    loadAtendimentos();
-    loadUpcomingPayments();
-  }, [loadAtendimentos, loadUpcomingPayments]);
 
   const filterAtendimentos = (atendimentos: any[], periodo: 'semana' | 'mes' | 'ano' | 'total', searchTerm: string) => {
     const now = new Date();
@@ -118,13 +85,16 @@ const Index: React.FC = () => {
   };
 
   useEffect(() => {
+    loadAtendimentos();
+  }, [loadAtendimentos]);
+
+  useEffect(() => {
     filterAtendimentos(atendimentos, periodoVisualizacao, searchTerm);
   }, [atendimentos, periodoVisualizacao, searchTerm]);
 
   useEffect(() => {
     const handleDataUpdated = () => {
       loadAtendimentos();
-      loadUpcomingPayments();
     };
 
     window.addEventListener('atendimentosUpdated', handleDataUpdated);
@@ -134,7 +104,7 @@ const Index: React.FC = () => {
       window.removeEventListener('atendimentosUpdated', handleDataUpdated);
       window.removeEventListener('planosUpdated', handleDataUpdated);
     };
-  }, [loadAtendimentos, loadUpcomingPayments]);
+  }, [loadAtendimentos]);
 
   const calculateStats = useMemo(() => {
     const totalAtendimentos = filteredAtendimentos.length;
@@ -191,34 +161,6 @@ const Index: React.FC = () => {
     window.dispatchEvent(new Event('atendimentosUpdated'));
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  };
-
-  const getDaysUntilDue = (dueDate: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(dueDate);
-    due.setHours(0, 0, 0, 0);
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const getUrgencyColor = (daysUntilDue: number) => {
-    if (daysUntilDue === 0) return 'text-orange-600 bg-orange-50 border-orange-200';
-    if (daysUntilDue === 1) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    if (daysUntilDue <= 3) return 'text-amber-600 bg-amber-50 border-amber-200';
-    return 'text-blue-600 bg-blue-50 border-blue-200';
-  };
-
-  const getUrgencyText = (daysUntilDue: number) => {
-    if (daysUntilDue === 0) return 'Vence hoje';
-    if (daysUntilDue === 1) return 'Vence amanhã';
-    return `${daysUntilDue} dias restantes`;
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -242,78 +184,7 @@ const Index: React.FC = () => {
                 Gerencie seus atendimentos e acompanhe estatísticas
               </p>
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2">
-              <PaymentOverviewModal context="principal">
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Ver Todos os Vencimentos
-                </Button>
-              </PaymentOverviewModal>
-            </div>
           </div>
-
-          {upcomingPayments.length > 0 && (
-            <Card className="border-blue-200 bg-blue-50/30">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-blue-800">
-                  <Calendar className="h-5 w-5" />
-                  Próximos Vencimentos
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-600 border-blue-200">
-                    {upcomingPayments.length} {upcomingPayments.length === 1 ? 'vencimento' : 'vencimentos'}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {upcomingPayments.map((payment) => {
-                    const daysUntilDue = getDaysUntilDue(payment.dueDate);
-                    const urgencyColor = getUrgencyColor(daysUntilDue);
-                    
-                    return (
-                      <div
-                        key={payment.id}
-                        className={`p-4 rounded-lg border transition-all duration-200 ${urgencyColor}`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            {payment.type === 'plano' ? (
-                              <CreditCard className="h-4 w-4" />
-                            ) : (
-                              <Clock className="h-4 w-4" />
-                            )}
-                            <span className="font-semibold text-slate-800">
-                              {payment.clientName}
-                            </span>
-                            <Badge 
-                              variant="outline" 
-                              className={`${urgencyColor} font-medium text-xs`}
-                            >
-                              {payment.type === 'plano' ? 'Mensal' : 'Semanal'}
-                            </Badge>
-                          </div>
-                          <span className="text-lg font-bold text-green-600">
-                            R$ {payment.amount.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-3 w-3" />
-                            <span className="font-medium">
-                              {formatDate(payment.dueDate)}
-                            </span>
-                          </div>
-                          <span className="font-medium">
-                            {getUrgencyText(daysUntilDue)}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           <DashboardStats 
             totalAtendimentos={calculateStats.totalAtendimentos}
