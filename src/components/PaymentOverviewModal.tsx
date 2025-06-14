@@ -467,23 +467,26 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
 
   // Handler para expand/collapse
   const toggleExpandClient = useCallback((clientName: string) => {
-    setExpandedClients((prev) =>
-      prev.includes(clientName)
-        ? prev.filter((c) => c !== clientName)
-        : [...prev, clientName]
-    );
+    setExpandedClients((prev) => {
+      const isExpanding = !prev.includes(clientName);
+      console.log(
+        "[PaymentOverviewModal] Clique na setinha para '",
+        clientName,
+        "' - Vai", isExpanding ? "abrir" : "fechar"
+      );
+      return isExpanding
+        ? [...prev, clientName]
+        : prev.filter((c) => c !== clientName)
+    });
   }, []);
 
   const ClientPaymentGroup = ({ group, isPrincipal, expanded, onToggleExpand }: { group: GroupedPayment; isPrincipal: boolean; expanded: boolean; onToggleExpand: (clientName: string) => void }) => {
     const hasAdditionalPayments = group.additionalPayments.length > 0;
 
-    console.log('ClientPaymentGroup - Renderizando grupo:', {
-      clientName: group.clientName,
-      hasAdditionalPayments,
-      additionalCount: group.additionalPayments.length,
-      expanded,
-      isPrincipal: isPrincipal
-    });
+    // Log de renderização do painel expandido
+    if (hasAdditionalPayments && expanded) {
+      console.log("[PaymentOverviewModal] Renderizando lista expandida do cliente:", group.clientName, group.additionalPayments);
+    }
 
     return (
       <div className="space-y-2">
@@ -503,7 +506,11 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
               variant="ghost" 
               size="sm" 
               className="h-6 w-6 p-0 hover:bg-gray-100"
-              onClick={() => onToggleExpand(group.clientName)}
+              onClick={() => {
+                console.log("[PaymentOverviewModal] Clique no botão setinha de", group.clientName);
+                onToggleExpand(group.clientName)
+              }}
+              aria-label={expanded ? "Fechar vencimentos do cliente" : "Abrir vencimentos do cliente"}
             >
               {expanded ? (
                 <ChevronDown className="h-4 w-4" />
@@ -516,6 +523,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         
         <PaymentCard payment={group.mostUrgent} />
         
+        {/* Lista de pagamentos adicionais se expandido */}
         {hasAdditionalPayments && expanded && (
           <div className="space-y-2 mt-2">
             {group.additionalPayments.map((payment) => (
