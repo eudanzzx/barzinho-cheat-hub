@@ -24,8 +24,8 @@ const periodLabels = {
 
 // Cores principais do tarot (roxo)
 const mainColor = "#673193";
-const bgCard = "bg-[#f3e8ff]"; // roxo claro, mantendo leveza semelhante ao azul claro
-const borderCard = "border-[#bda3f2]"; // roxo bem suave
+const bgCard = "bg-[#f3e8ff]";
+const borderCard = "border-[#bda3f2]";
 
 const iconColor = mainColor;
 
@@ -55,30 +55,37 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Botões de período */}
-      <div className="flex gap-2 mb-4">
-        {(["semana", "mes", "ano", "total"] as const).map((per) => (
+      {/* Botões de período redesenhados no mesmo estilo (tabs) do dashboard */}
+      <div className="flex w-full md:w-fit items-center mb-4 rounded-lg bg-white/80 border border-[#ede9fe] overflow-x-auto">
+        {(["semana", "mes", "ano", "total"] as const).map((per, idx) => (
           <button
             key={per}
             type="button"
             aria-pressed={selectedPeriod === per}
             onClick={() => onPeriodChange(per)}
             className={`
-              min-w-[94px] max-w-fit px-5 py-2 rounded-lg font-semibold border
-              bg-[#f3e8ff] border-[#bda3f2] text-[#673193] shadow-sm
-              transition-all duration-150 text-sm
-              focus:outline-none 
-              ${selectedPeriod === per
-                ? "ring-2 ring-[#a21caf] font-bold bg-[#ede9fe] scale-[1.05]"
-                : "hover:bg-[#ede9fe]/80 hover:border-[#a21caf]"}
+              min-w-[88px] w-full md:w-auto 
+              py-2 px-3 text-sm 
+              font-medium 
+              transition-all duration-150
+              border-0 outline-none
+              bg-transparent
+              ${selectedPeriod === per 
+                ? "bg-[#673193] text-white font-semibold shadow-sm"
+                : "text-[#673193] hover:bg-[#ede9fe] hover:text-[#573282]"}
+              ${idx === 0 ? "rounded-l-lg" : ""}
+              ${idx === 3 ? "rounded-r-lg" : ""}
             `}
+            style={{
+              borderRight: idx !== 3 ? "1px solid #ede9fe" : "none", // Divider para os interiores
+            }}
           >
             {periodLabels[per]}
           </button>
         ))}
       </div>
 
-      {/* Cards no estilo da sua referência, só que usando tons de roxo */}
+      {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recebido */}
         <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
