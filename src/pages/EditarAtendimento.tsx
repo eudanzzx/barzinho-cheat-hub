@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
@@ -66,7 +65,10 @@ const EditarAtendimento = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [atendimento, setAtendimento] = useState<Atendimento | null>(null);
-  
+
+  // Adiciona um ref para armazenar se os dados do atendimento já foram carregados
+  const hasLoadedData = useRef(false);
+
   // Individual form states for better control
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
@@ -145,41 +147,45 @@ const EditarAtendimento = () => {
         
         if (atendimentoEncontrado) {
           setAtendimento(atendimentoEncontrado);
-          setNome(atendimentoEncontrado.nome || "");
-          setDataNascimento(atendimentoEncontrado.dataNascimento || "");
-          setTipoServico(atendimentoEncontrado.tipoServico || "");
-          setStatusPagamento(atendimentoEncontrado.statusPagamento || "");
-          setDataAtendimento(atendimentoEncontrado.dataAtendimento || "");
-          setValor(atendimentoEncontrado.valor || "");
-          setDestino(atendimentoEncontrado.destino || "");
-          setAno(atendimentoEncontrado.ano || "");
-          setAtencaoNota(atendimentoEncontrado.atencaoNota || "");
-          setDetalhes(atendimentoEncontrado.detalhes || "");
-          setTratamento(atendimentoEncontrado.tratamento || "");
-          setIndicacao(atendimentoEncontrado.indicacao || "");
-          setSigno(atendimentoEncontrado.signo || "");
-          setAtencaoFlag(Boolean(atendimentoEncontrado.atencaoFlag));
-          
-          // Carregar dados dos planos se existirem
-          setPlanoAtivo(Boolean(atendimentoEncontrado.planoAtivo));
-          setSemanalAtivo(Boolean(atendimentoEncontrado.semanalAtivo));
-          
-          if (atendimentoEncontrado.planoData) {
-            setPlanoData({
-              meses: atendimentoEncontrado.planoData.meses || "",
-              valorMensal: atendimentoEncontrado.planoData.valorMensal || "",
-              diaVencimento: atendimentoEncontrado.planoData.diaVencimento || "5",
-            });
+
+          // Só inicializa estados SE ainda não carregou antes (flag)
+          if (!hasLoadedData.current) {
+            setNome(atendimentoEncontrado.nome || "");
+            setDataNascimento(atendimentoEncontrado.dataNascimento || "");
+            setTipoServico(atendimentoEncontrado.tipoServico || "");
+            setStatusPagamento(atendimentoEncontrado.statusPagamento || "");
+            setDataAtendimento(atendimentoEncontrado.dataAtendimento || "");
+            setValor(atendimentoEncontrado.valor || "");
+            setDestino(atendimentoEncontrado.destino || "");
+            setAno(atendimentoEncontrado.ano || "");
+            setAtencaoNota(atendimentoEncontrado.atencaoNota || "");
+            setDetalhes(atendimentoEncontrado.detalhes || "");
+            setTratamento(atendimentoEncontrado.tratamento || "");
+            setIndicacao(atendimentoEncontrado.indicacao || "");
+            setSigno(atendimentoEncontrado.signo || "");
+            setAtencaoFlag(Boolean(atendimentoEncontrado.atencaoFlag));
+            setPlanoAtivo(Boolean(atendimentoEncontrado.planoAtivo));
+            setSemanalAtivo(Boolean(atendimentoEncontrado.semanalAtivo));
+
+            if (atendimentoEncontrado.planoData) {
+              setPlanoData({
+                meses: atendimentoEncontrado.planoData.meses || "",
+                valorMensal: atendimentoEncontrado.planoData.valorMensal || "",
+                diaVencimento: atendimentoEncontrado.planoData.diaVencimento || "5",
+              });
+            }
+
+            if (atendimentoEncontrado.semanalData) {
+              setSemanalData({
+                semanas: atendimentoEncontrado.semanalData.semanas || "",
+                valorSemanal: atendimentoEncontrado.semanalData.valorSemanal || "",
+                diaVencimento: atendimentoEncontrado.semanalData.diaVencimento || "sexta",
+              });
+            }
+
+            hasLoadedData.current = true; // Marca como carregado
           }
-          
-          if (atendimentoEncontrado.semanalData) {
-            setSemanalData({
-              semanas: atendimentoEncontrado.semanalData.semanas || "",
-              valorSemanal: atendimentoEncontrado.semanalData.valorSemanal || "",
-              diaVencimento: atendimentoEncontrado.semanalData.diaVencimento || "sexta",
-            });
-          }
-          
+
           console.log('EditarAtendimento - Dados carregados com sucesso');
         } else {
           console.error('Atendimento não encontrado com ID:', id);
@@ -196,7 +202,9 @@ const EditarAtendimento = () => {
     };
 
     carregarAtendimento();
-  }, [id, navigate, getAtendimentos]);
+    // Só precisa rodar na montagem (e não toda vez que id muda), mas mantemos id/getAtendimentos por garantia
+    // eslint-disable-next-line
+  }, [id, getAtendimentos]);
 
   const checkIfBirthday = (birthDate: string) => {
     const today = new Date();
