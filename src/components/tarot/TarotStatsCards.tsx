@@ -22,12 +22,9 @@ const periodLabels = {
   total: "Total",
 };
 
-// Cores principais do tarot (roxo)
 const mainColor = "#673193";
 const bgCard = "bg-[#f3e8ff]";
 const borderCard = "border-[#bda3f2]";
-
-const iconColor = mainColor;
 
 const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
   totalAnalises,
@@ -55,7 +52,7 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Botões de período redesenhados no mesmo estilo (tabs) do dashboard */}
+      {/* Botões de período */}
       <div className="flex w-full md:w-fit items-center mb-4 rounded-lg bg-white/80 border border-[#ede9fe] overflow-x-auto">
         {(["semana", "mes", "ano", "total"] as const).map((per, idx) => (
           <button
@@ -77,7 +74,7 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
               ${idx === 3 ? "rounded-r-lg" : ""}
             `}
             style={{
-              borderRight: idx !== 3 ? "1px solid #ede9fe" : "none", // Divider para os interiores
+              borderRight: idx !== 3 ? "1px solid #ede9fe" : "none",
             }}
           >
             {periodLabels[per]}
@@ -85,48 +82,56 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
         ))}
       </div>
 
-      {/* Cards */}
+      {/* Cards no estilo mais compacto do Dashboard, só trocando cores */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recebido */}
-        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
-          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+        <Card className={`border ${borderCard} rounded-2xl ${bgCard} shadow-sm transition-all duration-200`}>
+          <CardContent className="p-4 flex flex-row items-center justify-between min-h-[88px]">
             <div>
-              <div className="text-sm text-[#673193] mb-1">Recebido</div>
-              <div className="text-[1.5rem] font-bold text-[#673193]">
+              <div className="text-sm font-medium text-[#6B21A8] mb-1">Recebido</div>
+              <div className="text-xl md:text-2xl font-bold text-[#673193]">
                 R$ {getRecebido().toFixed(2)}
               </div>
             </div>
-            <DollarSign className="w-7 h-7 text-[#673193]" />
+            <div className="rounded-xl p-2 bg-[#ede9fe]/70">
+              <DollarSign className="w-6 h-6 md:w-7 md:h-7 text-[#673193]" />
+            </div>
           </CardContent>
         </Card>
         {/* Total Análises */}
-        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
-          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+        <Card className={`border ${borderCard} rounded-2xl ${bgCard} shadow-sm transition-all duration-200`}>
+          <CardContent className="p-4 flex flex-row items-center justify-between min-h-[88px]">
             <div>
-              <div className="text-sm text-[#673193] mb-1">Total Análises</div>
-              <div className="text-[1.5rem] font-bold text-[#673193]">{totalAnalises}</div>
+              <div className="text-sm font-medium text-[#6B21A8] mb-1">Total Análises</div>
+              <div className="text-xl md:text-2xl font-bold text-[#673193]">{totalAnalises}</div>
             </div>
-            <Users className="w-7 h-7 text-[#673193]" />
+            <div className="rounded-xl p-2 bg-[#ede9fe]/70">
+              <Users className="w-6 h-6 md:w-7 md:h-7 text-[#673193]" />
+            </div>
           </CardContent>
         </Card>
         {/* Finalizados */}
-        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
-          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+        <Card className={`border ${borderCard} rounded-2xl ${bgCard} shadow-sm transition-all duration-200`}>
+          <CardContent className="p-4 flex flex-row items-center justify-between min-h-[88px]">
             <div>
-              <div className="text-sm text-[#673193] mb-1">Finalizados</div>
-              <div className="text-[1.5rem] font-bold text-[#673193]">{finalizados}</div>
+              <div className="text-sm font-medium text-[#6B21A8] mb-1">Finalizados</div>
+              <div className="text-xl md:text-2xl font-bold text-[#673193]">{finalizados}</div>
             </div>
-            <CheckCircle className="w-7 h-7 text-[#673193]" />
+            <div className="rounded-xl p-2 bg-[#ede9fe]/70">
+              <CheckCircle className="w-6 h-6 md:w-7 md:h-7 text-[#673193]" />
+            </div>
           </CardContent>
         </Card>
         {/* Lembretes */}
-        <Card className={`rounded-xl ${bgCard} border ${borderCard} shadow-sm`}>
-          <CardContent className="py-5 px-6 flex flex-row items-center justify-between">
+        <Card className={`border ${borderCard} rounded-2xl ${bgCard} shadow-sm transition-all duration-200`}>
+          <CardContent className="p-4 flex flex-row items-center justify-between min-h-[88px]">
             <div>
-              <div className="text-sm text-[#673193] mb-1">Lembretes</div>
-              <div className="text-[1.5rem] font-bold text-[#673193]">{lembretes}</div>
+              <div className="text-sm font-medium text-[#6B21A8] mb-1">Lembretes</div>
+              <div className="text-xl md:text-2xl font-bold text-[#673193]">{lembretes}</div>
             </div>
-            <BellRing className="w-7 h-7 text-[#673193]" />
+            <div className="rounded-xl p-2 bg-[#ede9fe]/70">
+              <BellRing className="w-6 h-6 md:w-7 md:h-7 text-[#673193]" />
+            </div>
           </CardContent>
         </Card>
       </div>
