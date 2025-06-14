@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -464,55 +463,63 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
   };
 
   const ClientPaymentGroup = ({ group, isPrincipal }: { group: GroupedPayment; isPrincipal: boolean }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isGroupOpen, setIsGroupOpen] = useState(false);
     const hasAdditionalPayments = group.additionalPayments.length > 0;
 
+    console.log('ClientPaymentGroup - Renderizando grupo:', {
+      clientName: group.clientName,
+      hasAdditionalPayments,
+      additionalCount: group.additionalPayments.length,
+      isGroupOpen
+    });
+
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800">
-                {group.clientName}
-              </span>
-              {hasAdditionalPayments && (
-                <Badge variant="secondary" className="text-xs">
-                  +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
-                </Badge>
-              )}
-            </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-800">
+              {group.clientName}
+            </span>
             {hasAdditionalPayments && (
+              <Badge variant="secondary" className="text-xs">
+                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
+          {hasAdditionalPayments && (
+            <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
               <CollapsibleTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                  onClick={() => {
+                    console.log('Botão clicado, mudando estado de:', isGroupOpen, 'para:', !isGroupOpen);
+                    setIsGroupOpen(!isGroupOpen);
+                  }}
                 >
-                  {isOpen ? (
+                  {isGroupOpen ? (
                     <ChevronDown className="h-4 w-4" />
                   ) : (
                     <ChevronRight className="h-4 w-4" />
                   )}
                 </Button>
               </CollapsibleTrigger>
-            )}
-          </div>
-          
-          <PaymentCard payment={group.mostUrgent} />
-          
-          {hasAdditionalPayments && (
-            <CollapsibleContent className="space-y-2">
-              {group.additionalPayments.map((payment) => (
-                <PaymentCard 
-                  key={payment.id} 
-                  payment={payment} 
-                  isAdditional={true}
-                />
-              ))}
-            </CollapsibleContent>
+              <CollapsibleContent className="space-y-2 mt-2">
+                {group.additionalPayments.map((payment) => (
+                  <PaymentCard 
+                    key={payment.id} 
+                    payment={payment} 
+                    isAdditional={true}
+                  />
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
           )}
         </div>
-      </Collapsible>
+        
+        <PaymentCard payment={group.mostUrgent} />
+      </div>
     );
   };
 
