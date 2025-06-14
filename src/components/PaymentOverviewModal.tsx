@@ -505,20 +505,25 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                   )}
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-2">
-                {group.additionalPayments.map((payment) => (
-                  <PaymentCard 
-                    key={payment.id} 
-                    payment={payment} 
-                    isAdditional={true}
-                  />
-                ))}
-              </CollapsibleContent>
             </Collapsible>
           )}
         </div>
         
         <PaymentCard payment={group.mostUrgent} />
+        
+        {hasAdditionalPayments && (
+          <Collapsible open={isGroupOpen} onOpenChange={setIsGroupOpen}>
+            <CollapsibleContent className="space-y-2 mt-2">
+              {group.additionalPayments.map((payment) => (
+                <PaymentCard 
+                  key={payment.id} 
+                  payment={payment} 
+                  isAdditional={true}
+                />
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </div>
     );
   };
