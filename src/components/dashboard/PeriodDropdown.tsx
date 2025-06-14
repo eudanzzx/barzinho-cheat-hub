@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Select,
@@ -23,33 +22,48 @@ const PERIODS = [
 ];
 
 const styleVariants = {
-  tarot: "bg-[#f3e8ff] border border-[#bda3f2] text-[#6B21A8] font-semibold text-[11px] h-6 px-2 py-0 rounded-md shadow-sm focus:ring-1 focus:ring-[#bda3f2] hover:bg-[#ede9fe] transition-all duration-150 min-w-[4.5rem]",
-  main: "bg-main-accent border border-main-primary text-main-primary font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-main-primary hover:bg-main-primary hover:text-white transition-all duration-150 min-w-[7rem]",
+  tarot:
+    "bg-[#ede9fe] border border-[#673193] text-[#673193] font-bold text-[15px] h-9 px-6 py-0 rounded-xl shadow-sm focus:ring-2 focus:ring-[#d1b2f8] hover:bg-[#e9d5ff]/80 transition-all duration-150 min-w-[6.5rem]",
+  main:
+    "bg-main-accent border border-main-primary text-main-primary font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-main-primary hover:bg-main-primary hover:text-white transition-all duration-150 min-w-[7rem]",
 };
 
 const iconVariants = {
-  tarot: "h-3 w-3 text-[#6B21A8] ml-[2px]",
+  tarot: "h-5 w-5 text-[#673193] ml-2",
   main: "h-5 w-5 text-main-primary ml-1 group-hover:text-white transition-colors",
 };
 
 const itemVariants = {
-  tarot: "font-medium text-[#6B21A8] data-[state=checked]:bg-[#f3e8ff] rounded cursor-pointer text-[11px] h-7 px-2",
-  main: "font-medium text-main-primary data-[state=checked]:bg-main-accent rounded cursor-pointer text-sm h-9 px-4",
+  tarot:
+    "font-semibold text-[#673193] data-[state=checked]:bg-[#ede9fe] rounded cursor-pointer text-[15px] h-9 px-4",
+  main:
+    "font-medium text-main-primary data-[state=checked]:bg-main-accent rounded cursor-pointer text-sm h-9 px-4",
 };
 
 const PeriodDropdown: React.FC<PeriodDropdownProps> = ({
   selectedPeriod,
   onPeriodChange,
-  variant = "tarot"
+  variant = "tarot",
 }) => {
   return (
     <Select value={selectedPeriod} onValueChange={onPeriodChange}>
-      <SelectTrigger className={styleVariants[variant] + " flex gap-1 items-center group"}>
+      <SelectTrigger
+        className={
+          styleVariants[variant] +
+          " flex gap-2 items-center group justify-between"
+        }
+      >
         <SelectValue />
         <ArrowDown className={iconVariants[variant]} />
       </SelectTrigger>
-      <SelectContent className={`z-[100] bg-white rounded-lg border shadow-lg ${variant === "main" ? "border-main-primary min-w-[7rem]" : "border-[#bda3f2] min-w-[6rem]"}`}>
-        {PERIODS.map(period => (
+      <SelectContent
+        className={`z-[100] bg-white rounded-lg border shadow-lg ${
+          variant === "main"
+            ? "border-main-primary min-w-[7rem]"
+            : "border-[#673193] min-w-[6.5rem]"
+        }`}
+      >
+        {PERIODS.map((period) => (
           <SelectItem
             key={period.value}
             value={period.value}
