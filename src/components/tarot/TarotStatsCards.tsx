@@ -49,34 +49,31 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Seleção de período com exato estilo do dashboard, mas mantendo cor do tarot*/}
-      <div className="flex gap-2 mb-3">
+      {/* Botões de período - agora NESTE estilo: fundo claro, borda e shadow sutil, cor do tarot */}
+      <div className="flex gap-2 mb-4">
         {(["semana", "mes", "ano", "total"] as const).map((per) => (
-          <Button
+          <button
             key={per}
-            size="sm"
-            variant="outline"
-            className={
-              // Estilo exato do dashboard: sombra leve, fundo branco, borda roxa quando selecionado, efeito elegante
-              `rounded-xl font-semibold shadow-sm px-4 py-2 border transition-all duration-200
+            type="button"
+            onClick={() => onPeriodChange(per)}
+            className={`
+              px-4 py-2 rounded-lg font-semibold border transition-all duration-150 text-sm min-w-[80px]
               ${
                 selectedPeriod === per
-                  ? "bg-tarot-primary text-white border-tarot-primary shadow-tarot-primary/20 shadow-lg scale-105"
-                  : "bg-white text-tarot-primary border-[#ede9fe] hover:bg-[#ede9fe]/80 hover:border-tarot-primary hover:text-tarot-primary"
+                  ? "bg-[#ede9fe] border-tarot-primary text-tarot-primary"
+                  : "bg-white border-[#ede9fe] text-tarot-primary hover:bg-[#f7f5fc]"
               }
-              `
-            }
-            onClick={() => onPeriodChange(per)}
-            type="button"
+              shadow-sm
+              `}
             style={{
               boxShadow:
                 selectedPeriod === per
-                  ? "0 4px 20px 0 rgba(103,49,147,0.08)"
-                  : "0 1px 3px 0 rgba(103,49,147,0.03)",
+                  ? "0 2px 8px 0 rgba(103,49,147,0.09)"
+                  : "0 1px 3px 0 rgba(103,49,147,0.04)",
             }}
           >
             {periodLabels[per]}
-          </Button>
+          </button>
         ))}
       </div>
       {/* Cards */}
