@@ -12,6 +12,7 @@ import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
+import { Tabs } from "@/components/ui/tabs"; // Import Tabs
 
 const ListagemTarot = () => {
   const navigate = useNavigate();
@@ -63,7 +64,6 @@ const ListagemTarot = () => {
           variant="tarot"
         />
 
-        {/* Header igual ao dashboard principal */}
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
@@ -79,15 +79,17 @@ const ListagemTarot = () => {
             </div>
           </div>
 
-          {/* Abas de filtro */}
-          <TarotTabsFilter
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            total={analises.length}
-            finalizados={counts.finalizados}
-            emAndamento={counts.emAndamento}
-            atencao={counts.atencao}
-          />
+          {/* Corrigido: Tabs envolvendo o filtro */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TarotTabsFilter
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              total={analises.length}
+              finalizados={counts.finalizados}
+              emAndamento={counts.emAndamento}
+              atencao={counts.atencao}
+            />
+          </Tabs>
 
           {/* Card de listagem com sombra e animação igual Dashboard */}
           <Card className="bg-white/90 border border-gray-100 rounded-xl shadow-lg transition-shadow duration-200 animate-fade-in">
