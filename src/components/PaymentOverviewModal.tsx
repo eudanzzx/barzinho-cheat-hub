@@ -536,7 +536,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
             <div className="text-xs text-red-800 font-bold mb-2 uppercase">
               [DEBUG] Lista expandida aberta para {group.clientName}
             </div>
-            {console.log('[DEBUG] Bloco visível mais interno do expandido!', group.clientName, group.additionalPayments)}
             {group.additionalPayments.map((payment) => (
               <PaymentCard 
                 key={payment.id} 
