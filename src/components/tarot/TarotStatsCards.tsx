@@ -46,27 +46,29 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Dropdown de período centralizado e com tamanho fixo */}
-      <div className="w-full flex justify-center mb-4 mt-2">
-        <PeriodDropdown
-          selectedPeriod={selectedPeriod}
-          onPeriodChange={onPeriodChange}
-          variant="tarot"
-        />
-      </div>
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recebido */}
         <Card className={`border ${borderCard} rounded-2xl ${bgCard} shadow-sm transition-all duration-200`}>
-          <CardContent className="p-3 flex flex-row items-center justify-between min-h-[78px]">
-            <div>
-              <div className="text-xs font-medium text-[#6B21A8] mb-1">Recebido</div>
-              <div className="text-lg md:text-xl font-bold text-[#673193]">
-                R$ {getRecebido().toFixed(2)}
+          <CardContent className="p-3 flex flex-col space-y-2 min-h-[78px] items-start justify-between">
+            <div className="w-full flex flex-row items-center justify-between">
+              <div>
+                <div className="text-xs font-medium text-[#6B21A8] mb-1">Recebido</div>
+                <div className="text-lg md:text-xl font-bold text-[#673193]">
+                  R$ {getRecebido().toFixed(2)}
+                </div>
+              </div>
+              <div className="rounded-xl p-1.5 bg-[#ede9fe]/70">
+                <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-[#673193]" />
               </div>
             </div>
-            <div className="rounded-xl p-1.5 bg-[#ede9fe]/70">
-              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-[#673193]" />
+            {/* Dropdown de período: mesmíssimo tamanho e estilo do botão "main" */}
+            <div className="w-full mt-1">
+              <PeriodDropdown
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={onPeriodChange}
+                variant="main"
+              />
             </div>
           </CardContent>
         </Card>
