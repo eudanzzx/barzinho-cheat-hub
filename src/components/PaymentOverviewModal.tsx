@@ -469,28 +469,27 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
 
   // Handler para expand/collapse usando nome normalizado
-  const toggleExpandClient = useCallback((clientName: string) => {
-    const normalized = normalizeClientName(clientName);
+  const toggleExpandClient = useCallback((normalizedClientName: string) => {
     setExpandedClients((prev) => {
-      const isExpanding = !prev.includes(normalized);
-      console.log(
-        "[PaymentOverviewModal] Clique na setinha para '",
-        clientName,
-        "' (normalizado:", normalized, ")- Vai", isExpanding ? "abrir" : "fechar"
-      );
+      const isExpanding = !prev.includes(normalizedClientName);
       return isExpanding
-        ? [...prev, normalized]
-        : prev.filter((c) => c !== normalized)
+        ? [...prev, normalizedClientName]
+        : prev.filter((c) => c !== normalizedClientName)
     });
   }, []);
 
-  const ClientPaymentGroup = ({ group, isPrincipal, expanded, onToggleExpand }: { group: GroupedPayment; isPrincipal: boolean; expanded: boolean; onToggleExpand: (clientName: string) => void }) => {
+  const ClientPaymentGroup = ({
+    group,
+    isPrincipal,
+    expanded,
+    onToggleExpand
+  }: {
+    group: GroupedPayment;
+    isPrincipal: boolean;
+    expanded: boolean;
+    onToggleExpand: (normalizedClientName: string) => void;
+  }) => {
     const hasAdditionalPayments = group.additionalPayments.length > 0;
-
-    // Log de renderização do painel expandido
-    if (hasAdditionalPayments && expanded) {
-      console.log("[DEBUG] Renderizando lista expandida do cliente:", group.clientName, group.additionalPayments);
-    }
 
     return (
       <div className="space-y-2">
@@ -511,8 +510,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
               size="sm" 
               className="h-6 w-6 p-0 hover:bg-gray-100"
               onClick={() => {
-                console.log("[PaymentOverviewModal] Clique no botão setinha de", group.clientName);
-                onToggleExpand(group.clientName)
+                onToggleExpand(normalizeClientName(group.clientName))
               }}
               aria-label={expanded ? "Fechar vencimentos do cliente" : "Abrir vencimentos do cliente"}
             >
