@@ -7,12 +7,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ArrowDown } from "lucide-react";
 
 interface PeriodDropdownProps {
   selectedPeriod: 'semana' | 'mes' | 'ano' | 'total';
   onPeriodChange: (period: 'semana' | 'mes' | 'ano' | 'total') => void;
-  variant?: "main" | "tarot"; // Adicionando variante
+  variant?: "main" | "tarot";
 }
 
 const PERIODS = [
@@ -22,17 +21,12 @@ const PERIODS = [
   { value: 'total', label: 'Total' },
 ];
 
+// Mantém o azul só no main, tarot sempre roxo
 const styleVariants = {
   main:
     "bg-main-accent border border-main-primary text-main-primary font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-main-primary hover:bg-main-primary hover:text-white transition-all duration-150 min-w-[7rem]",
   tarot:
-    // Todas as cores em roxo, usando as variáveis do tema tarot para garantir consistência!
     "bg-tarot-accent border border-tarot-primary text-tarot-primary font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-tarot-primary hover:bg-tarot-primary hover:text-white transition-all duration-150 min-w-[7rem]",
-};
-
-const iconVariants = {
-  main: "h-5 w-5 text-main-primary ml-1 group-hover:text-white transition-colors",
-  tarot: "h-5 w-5 text-tarot-primary ml-1 group-hover:text-white transition-colors",
 };
 
 const itemVariants = {
@@ -55,8 +49,8 @@ const PeriodDropdown: React.FC<PeriodDropdownProps> = ({
           " flex gap-2 items-center group justify-between"
         }
       >
-        <SelectValue className="font-bold"/>
-        <ArrowDown className={iconVariants[variant]} />
+        <SelectValue className="font-bold" />
+        {/* Ícone removido */}
       </SelectTrigger>
       <SelectContent
         className={`z-[100] bg-white rounded-lg border shadow-lg 
@@ -80,3 +74,4 @@ const PeriodDropdown: React.FC<PeriodDropdownProps> = ({
 };
 
 export default PeriodDropdown;
+
