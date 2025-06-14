@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, Users, TrendingUp } from 'lucide-react';
-// Remover import do PeriodDropdown daqui, pois não será mais usado no card diretamente
+import PeriodDropdown from "@/components/dashboard/PeriodDropdown";
 
 interface DashboardStatsProps {
   totalAtendimentos: number;
@@ -67,12 +66,12 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       {/* Dropdown principal bonito e elegante */}
       <div className="flex justify-start mb-2">
         <div className="w-fit">
-          {/* Adicionando PeriodDropdown aqui, visual destacado */}
-          {/* Novo visual será aplicado dentro de PeriodDropdown.tsx */}
-          {/*
-            Como já existe um PeriodDropdown embaixo, coloque-o aqui se precisar.
-            Se não, remova esta linha.
-          */}
+          {/* Exibir dropdown aqui no visual principal */}
+          <PeriodDropdown
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={onPeriodChange}
+            variant="main" // Define visual principal grande/azul
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
