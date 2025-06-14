@@ -3,8 +3,16 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { GroupedPayment, PlanoMensal, PlanoSemanal } from "@/types/payment";
 import PaymentCard from "./PaymentCard";
+import { PlanoMensal, PlanoSemanal } from "@/types/payment";
+
+// Definição local do tipo GroupedPayment
+interface GroupedPayment {
+  clientName: string;
+  mostUrgent: PlanoMensal | PlanoSemanal;
+  additionalPayments: (PlanoMensal | PlanoSemanal)[];
+  totalPayments: number;
+}
 
 interface ClientPaymentGroupProps {
   group: GroupedPayment;
@@ -108,3 +116,4 @@ const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
 };
 
 export default ClientPaymentGroup;
+

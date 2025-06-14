@@ -4,7 +4,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle } from "lucide-react";
 import ClientPaymentGroup from "./ClientPaymentGroup";
-import { GroupedPayment } from "@/types/payment";
+import { PlanoMensal, PlanoSemanal } from "@/types/payment";
+
+// Definição local do tipo GroupedPayment
+interface GroupedPayment {
+  clientName: string;
+  mostUrgent: PlanoMensal | PlanoSemanal;
+  additionalPayments: (PlanoMensal | PlanoSemanal)[];
+  totalPayments: number;
+}
 
 interface PaymentSectionProps {
   groupedPayments: GroupedPayment[];
@@ -87,3 +95,4 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 };
 
 export default PaymentSection;
+
