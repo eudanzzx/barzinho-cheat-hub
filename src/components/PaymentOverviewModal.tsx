@@ -481,7 +481,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       clientName: group.clientName,
       hasAdditionalPayments,
       additionalCount: group.additionalPayments.length,
-      isGroupOpen,
+      expanded,
       isPrincipal: isPrincipal
     });
 
@@ -559,7 +559,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         
         {groupedPayments.length === 0 ? (
           <div className="text-center py-6">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-slate-400" />
             <p className="text-slate-500 text-sm">{emptyMessage}</p>
           </div>
         ) : (
