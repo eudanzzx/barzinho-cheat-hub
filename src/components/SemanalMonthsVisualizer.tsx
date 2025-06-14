@@ -3,12 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Check, X, Bell, BellOff, Trash2, ChevronDown } from "lucide-react";
+import { Calendar, Check, X, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
-import PaymentNotificationsButton from "@/components/PaymentNotificationsButton";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,6 @@ interface SemanalWeek {
   isPaid: boolean;
   dueDate: string;
   semanalId?: string;
-  notificationEnabled?: boolean;
 }
 
 const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atendimento }) => {
@@ -85,8 +83,7 @@ const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atend
         week: index + 1,
         isPaid: semanalForWeek ? !semanalForWeek.active : false,
         dueDate: weekDay.toISOString().split('T')[0],
-        semanalId: semanalForWeek?.id,
-        notificationEnabled: semanalForWeek ? semanalForWeek.active : false
+        semanalId: semanalForWeek?.id
       });
     });
     
@@ -100,7 +97,6 @@ const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atend
     const newIsPaid = !week.isPaid;
     
     if (week.semanalId) {
-      // Update existing plano record
       const updatedPlanos = planos.map(plano => 
         plano.id === week.semanalId 
           ? { ...plano, active: !newIsPaid }
@@ -145,54 +141,6 @@ const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atend
     );
   };
 
-  const handleNotificationToggle = (weekIndex: number) => {
-    const week = semanalWeeks[weekIndex];
-    const planos = getPlanos();
-    
-    const newNotificationEnabled = !week.notificationEnabled;
-    
-    if (week.semanalId) {
-      // Update existing plano record
-      const updatedPlanos = planos.map(plano => 
-        plano.id === week.semanalId 
-          ? { ...plano, active: newNotificationEnabled }
-          : plano
-      );
-      savePlanos(updatedPlanos);
-    } else {
-      // Create new plano record for notification
-      const newSemanal: PlanoSemanal = {
-        id: `${atendimento.id}-week-${week.week}`,
-        clientName: atendimento.nome,
-        type: 'semanal',
-        amount: parseFloat(atendimento.semanalData?.valorSemanal || '0'),
-        dueDate: week.dueDate,
-        week: week.week,
-        totalWeeks: parseInt(atendimento.semanalData?.semanas || '0'),
-        created: new Date().toISOString(),
-        active: newNotificationEnabled,
-        notificationTiming: 'on_due_date'
-      };
-      
-      const updatedPlanos = [...planos, newSemanal];
-      savePlanos(updatedPlanos);
-      
-      const updatedWeeks = [...semanalWeeks];
-      updatedWeeks[weekIndex].semanalId = newSemanal.id;
-      setSemanalWeeks(updatedWeeks);
-    }
-    
-    const updatedWeeks = [...semanalWeeks];
-    updatedWeeks[weekIndex].notificationEnabled = newNotificationEnabled;
-    setSemanalWeeks(updatedWeeks);
-    
-    toast.success(
-      newNotificationEnabled 
-        ? `Notificação ativada para a semana ${week.week}` 
-        : `Notificação desativada para a semana ${week.week}`
-    );
-  };
-
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
@@ -229,7 +177,6 @@ const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atend
   }
 
   const paidCount = semanalWeeks.filter(w => w.isPaid).length;
-  const notificationCount = semanalWeeks.filter(w => w.notificationEnabled).length;
 
   return (
     <div className="mt-4">
@@ -273,60 +220,39 @@ const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atend
               ) : (
                 <div className="space-y-3">
                   {semanalWeeks.map((week, index) => (
-                    <div key={week.week} className="flex items-center gap-4">
-                      <Button
-                        onClick={() => handlePaymentToggle(index)}
-                        variant="outline"
-                        className={`
-                          w-full p-4 h-auto flex items-center justify-between
-                          ${week.isPaid 
-                            ? 'bg-green-50 border-green-200 text-green-800' 
-                            : 'bg-red-50 border-red-200 text-red-800'
-                          }
-                        `}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-1 rounded-full ${week.isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
-                            {week.isPaid ? (
-                              <Check className="h-4 w-4" />
-                            ) : (
-                              <X className="h-4 w-4" />
-                            )}
+                    <Button
+                      key={week.week}
+                      onClick={() => handlePaymentToggle(index)}
+                      variant="outline"
+                      className={`
+                        w-full p-4 h-auto flex items-center justify-between
+                        ${week.isPaid 
+                          ? 'bg-green-50 border-green-200 text-green-800' 
+                          : 'bg-red-50 border-red-200 text-red-800'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-1 rounded-full ${week.isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                          {week.isPaid ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <X className="h-4 w-4" />
+                          )}
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">
+                            {week.week}ª Semana
                           </div>
-                          <div className="text-left">
-                            <div className="font-medium">
-                              {week.week}ª Semana
-                            </div>
-                            <div className="text-sm opacity-75">
-                              Vencimento: {formatDate(week.dueDate)}
-                            </div>
+                          <div className="text-sm opacity-75">
+                            Vencimento: {formatDate(week.dueDate)}
                           </div>
                         </div>
-                        <Badge variant={week.isPaid ? "default" : "destructive"}>
-                          {week.isPaid ? 'Pago' : 'Pendente'}
-                        </Badge>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleNotificationToggle(index)}
-                        className={`
-                          h-14 w-14 p-0 rounded-xl border-2 transition-all duration-300 hover:scale-105 shadow-sm
-                          ${week.notificationEnabled
-                            ? 'bg-blue-500 border-blue-400 text-white hover:bg-blue-600 shadow-blue-200/50'
-                            : 'bg-white border-slate-300 text-slate-400 hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50'
-                          }
-                        `}
-                        title={week.notificationEnabled ? 'Desativar notificação' : 'Ativar notificação'}
-                      >
-                        {week.notificationEnabled ? (
-                          <Bell className="h-5 w-5" />
-                        ) : (
-                          <BellOff className="h-5 w-5" />
-                        )}
-                      </Button>
-                    </div>
+                      </div>
+                      <Badge variant={week.isPaid ? "default" : "destructive"}>
+                        {week.isPaid ? 'Pago' : 'Pendente'}
+                      </Badge>
+                    </Button>
                   ))}
                 </div>
               )}
