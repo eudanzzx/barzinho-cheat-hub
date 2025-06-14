@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { DollarSign, Users, CheckCircle, BellRing } from "lucide-react";
 
 interface TarotStatsCardsProps {
@@ -49,27 +48,29 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Botões de período - agora NESTE estilo: fundo claro, borda e shadow sutil, cor do tarot */}
+      {/* Estilo fiel aos botões da dashboard, mas destaque tarot */}
       <div className="flex gap-2 mb-4">
         {(["semana", "mes", "ano", "total"] as const).map((per) => (
           <button
             key={per}
             type="button"
+            aria-pressed={selectedPeriod === per}
             onClick={() => onPeriodChange(per)}
             className={`
-              px-4 py-2 rounded-lg font-semibold border transition-all duration-150 text-sm min-w-[80px]
+              min-w-[94px] max-w-fit px-5 py-2 rounded-lg font-semibold border
+              transition-all duration-150 text-sm
+              shadow-sm focus:ring-2 focus:ring-tarot-primary/50 focus:outline-none
               ${
                 selectedPeriod === per
-                  ? "bg-[#ede9fe] border-tarot-primary text-tarot-primary"
-                  : "bg-white border-[#ede9fe] text-tarot-primary hover:bg-[#f7f5fc]"
+                  ? "bg-tarot-primary text-white border-tarot-primary shadow-[0_1px_8px_0_rgba(103,49,147,0.13)] scale-[1.03]"
+                  : "bg-white text-tarot-primary border-[#ede9fe] hover:bg-[#ede9fe]/60 hover:border-tarot-primary"
               }
-              shadow-sm
-              `}
+            `}
             style={{
               boxShadow:
                 selectedPeriod === per
-                  ? "0 2px 8px 0 rgba(103,49,147,0.09)"
-                  : "0 1px 3px 0 rgba(103,49,147,0.04)",
+                  ? "0 4px 20px 0 rgba(103,49,147,0.10)"
+                  : "0 1px 3px 0 rgba(103,49,147,0.06)",
             }}
           >
             {periodLabels[per]}
@@ -138,3 +139,4 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 };
 
 export default TarotStatsCards;
+
