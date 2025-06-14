@@ -350,6 +350,7 @@ const ListagemTarot = () => {
           lembretes={analises.filter(a => a.lembretes && a.lembretes.length > 0).length}
           selectedPeriod={periodo}
           onPeriodChange={setPeriodo}
+          variant="tarot"
         />
 
         <div className="mb-6">

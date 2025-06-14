@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, Users, CheckCircle, BellRing } from "lucide-react";
@@ -14,6 +13,7 @@ interface TarotStatsCardsProps {
   lembretes: number;
   selectedPeriod: "semana" | "mes" | "ano" | "total";
   onPeriodChange: (v: "semana" | "mes" | "ano" | "total") => void;
+  variant?: "main" | "tarot";
 }
 
 const mainColor = "#673193";
@@ -30,6 +30,7 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
   lembretes,
   selectedPeriod,
   onPeriodChange,
+  variant = "main",
 }) => {
   const getRecebido = () => {
     switch (selectedPeriod) {
@@ -67,7 +68,7 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
               <PeriodDropdown
                 selectedPeriod={selectedPeriod}
                 onPeriodChange={onPeriodChange}
-                variant="main"
+                variant={variant}
               />
             </div>
           </CardContent>
@@ -114,4 +115,3 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 };
 
 export default TarotStatsCards;
-
