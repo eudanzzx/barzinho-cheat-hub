@@ -199,6 +199,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     return generatedPayments;
   }, [getTarotAnalyses]);
 
+  // Novo util para normalizar nomes de clientes
+  const normalizeClientName = (name: string) => name.toLowerCase().trim();
+
   // Função para converter nomes dos dias em números
   const convertDayNameToNumber = (dayName: string): number => {
     const dayMap: { [key: string]: number } = {
@@ -462,21 +465,22 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     );
   };
 
-  // Novo state: manter quais clientes estão abertos
+  // Novo state: manter quais clientes estão abertos (normalizados)
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
 
-  // Handler para expand/collapse
+  // Handler para expand/collapse usando nome normalizado
   const toggleExpandClient = useCallback((clientName: string) => {
+    const normalized = normalizeClientName(clientName);
     setExpandedClients((prev) => {
-      const isExpanding = !prev.includes(clientName);
+      const isExpanding = !prev.includes(normalized);
       console.log(
         "[PaymentOverviewModal] Clique na setinha para '",
         clientName,
-        "' - Vai", isExpanding ? "abrir" : "fechar"
+        "' (normalizado:", normalized, ")- Vai", isExpanding ? "abrir" : "fechar"
       );
       return isExpanding
-        ? [...prev, clientName]
-        : prev.filter((c) => c !== clientName)
+        ? [...prev, normalized]
+        : prev.filter((c) => c !== normalized)
     });
   }, []);
 
@@ -572,15 +576,18 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
           </div>
         ) : (
           <div className="space-y-4">
-            {groupedPayments.map((group) => (
-              <ClientPaymentGroup 
-                key={group.clientName}
-                group={group}
-                isPrincipal={isPrincipal}
-                expanded={expandedClients.includes(group.clientName)}
-                onToggleExpand={toggleExpandClient}
-              />
-            ))}
+            {groupedPayments.map((group) => {
+              const normalizedName = normalizeClientName(group.clientName);
+              return (
+                <ClientPaymentGroup 
+                  key={group.clientName}
+                  group={group}
+                  isPrincipal={isPrincipal}
+                  expanded={expandedClients.includes(normalizedName)}
+                  onToggleExpand={toggleExpandClient}
+                />
+              );
+            })}
           </div>
         )}
       </div>
