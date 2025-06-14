@@ -120,7 +120,7 @@ export function useTarotAnalises() {
     const updatedAnalises = analises.map((a) =>
       a.id === id ? { ...a, finalizado: !a.finalizado } : a
     );
-    saveAllTarotAnalises(updatedAnalises);
+    saveAllTarotAnalyses(updatedAnalises); // <-- corrigido aqui!
     setAnalises(updatedAnalises);
   }
 
