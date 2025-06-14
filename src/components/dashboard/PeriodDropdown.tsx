@@ -26,6 +26,7 @@ const styleVariants: Record<'main' | 'tarot', string> = {
   main:
     "bg-main-accent border border-main-primary text-main-primary font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-main-primary hover:bg-main-primary hover:text-white transition-all duration-150 min-w-[7rem]",
   tarot:
+    // Tudo 100% roxo: bg, texto, borda, hover, focus, ring
     "bg-[#6918B4] border border-[#6918B4] text-white font-bold text-sm h-9 px-5 rounded-lg shadow focus:ring-2 focus:ring-[#6918B4] hover:bg-[#510d92] hover:text-white transition-all duration-150 min-w-[7rem]",
 };
 
@@ -33,6 +34,7 @@ const itemVariants: Record<'main' | 'tarot', string> = {
   main:
     "font-medium text-main-primary data-[state=checked]:bg-main-accent rounded cursor-pointer text-sm h-9 px-4",
   tarot:
+    // Texto roxo, selecionado fundo lilás e texto roxo forte
     "font-bold text-[#6918B4] data-[state=checked]:bg-[#E5D6F7] data-[state=checked]:text-[#6918B4] rounded cursor-pointer text-sm h-9 px-4",
 };
 
@@ -49,8 +51,12 @@ const PeriodDropdown: React.FC<PeriodDropdownProps> = ({
           " flex gap-2 items-center group justify-between"
         }
       >
-        <SelectValue className="font-bold" />
-        {/* Ícone removido */}
+        {/* Remove ícone de seta, só mostra o valor */}
+        <span className="font-bold w-full text-left select-none">
+          {
+            PERIODS.find((p) => p.value === selectedPeriod)?.label
+          }
+        </span>
       </SelectTrigger>
       <SelectContent
         className={`z-[100] bg-white rounded-lg border shadow-lg 
@@ -76,4 +82,3 @@ const PeriodDropdown: React.FC<PeriodDropdownProps> = ({
 };
 
 export default PeriodDropdown;
-
