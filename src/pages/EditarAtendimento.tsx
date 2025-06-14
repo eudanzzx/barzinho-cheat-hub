@@ -26,6 +26,10 @@ import { updateAtendimento } from "@/utils/dataServices";
 import BirthdayNotifications from "@/components/BirthdayNotifications";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import Logo from "@/components/Logo";
+import ClienteFields from "@/components/atendimento/ClienteFields";
+import PlanoMensalSection from "@/components/atendimento/PlanoMensalSection";
+import PlanoSemanalSection from "@/components/atendimento/PlanoSemanalSection";
+import DetalhesSection from "@/components/atendimento/DetalhesSection";
 
 interface Atendimento {
   id: string;
@@ -395,119 +399,28 @@ const EditarAtendimento = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="nome" className="text-slate-700">Nome do Cliente</Label>
-                <Input 
-                  id="nome" 
-                  placeholder="Nome completo" 
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
+              <ClienteFields
+                nome={nome}
+                setNome={setNome}
+                dataNascimento={dataNascimento}
+                handleDataNascimentoChange={handleDataNascimentoChange}
+                signo={signo}
+                tipoServico={tipoServico}
+                setTipoServico={setTipoServico}
+                dataAtendimento={dataAtendimento}
+                setDataAtendimento={setDataAtendimento}
+                valor={valor}
+                setValor={setValor}
+                destino={destino}
+                setDestino={setDestino}
+                ano={ano}
+                setAno={setAno}
+                statusPagamento={statusPagamento}
+                setStatusPagamento={setStatusPagamento}
+                getStatusColor={getStatusColor}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="dataNascimento" className="text-slate-700">Data de Nascimento</Label>
-                <Input 
-                  id="dataNascimento" 
-                  type="date" 
-                  value={dataNascimento}
-                  onChange={handleDataNascimentoChange}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="signo" className="text-slate-700">Signo</Label>
-                <Input id="signo" value={signo} readOnly className="bg-slate-50 border-slate-200" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tipoServico" className="text-slate-700">Tipo de Serviço</Label>
-                <Select 
-                  value={tipoServico} 
-                  onValueChange={setTipoServico}
-                >
-                  <SelectTrigger className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200">
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200">
-                    <SelectItem value="tarot">Tarot</SelectItem>
-                    <SelectItem value="terapia">Terapia</SelectItem>
-                    <SelectItem value="mesa-radionica">Mesa Radionica</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dataAtendimento" className="text-slate-700">Data do Atendimento</Label>
-                <Input 
-                  id="dataAtendimento" 
-                  type="date" 
-                  value={dataAtendimento}
-                  onChange={(e) => setDataAtendimento(e.target.value)}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="valor" className="text-slate-700">Valor Cobrado (R$)</Label>
-                <Input 
-                  id="valor" 
-                  type="number" 
-                  placeholder="0.00" 
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="statusPagamento" className="text-slate-700">Status de Pagamento</Label>
-                <Select 
-                  value={statusPagamento} 
-                  onValueChange={setStatusPagamento}
-                >
-                  <SelectTrigger className={`bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200 ${statusPagamento ? `border-2 ${getStatusColor(statusPagamento)}` : ""}`}>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200">
-                    <SelectItem value="pago" className="bg-green-100 text-green-800 hover:bg-green-200">Pago</SelectItem>
-                    <SelectItem value="pendente" className="bg-orange-100 text-orange-800 hover:bg-orange-200">Pendente</SelectItem>
-                    <SelectItem value="parcelado" className="bg-red-100 text-red-800 hover:bg-red-200">Parcelado</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                {statusPagamento && (
-                  <div className={`mt-2 px-3 py-1 rounded-md text-sm flex items-center ${getStatusColor(statusPagamento)}`}>
-                    <span className={`h-3 w-3 rounded-full mr-2 bg-white`}></span>
-                    <span className="capitalize">{statusPagamento}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="destino" className="text-slate-700">Destino</Label>
-                <Input 
-                  id="destino" 
-                  placeholder="Destino do cliente" 
-                  value={destino}
-                  onChange={(e) => setDestino(e.target.value)}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ano" className="text-slate-700">Ano</Label>
-                <Input 
-                  id="ano" 
-                  placeholder="Ano especifico" 
-                  value={ano}
-                  onChange={(e) => setAno(e.target.value)}
-                  className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                />
-              </div>
-
+              {/* ATENCAO Flag mantida inline por ser simples */}
               <div className="space-y-2 flex flex-col">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="atencao" className="text-base flex items-center text-slate-700">
@@ -528,161 +441,32 @@ const EditarAtendimento = () => {
                   onChange={(e) => setAtencaoNota(e.target.value)}
                 />
               </div>
-
-              {/* Seção do Plano Mensal */}
-              <div className="mt-6 space-y-4 p-4 border border-[#0EA5E9]/20 rounded-lg bg-[#0EA5E9]/5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="plano" className="text-slate-700 font-medium flex items-center">
-                    <CreditCard className={`mr-2 h-4 w-4 ${planoAtivo ? "text-[#0EA5E9]" : "text-slate-400"}`} />
-                    PLANO MENSAL
-                  </Label>
-                  <Switch 
-                    checked={planoAtivo} 
-                    onCheckedChange={setPlanoAtivo} 
-                    className="data-[state=checked]:bg-[#0EA5E9]"
-                  />
-                </div>
-                
-                {planoAtivo && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Quantidade de Meses</Label>
-                      <Select value={planoData.meses} onValueChange={(value) => handlePlanoDataChange("meses", value)}>
-                        <SelectTrigger className="bg-[#0EA5E9]/10 border-[#0EA5E9]/30 focus:border-[#0EA5E9]">
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[...Array(12)].map((_, i) => (
-                            <SelectItem key={i + 1} value={(i + 1).toString()}>
-                              {i + 1} {i === 0 ? 'mes' : 'meses'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Valor Mensal (R$)</Label>
-                      <Input 
-                        type="number" 
-                        placeholder="0.00" 
-                        value={planoData.valorMensal}
-                        onChange={(e) => handlePlanoDataChange("valorMensal", e.target.value)}
-                        className="bg-[#0EA5E9]/10 border-[#0EA5E9]/30 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Dia Vencimento</Label>
-                      <Select value={planoData.diaVencimento} onValueChange={(value) => handlePlanoDataChange("diaVencimento", value)}>
-                        <SelectTrigger className="bg-[#0EA5E9]/10 border-[#0EA5E9]/30 focus:border-[#0EA5E9]">
-                          <SelectValue placeholder="Dia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {diasVencimento.map((dia) => (
-                            <SelectItem key={dia.value} value={dia.value}>
-                              {dia.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Seção do Plano Semanal */}
-              <div className="mt-4 space-y-4 p-4 border border-[#10B981]/20 rounded-lg bg-[#10B981]/5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="semanal" className="text-slate-700 font-medium flex items-center">
-                    <Calendar className={`mr-2 h-4 w-4 ${semanalAtivo ? "text-[#10B981]" : "text-slate-400"}`} />
-                    PLANO SEMANAL
-                  </Label>
-                  <Switch 
-                    checked={semanalAtivo} 
-                    onCheckedChange={setSemanalAtivo} 
-                    className="data-[state=checked]:bg-[#10B981]"
-                  />
-                </div>
-                
-                {semanalAtivo && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Quantidade de Semanas</Label>
-                      <Select value={semanalData.semanas} onValueChange={(value) => handleSemanalDataChange("semanas", value)}>
-                        <SelectTrigger className="bg-[#10B981]/10 border-[#10B981]/30 focus:border-[#10B981]">
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[...Array(12)].map((_, i) => (
-                            <SelectItem key={i + 1} value={(i + 1).toString()}>
-                              {i + 1} {i === 0 ? 'semana' : 'semanas'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Valor Semanal (R$)</Label>
-                      <Input 
-                        type="number" 
-                        placeholder="0.00" 
-                        value={semanalData.valorSemanal}
-                        onChange={(e) => handleSemanalDataChange("valorSemanal", e.target.value)}
-                        className="bg-[#10B981]/10 border-[#10B981]/30 focus:border-[#10B981] focus:ring-[#10B981]/20"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm text-slate-600">Dia Vencimento</Label>
-                      <Select value={semanalData.diaVencimento} onValueChange={(value) => handleSemanalDataChange("diaVencimento", value)}>
-                        <SelectTrigger className="bg-[#10B981]/10 border-[#10B981]/30 focus:border-[#10B981]">
-                          <SelectValue placeholder="Dia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {diasSemana.map((dia) => (
-                            <SelectItem key={dia.value} value={dia.value}>
-                              {dia.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
 
-            <div className="mt-6 space-y-2">
-              <Label htmlFor="detalhes" className="text-slate-700">Detalhes da Sessao</Label>
-              <Textarea 
-                id="detalhes" 
-                placeholder="Revelacoes, conselhos e orientacoes..." 
-                className="min-h-[120px] bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                value={detalhes}
-                onChange={(e) => setDetalhes(e.target.value)}
-              />
-            </div>
+            <PlanoMensalSection
+              planoAtivo={planoAtivo}
+              setPlanoAtivo={setPlanoAtivo}
+              planoData={planoData}
+              handlePlanoDataChange={handlePlanoDataChange}
+              diasVencimento={diasVencimento}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="space-y-2">
-                <Label htmlFor="tratamento" className="text-slate-700">Tratamento</Label>
-                <Textarea 
-                  id="tratamento" 
-                  placeholder="Observacoes sobre o tratamento..." 
-                  className="min-h-[100px] bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                  value={tratamento}
-                  onChange={(e) => setTratamento(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="indicacao" className="text-slate-700">Indicacao</Label>
-                <Textarea 
-                  id="indicacao" 
-                  placeholder="Informacoes adicionais e indicacoes..." 
-                  className="min-h-[100px] bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
-                  value={indicacao}
-                  onChange={(e) => setIndicacao(e.target.value)}
-                />
-              </div>
-            </div>
+            <PlanoSemanalSection
+              semanalAtivo={semanalAtivo}
+              setSemanalAtivo={setSemanalAtivo}
+              semanalData={semanalData}
+              handleSemanalDataChange={handleSemanalDataChange}
+              diasSemana={diasSemana}
+            />
+
+            <DetalhesSection
+              detalhes={detalhes}
+              setDetalhes={setDetalhes}
+              tratamento={tratamento}
+              setTratamento={setTratamento}
+              indicacao={indicacao}
+              setIndicacao={setIndicacao}
+            />
           </CardContent>
           <CardFooter className="flex justify-end gap-3">
             <Button 
