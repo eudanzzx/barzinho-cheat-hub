@@ -12,8 +12,8 @@ interface TarotStatsCardsProps {
   totalRecebidoAno: number;
   finalizados: number;
   lembretes: number;
-  selectedPeriod: 'semana' | 'mes' | 'ano' | 'total';
-  onPeriodChange: (v: 'semana' | 'mes' | 'ano' | 'total') => void;
+  selectedPeriod: "semana" | "mes" | "ano" | "total";
+  onPeriodChange: (v: "semana" | "mes" | "ano" | "total") => void;
 }
 
 const periodLabels = {
@@ -36,29 +36,44 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 }) => {
   const getRecebido = () => {
     switch (selectedPeriod) {
-      case 'semana': return totalRecebidoSemana;
-      case 'mes': return totalRecebidoMes;
-      case 'ano': return totalRecebidoAno;
-      default: return totalRecebido;
+      case "semana":
+        return totalRecebidoSemana;
+      case "mes":
+        return totalRecebidoMes;
+      case "ano":
+        return totalRecebidoAno;
+      default:
+        return totalRecebido;
     }
   };
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Period Selector com estilo igual ao dashboard */}
+      {/* Seleção de período com exato estilo do dashboard, mas mantendo cor do tarot*/}
       <div className="flex gap-2 mb-3">
-        {(['semana', 'mes', 'ano', 'total'] as const).map((per) => (
+        {(["semana", "mes", "ano", "total"] as const).map((per) => (
           <Button
             key={per}
             size="sm"
-            variant={selectedPeriod === per ? "default" : "outline"}
+            variant="outline"
             className={
-              selectedPeriod === per
-                ? "bg-tarot-primary text-white border-tarot-primary hover:bg-tarot-primary"
-                : "border-[#ede9fe] text-tarot-primary hover:bg-[#ede9fe]"
+              // Estilo exato do dashboard: sombra leve, fundo branco, borda roxa quando selecionado, efeito elegante
+              `rounded-xl font-semibold shadow-sm px-4 py-2 border transition-all duration-200
+              ${
+                selectedPeriod === per
+                  ? "bg-tarot-primary text-white border-tarot-primary shadow-tarot-primary/20 shadow-lg scale-105"
+                  : "bg-white text-tarot-primary border-[#ede9fe] hover:bg-[#ede9fe]/80 hover:border-tarot-primary hover:text-tarot-primary"
+              }
+              `
             }
             onClick={() => onPeriodChange(per)}
             type="button"
+            style={{
+              boxShadow:
+                selectedPeriod === per
+                  ? "0 4px 20px 0 rgba(103,49,147,0.08)"
+                  : "0 1px 3px 0 rgba(103,49,147,0.03)",
+            }}
           >
             {periodLabels[per]}
           </Button>
@@ -71,7 +86,9 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
             <div className="flex gap-4 items-center">
               <div>
                 <p className="text-sm font-medium text-tarot-primary mb-1">Recebido</p>
-                <p className="text-2xl font-bold text-tarot-primary">R$ {getRecebido().toFixed(2)}</p>
+                <p className="text-2xl font-bold text-tarot-primary">
+                  R$ {getRecebido().toFixed(2)}
+                </p>
               </div>
               <div className="rounded-xl p-2 bg-[#ede9fe]">
                 <DollarSign className="h-7 w-7 text-tarot-primary" />
