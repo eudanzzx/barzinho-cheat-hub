@@ -46,11 +46,14 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 
   return (
     <div className="mb-8 animate-fade-in">
-      {/* Dropdown de período centralizado */}
-      <div className="flex justify-center mb-4">
-        <PeriodDropdown selectedPeriod={selectedPeriod} onPeriodChange={onPeriodChange} />
+      {/* Dropdown de período centralizado e com tamanho fixo */}
+      <div className="w-full flex justify-center mb-4 mt-2">
+        <PeriodDropdown
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={onPeriodChange}
+          variant="tarot"
+        />
       </div>
-
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Recebido */}
@@ -109,3 +112,4 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
 };
 
 export default TarotStatsCards;
+
