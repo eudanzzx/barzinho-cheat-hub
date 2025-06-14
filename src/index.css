@@ -1,0 +1,300 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.375rem;
+    
+    /* Core system colors */
+    --main-primary: 216 95% 40%; /* #1E40AF */
+    --main-primary-light: 216 95% 45%;
+    --main-primary-dark: 216 95% 35%;
+    --main-accent: 216 95% 95%;
+    
+    /* Tarot system colors */
+    --tarot-primary: 271 76% 40%; /* #6B21A8 */
+    --tarot-primary-light: 271 76% 45%;
+    --tarot-primary-dark: 271 76% 35%;
+    --tarot-accent: 271 76% 95%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  
+  /* Clean, readable typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+  
+  /* Prevent text from being too small on mobile */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Ensure containers don't overflow */
+  .container {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+/* Clean, functional utilities */
+@layer utilities {
+  .text-responsive {
+    @apply text-sm sm:text-base;
+  }
+  
+  .heading-responsive {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .padding-responsive {
+    @apply px-3 sm:px-4 py-2 sm:py-3;
+  }
+  
+  .gap-responsive {
+    @apply gap-2 sm:gap-3;
+  }
+  
+  .grid-responsive {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  /* Main system theme classes */
+  .main-primary {
+    color: hsl(var(--main-primary));
+  }
+  
+  .bg-main-primary {
+    background-color: hsl(var(--main-primary));
+  }
+  
+  .border-main-primary {
+    border-color: hsl(var(--main-primary));
+  }
+  
+  .hover\:bg-main-primary:hover {
+    background-color: hsl(var(--main-primary-light));
+  }
+  
+  .bg-main-accent {
+    background-color: hsl(var(--main-accent));
+  }
+  
+  /* Tarot system theme classes */
+  .tarot-primary {
+    color: hsl(var(--tarot-primary));
+  }
+  
+  .bg-tarot-primary {
+    background-color: hsl(var(--tarot-primary));
+  }
+  
+  .border-tarot-primary {
+    border-color: hsl(var(--tarot-primary));
+  }
+  
+  .hover\:bg-tarot-primary:hover {
+    background-color: hsl(var(--tarot-primary-light));
+  }
+  
+  .bg-tarot-accent {
+    background-color: hsl(var(--tarot-accent));
+  }
+
+  /* CONTROLES DE PAGAMENTO - FORÇA VISIBILIDADE MÁXIMA */
+  .payment-control-section {
+    @apply bg-white border-2 border-gray-300 rounded-xl shadow-lg;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+  
+  .payment-control-visible {
+    @apply block w-full opacity-100 transform scale-100;
+    transition: all 0.3s ease-in-out;
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  .dashboard-section {
+    @apply mb-8 w-full;
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* FORÇAR VISIBILIDADE DOS CONTROLES DE PAGAMENTO */
+  .payment-controls-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    position: relative !important;
+    z-index: 10 !important;
+    min-height: auto !important;
+    width: 100% !important;
+  }
+}
+
+/* Simplified tarot styles */
+.tarot-card {
+  @apply relative w-20 h-32 sm:w-24 sm:h-36 md:w-32 md:h-48 rounded-md shadow-sm cursor-pointer;
+  @apply transition-all duration-300 ease-in-out;
+  @apply bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800;
+  @apply border border-slate-300;
+  perspective: 1000px;
+}
+
+.tarot-card-inner {
+  @apply relative w-full h-full transition-transform duration-500;
+  transform-style: preserve-3d;
+}
+
+.tarot-card.flipped .tarot-card-inner {
+  transform: rotateY(180deg);
+}
+
+.tarot-card-face {
+  @apply absolute inset-0 w-full h-full rounded-md;
+  backface-visibility: hidden;
+}
+
+.tarot-card-back {
+  @apply bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800;
+  @apply border border-slate-400;
+  @apply flex items-center justify-center;
+}
+
+.tarot-card-front {
+  @apply bg-gradient-to-br from-white to-slate-50;
+  @apply border border-slate-300;
+  @apply flex flex-col items-center justify-center p-2;
+  transform: rotateY(180deg);
+}
+
+/* Clean animations */
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Better touch targets for mobile */
+button, a, input, select, textarea {
+  min-height: 40px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  table {
+    font-size: 14px;
+  }
+  
+  th, td {
+    padding: 6px 4px !important;
+  }
+}
+
+/* Clean status indicators */
+.status-paid {
+  @apply bg-green-50 text-green-700 border-green-200;
+}
+
+.status-pending {
+  @apply bg-red-50 text-red-700 border-red-200;
+}
+
+.status-installment {
+  @apply bg-blue-50 text-blue-700 border-blue-200;
+}
+
+/* Subtle shadows and borders */
+.clean-card {
+  @apply bg-white border border-gray-200 rounded-md shadow-sm;
+}
+
+.clean-card:hover {
+  @apply shadow-md border-gray-300;
+}
