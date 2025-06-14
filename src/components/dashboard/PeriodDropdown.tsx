@@ -21,23 +21,23 @@ const PERIODS = [
   { value: 'total', label: 'Total' },
 ];
 
-const customStyles = 
-  "bg-white shadow border border-blue-200 rounded-lg text-blue-700 font-semibold px-4 py-2" +
-  " focus:ring-2 focus:ring-blue-300 min-w-[6rem] hover:bg-blue-100 transition-all duration-150";
+// Estilo compacto (altura e padding menores, cor roxa predominante do Tarot)
+const customStyles =
+  "bg-[#f3e8ff] border border-[#bda3f2] text-[#6B21A8] font-semibold text-xs h-8 px-3 py-1 rounded-lg shadow-sm focus:ring-2 focus:ring-[#bda3f2] hover:bg-[#ede9fe] transition-all duration-150 min-w-[6rem]";
 
 const PeriodDropdown: React.FC<PeriodDropdownProps> = ({ selectedPeriod, onPeriodChange }) => {
   return (
     <Select value={selectedPeriod} onValueChange={onPeriodChange}>
-      <SelectTrigger className={customStyles + " flex gap-2 items-center"}>
+      <SelectTrigger className={customStyles + " flex gap-1 items-center"}>
         <SelectValue />
-        <ArrowDown className="h-4 w-4 text-blue-500 ml-1" />
+        <ArrowDown className="h-4 w-4 text-[#6B21A8] ml-0.5" />
       </SelectTrigger>
-      <SelectContent className="z-[100] bg-white rounded-lg border border-blue-200 shadow-lg">
+      <SelectContent className="z-[100] bg-white rounded-lg border border-[#bda3f2] shadow-lg">
         {PERIODS.map(period => (
           <SelectItem 
             key={period.value} 
             value={period.value} 
-            className="font-medium text-blue-700 data-[state=checked]:bg-blue-50 rounded cursor-pointer"
+            className="font-medium text-[#6B21A8] data-[state=checked]:bg-[#f3e8ff] rounded cursor-pointer text-xs"
           >
             {period.label}
           </SelectItem>
