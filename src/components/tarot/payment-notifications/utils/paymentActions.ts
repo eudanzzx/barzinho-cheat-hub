@@ -111,13 +111,13 @@ export const handleMarkAsPaid = (
   console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
   
-  // Force immediate notification refresh with multiple events
+  // Dispatch multiple events to ensure all components update
   setTimeout(() => {
     console.log('handleMarkAsPaid - Disparando eventos de atualização');
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
-    window.dispatchEvent(new Event('storage')); // Force localStorage change detection
-  }, 50);
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'markAsPaid', id: notificationId } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'markAsPaid', id: notificationId } }));
+    window.dispatchEvent(new Event('storage'));
+  }, 100);
   
   return updatedPlanos;
 };
@@ -146,9 +146,9 @@ export const handlePostponePayment = (
   
   // Dispatch events for immediate update
   setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
-  }, 50);
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'postpone', id: notificationId } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'postpone', id: notificationId } }));
+  }, 100);
   
   return updatedPlanos;
 };
@@ -166,9 +166,9 @@ export const handleDeleteNotification = (
   
   // Dispatch events for immediate update
   setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
-  }, 50);
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'delete', id: notificationId } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'delete', id: notificationId } }));
+  }, 100);
   
   return updatedPlanos;
 };
