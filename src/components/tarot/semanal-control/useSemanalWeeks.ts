@@ -86,7 +86,7 @@ export const useSemanalWeeks = ({
           const nextWeek = semanalWeeks[nextWeekIndex];
           if (nextWeek && !nextWeek.semanalId) {
             const nextSemanal: PlanoSemanal = {
-              id: `${analysisId}-week-${nextWeek.week}`,
+              id: `${analysisId}-week-${nextWeek.week}-${Date.now()}`,
               clientName: clientName,
               type: 'semanal',
               amount: parseFloat(semanalData.valorSemanal),
@@ -106,12 +106,13 @@ export const useSemanalWeeks = ({
       
       savePlanos(updatedPlanos);
       
-      const updatedWeeks = [...semanalWeeks];
-      updatedWeeks[weekIndex].isPaid = newIsPaid;
-      setSemanalWeeks(updatedWeeks);
+      // Refresh the weeks display
+      setTimeout(() => {
+        initializeSemanalWeeks();
+      }, 100);
     } else if (newIsPaid) {
       const newSemanal: PlanoSemanal = {
-        id: `${analysisId}-week-${week.week}`,
+        id: `${analysisId}-week-${week.week}-${Date.now()}`,
         clientName: clientName,
         type: 'semanal',
         amount: parseFloat(semanalData.valorSemanal),
@@ -134,7 +135,7 @@ export const useSemanalWeeks = ({
         const nextWeek = semanalWeeks[nextWeekIndex];
         if (nextWeek && !nextWeek.semanalId) {
           const nextSemanal: PlanoSemanal = {
-            id: `${analysisId}-week-${nextWeek.week}`,
+            id: `${analysisId}-week-${nextWeek.week}-${Date.now()}`,
             clientName: clientName,
             type: 'semanal',
             amount: parseFloat(semanalData.valorSemanal),
@@ -153,10 +154,10 @@ export const useSemanalWeeks = ({
       
       savePlanos(updatedPlanos);
       
-      const updatedWeeks = [...semanalWeeks];
-      updatedWeeks[weekIndex].semanalId = newSemanal.id;
-      updatedWeeks[weekIndex].isPaid = true;
-      setSemanalWeeks(updatedWeeks);
+      // Refresh the weeks display
+      setTimeout(() => {
+        initializeSemanalWeeks();
+      }, 100);
     } else {
       const updatedWeeks = [...semanalWeeks];
       updatedWeeks[weekIndex].isPaid = false;

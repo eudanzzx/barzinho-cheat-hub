@@ -141,7 +141,7 @@ export const usePaymentNotifications = () => {
         nextDueDate.setMonth(nextDueDate.getMonth() + 1);
         
         const nextPlano: PlanoMensal = {
-          id: `${currentPlano.analysisId}-month-${currentMonth + 1}`,
+          id: `${currentPlano.analysisId}-month-${currentMonth + 1}-${Date.now()}`,
           clientName: currentPlano.clientName,
           type: 'plano',
           amount: currentPlano.amount,
@@ -171,7 +171,7 @@ export const usePaymentNotifications = () => {
         nextDueDate.setDate(nextDueDate.getDate() + 7);
         
         const nextPlano: PlanoSemanal = {
-          id: `${currentPlano.analysisId}-week-${currentWeek + 1}`,
+          id: `${currentPlano.analysisId}-week-${currentWeek + 1}-${Date.now()}`,
           clientName: currentPlano.clientName,
           type: 'semanal',
           amount: currentPlano.amount,
@@ -192,7 +192,11 @@ export const usePaymentNotifications = () => {
     }
     
     savePlanos(updatedPlanos);
-    checkTarotPaymentNotifications();
+    
+    // Force refresh
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
   };
 
   const postponePayment = (notificationId: string) => {
@@ -209,7 +213,10 @@ export const usePaymentNotifications = () => {
     });
     
     savePlanos(updatedPlanos);
-    checkTarotPaymentNotifications();
+    
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
     
     toast.info("Pagamento do tarot adiado por 7 dias");
   };
@@ -219,7 +226,10 @@ export const usePaymentNotifications = () => {
     const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
     
     savePlanos(updatedPlanos);
-    checkTarotPaymentNotifications();
+    
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
     
     toast.success("Notificação de pagamento excluída!");
   };
@@ -229,7 +239,9 @@ export const usePaymentNotifications = () => {
     
     // Listen for payment updates from control components
     const handlePaymentUpdate = () => {
-      checkTarotPaymentNotifications();
+      setTimeout(() => {
+        checkTarotPaymentNotifications();
+      }, 200);
     };
     
     window.addEventListener('tarot-payment-updated', handlePaymentUpdate);
