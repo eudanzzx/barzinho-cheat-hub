@@ -19,8 +19,7 @@ import AnalysisFields from "./frequency-analysis/AnalysisFields";
 import CountersSection from "./frequency-analysis/CountersSection";
 import PlanoPaymentButton from "@/components/tarot/PlanoPaymentButton";
 import SemanalPaymentButton from "@/components/tarot/SemanalPaymentButton";
-import PlanoMensalSection from "./frequency-analysis/PlanoMensalSection";
-import PlanoSemanalSection from "./frequency-analysis/PlanoSemanalSection";
+import PlanosSideBySideSection from "./frequency-analysis/PlanosSideBySideSection";
 
 const formSchema = z.object({
   clientName: z.string().min(1, "Nome é obrigatório"),
@@ -178,11 +177,8 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
         <ClientInfoFields form={form} />
         <AnalysisFields form={form} />
 
-        {/* NOVO: Sempre mostre seção de Plano Mensal */}
-        <PlanoMensalSection form={form} editingAnalysis={editingAnalysis} />
-
-        {/* NOVO: Sempre mostre seção Plano Semanal */}
-        <PlanoSemanalSection form={form} editingAnalysis={editingAnalysis} />
+        {/* NOVO: Planos lado a lado */}
+        <PlanosSideBySideSection form={form} editingAnalysis={editingAnalysis} />
 
         <CountersSection
           counters={counters}
