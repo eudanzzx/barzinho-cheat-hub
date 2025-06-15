@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, Plus, Trash2, BellRing, Calendar } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +20,11 @@ import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import useUserDataService from "@/services/userDataService";
 import ClientForm from "@/components/tarot/ClientForm";
 import AnalysisCards from "@/components/tarot/AnalysisCards";
+import PlanoSelector from "@/components/tarot/PlanoSelector";
+import SemanalSelector from "@/components/tarot/SemanalSelector";
 import DailySemanalNotificationManager from "@/components/DailySemanalNotificationManager";
+import { PlanoMensal, PlanoSemanal } from "@/types/payment";
+import { getNextWeekDays } from "@/utils/weekDayCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
@@ -98,12 +103,23 @@ const AnaliseFrequencial = () => {
   const [preco, setPreco] = useState("");
   const [analiseAntes, setAnaliseAntes] = useState("");
   const [analiseDepois, setAnaliseDepois] = useState("");
+  const [planoAtivo, setPlanoAtivo] = useState(false);
+  const [semanalAtivo, setSemanalAtivo] = useState(false);
+  const [planoData, setPlanoData] = useState({
+    meses: "",
+    valorMensal: "",
+  });
+  const [semanalData, setSemanalData] = useState({
+    semanas: "",
+    valorSemanal: "",
+    diaVencimento: "sexta",
+  });
   const [lembretes, setLembretes] = useState([
     { id: 1, texto: "", dias: 7 }
   ]);
   const [analises, setAnalises] = useState<any[]>([]);
 
-  const { checkClientBirthday, saveTarotAnalysisWithPlan } = useUserDataService();
+  const { checkClientBirthday, saveTarotAnalysisWithPlan, getPlanos, savePlanos } = useUserDataService();
   
   // Verificar notificações ao carregar a página
   useEffect(() => {
@@ -239,22 +255,101 @@ const AnaliseFrequencial = () => {
     ));
   }, []);
 
+  const createPlanoNotifications = (nomeCliente: string, meses: string, valorMensal: string, dataInicio: string) => {
+    const notifications: PlanoMensal[] = [];
+    const startDate = new Date(dataInicio);
+    
+    for (let i = 1; i <= parseInt(meses); i++) {
+      const notificationDate = new Date(startDate);
+      notificationDate.setMonth(notificationDate.getMonth() + i);
+      
+      notifications.push({
+        id: `plano-${Date.now()}-${i}`,
+        clientName: nomeCliente,
+        type: 'plano',
+        amount: parseFloat(valorMensal),
+        dueDate: notificationDate.toISOString().split('T')[0],
+        month: i,
+        totalMonths: parseInt(meses),
+        created: new Date().toISOString(),
+        active: true
+      });
+    }
+    
+    return notifications;
+  };
+
+  const createSemanalNotifications = (nomeCliente: string, semanas: string, valorSemanal: string, dataInicio: string, diaVencimento: string = 'sexta') => {
+    const notifications: PlanoSemanal[] = [];
+    const totalWeeks = parseInt(semanas);
+    const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(dataInicio));
+    
+    weekDays.forEach((weekDay, index) => {
+      notifications.push({
+        id: `semanal-${Date.now()}-${index + 1}`,
+        clientName: nomeCliente,
+        type: 'semanal',
+        amount: parseFloat(valorSemanal),
+        dueDate: weekDay.toISOString().split('T')[0],
+        week: index + 1,
+        totalWeeks: totalWeeks,
+        created: new Date().toISOString(),
+        active: true
+      });
+    });
+    
+    return notifications;
+  };
+
+  const handlePlanoDataChange = useCallback((field: string, value: string) => {
+    setPlanoData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
+
+  const handleSemanalDataChange = useCallback((field: string, value: string) => {
+    setSemanalData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
+
   const handleSalvarAnalise = useCallback(() => {
     console.log('handleSalvarAnalise - Iniciando salvamento');
+    
+    // Validar campos obrigatórios
     if (!nomeCliente || !dataInicio) {
+      console.log('handleSalvarAnalise - Campos obrigatórios não preenchidos');
       toast.error("Preencha o nome do cliente e a data de início");
       return;
     }
+
+    console.log('handleSalvarAnalise - Dados para salvar:', {
+      nomeCliente,
+      dataInicio,
+      planoAtivo,
+      planoData,
+      semanalAtivo,
+      semanalData,
+      lembretes
+    });
+
     try {
+      // Gerar ID único para a nova análise
       const novoId = Date.now().toString();
+      console.log('handleSalvarAnalise - Novo ID gerado:', novoId);
+
+      // Preparar dados da análise no formato correto
       const novaAnalise = {
         id: novoId,
+        // Required TarotAnalysis properties
         clientName: nomeCliente,
         analysisDate: new Date().toISOString(),
         analysisType: "Análise Frequencial",
         paymentStatus: 'pago' as const,
         value: preco || "150",
-        // Legacy fields for compatibilidade:
+        // Legacy fields for backward compatibility
         nomeCliente,
         dataNascimento,
         signo,
@@ -268,6 +363,14 @@ const AnaliseFrequencial = () => {
         dataAnalise: new Date().toISOString(),
         analiseAntes,
         analiseDepois,
+        planoAtivo,
+        planoData: planoAtivo ? planoData : null,
+        semanalAtivo,
+        semanalData: semanalAtivo ? {
+          semanas: semanalData.semanas,
+          valorSemanal: semanalData.valorSemanal,
+          diaVencimento: semanalData.diaVencimento
+        } : null,
         lembretes: [...lembretes],
         dataCriacao: new Date().toISOString(),
         finalizado: false,
@@ -276,9 +379,77 @@ const AnaliseFrequencial = () => {
         valor: preco || "150",
         tipoServico: "Tarot Frequencial"
       };
+
+      console.log('handleSalvarAnalise - Nova análise criada:', novaAnalise);
+
+      // Usar a função específica para salvar com plano
       saveTarotAnalysisWithPlan(novaAnalise);
-      // Configuração dos lembretes automáticos segue igual:
+      console.log('handleSalvarAnalise - Análise salva via saveTarotAnalysisWithPlan');
+
+      // Criar notificações de plano se ativo
+      if (planoAtivo && planoData.meses && planoData.valorMensal && dataInicio) {
+        const notifications = createPlanoNotifications(
+          nomeCliente,
+          planoData.meses,
+          planoData.valorMensal,
+          dataInicio
+        );
+        
+        const existingPlanos = getPlanos() || [];
+        const updatedPlanos = [...existingPlanos, ...notifications];
+        savePlanos(updatedPlanos);
+        
+        console.log('handleSalvarAnalise - Notificações de plano criadas:', notifications.length);
+      }
+      
+      // Criar notificações semanais se ativo
+      if (semanalAtivo && semanalData.semanas && semanalData.valorSemanal && dataInicio) {
+        const notifications = createSemanalNotifications(
+          nomeCliente,
+          semanalData.semanas,
+          semanalData.valorSemanal,
+          dataInicio,
+          semanalData.diaVencimento || 'sexta'
+        );
+        
+        const existingPlanos = getPlanos() || [];
+        const updatedPlanos = [...existingPlanos, ...notifications];
+        savePlanos(updatedPlanos);
+        
+        console.log('handleSalvarAnalise - Notificações semanais criadas:', notifications.length);
+      }
+
+      // Verificar se foi salvo corretamente
+      const verificacao = JSON.parse(localStorage.getItem("analises") || "[]");
+      const analiseEncontrada = verificacao.find((a: any) => a.id === novoId);
+      console.log('handleSalvarAnalise - Verificação após salvar:', verificacao.length, 'análises');
+      console.log('handleSalvarAnalise - Análise encontrada após salvar:', !!analiseEncontrada);
+
+      if (!analiseEncontrada) {
+        console.error('handleSalvarAnalise - ERRO: Análise não foi salva corretamente!');
+        toast.error("Erro ao salvar análise - tente novamente");
+        return;
+      }
+      
+      // Notificar usuário
+      let mensagem = "Análise frequencial salva com sucesso!";
+      if (planoAtivo && planoData.meses && planoData.valorMensal) {
+        mensagem = `Análise frequencial salva! Plano de ${planoData.meses} meses criado com sucesso.`;
+      }
+      if (semanalAtivo && semanalData.semanas && semanalData.valorSemanal) {
+        if (planoAtivo) {
+          mensagem = `Análise frequencial salva! Plano semanal de ${semanalData.semanas} semanas também criado. Vencimentos toda sexta-feira.`;
+        } else {
+          mensagem = `Análise frequencial salva! Plano semanal de ${semanalData.semanas} semanas criado com sucesso. Vencimentos toda sexta-feira.`;
+        }
+      }
+      
+      toast.success(mensagem);
+      console.log('handleSalvarAnalise - Sucesso:', mensagem);
+
+      // Configurar lembretes automáticos se necessário
       const lembretesStorage = JSON.parse(localStorage.getItem("lembretes") || "[]");
+      
       lembretes.forEach(lembrete => {
         if (lembrete.texto && lembrete.dias > 0) {
           const novoLembrete = {
@@ -288,11 +459,14 @@ const AnaliseFrequencial = () => {
             clienteId: novoId,
             clienteNome: nomeCliente
           };
+          
           lembretesStorage.push(novoLembrete);
         }
       });
+      
       localStorage.setItem("lembretes", JSON.stringify(lembretesStorage));
-      // Resetar o formulário:
+      
+      // Limpar o formulário
       setNomeCliente("");
       setDataNascimento("");
       setSigno("");
@@ -301,18 +475,26 @@ const AnaliseFrequencial = () => {
       setPreco("");
       setAnaliseAntes("");
       setAnaliseDepois("");
+      setPlanoAtivo(false);
+      setPlanoData({ meses: "", valorMensal: "" });
+      setSemanalAtivo(false);
+      setSemanalData({ semanas: "", valorSemanal: "", diaVencimento: "sexta" });
       setLembretes([{ id: 1, texto: "", dias: 7 }]);
+      
+      // Navegar imediatamente após salvar
+      console.log('handleSalvarAnalise - Navegando para listagem');
       navigate("/listagem-tarot");
-      toast.success("Análise frequencial salva com sucesso!");
+
     } catch (error) {
       console.error('handleSalvarAnalise - Erro ao salvar:', error);
       toast.error("Erro ao salvar análise - verifique os dados e tente novamente");
     }
-  }, [nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, lembretes, navigate, saveTarotAnalysisWithPlan]);
+  }, [nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, planoAtivo, planoData, semanalAtivo, semanalData, lembretes, navigate, saveTarotAnalysisWithPlan, getPlanos, savePlanos]);
 
   const handleBack = useCallback(() => {
     navigate("/listagem-tarot");
   }, [navigate]);
+
   const handleCancel = useCallback(() => {
     navigate(-1);
   }, [navigate]);
@@ -324,7 +506,9 @@ const AnaliseFrequencial = () => {
 
   return (
     <div className="min-h-screen bg-[#F1F7FF] py-4 sm:py-6 px-2 sm:px-4">
+      {/* Adicionar o gerenciador de notificações diárias */}
       <DailySemanalNotificationManager />
+      
       <div className="container mx-auto max-w-4xl">
         <div className="mb-4 sm:mb-6 flex items-center">
           <Button 
@@ -342,7 +526,10 @@ const AnaliseFrequencial = () => {
             </h1>
           </div>
         </div>
+
+        {/* Mostrar contadores ativos */}
         <TarotCounterPriorityNotifications analises={analises} />
+
         {shouldShowBirthdayAlert && (
           <ClientBirthdayAlert 
             clientName={nomeCliente}
@@ -350,6 +537,7 @@ const AnaliseFrequencial = () => {
             context="tarot"
           />
         )}
+
         <Card className="border-[#6B21A8]/20 shadow-sm mb-4 sm:mb-6 bg-white/80 backdrop-blur-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="pb-4 sm:pb-6">
             <CardTitle className="text-[#6B21A8] text-lg sm:text-xl">Tarot Frequencial</CardTitle>
@@ -368,12 +556,34 @@ const AnaliseFrequencial = () => {
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}
             />
+
             <AnalysisCards
               analiseAntes={analiseAntes}
               analiseDepois={analiseDepois}
               onAnaliseAntesChange={setAnaliseAntes}
               onAnaliseDepoisChange={setAnaliseDepois}
             />
+
+            {/* Seção de Plano */}
+            <div>
+              <PlanoSelector
+                planoAtivo={planoAtivo}
+                planoData={planoData}
+                onPlanoAtivoChange={setPlanoAtivo}
+                onPlanoDataChange={handlePlanoDataChange}
+              />
+            </div>
+
+            {/* Seção de Plano Semanal */}
+            <div>
+              <SemanalSelector
+                semanalAtivo={semanalAtivo}
+                semanalData={semanalData}
+                onSemanalAtivoChange={setSemanalAtivo}
+                onSemanalDataChange={handleSemanalDataChange}
+              />
+            </div>
+            
             <div>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                 <h3 className="text-base sm:text-lg font-medium text-[#6B21A8]">Tratamento</h3>
@@ -387,6 +597,7 @@ const AnaliseFrequencial = () => {
                   Adicionar
                 </Button>
               </div>
+              
               <div className="space-y-4">
                 {lembretes.map((lembrete) => (
                   <ReminderCard
