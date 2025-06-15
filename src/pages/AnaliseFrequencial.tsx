@@ -22,7 +22,7 @@ import AnalysisCards from "@/components/tarot/AnalysisCards";
 import DailySemanalNotificationManager from "@/components/DailySemanalNotificationManager";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
-import PlanosSideBySideSection from "@/components/forms/frequency-analysis/PlanosSideBySideSection";
+import PlanosSideBySideSimpleSection from "@/components/forms/frequency-analysis/PlanosSideBySideSimpleSection";
 
 // Memoized reminder component to prevent unnecessary re-renders
 const ReminderCard = memo(({ lembrete, onUpdate, onRemove }: {
@@ -416,8 +416,25 @@ const AnaliseFrequencial = () => {
               onPrecoChange={setPreco}
             />
 
-            {/* NOVO BLOCO VISUAL DOS PLANOS */}
-            <PlanosSideBySideSection form={form} />
+            {/* NOVO BLOCO VISUAL DOS PLANOS (SEM DEPENDÊNCIA DO FORM HOOK) */}
+            <PlanosSideBySideSimpleSection
+              planoAtivo={planoAtivo}
+              setPlanoAtivo={setPlanoAtivo}
+              planoMeses={planoMeses}
+              setPlanoMeses={setPlanoMeses}
+              planoValorMensal={planoValorMensal}
+              setPlanoValorMensal={setPlanoValorMensal}
+              planoDiaVencimento={planoDiaVencimento}
+              setPlanoDiaVencimento={setPlanoDiaVencimento}
+              semanalAtivo={semanalAtivo}
+              setSemanalAtivo={setSemanalAtivo}
+              semanalSemanas={semanalSemanas}
+              setSemanalSemanas={setSemanalSemanas}
+              semanalValorSemanal={semanalValorSemanal}
+              setSemanalValorSemanal={setSemanalValorSemanal}
+              semanalDiaVencimento={semanalDiaVencimento}
+              setSemanalDiaVencimento={setSemanalDiaVencimento}
+            />
 
             <AnalysisCards
               analiseAntes={analiseAntes}
