@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
+import { PlanoMensal } from "@/types/payment";
 
 interface PlanoPaymentControlProps {
   analysisId: string;
@@ -101,20 +101,46 @@ const PlanoPaymentControl: React.FC<PlanoPaymentControlProps> = ({
       updatedMonths[monthIndex].isPaid = newIsPaid;
       setPlanoMonths(updatedMonths);
     } else if (newIsPaid) {
-      const newPlano = {
+      const newPlano: PlanoMensal = {
         id: `${analysisId}-month-${month.month}`,
         clientName: clientName,
-        type: 'plano' as const,
+        type: 'plano',
         amount: parseFloat(planoData.valorMensal),
         dueDate: month.dueDate,
         month: month.month,
         totalMonths: parseInt(planoData.meses),
         created: new Date().toISOString(),
         active: false,
-        notificationTiming: 'on_due_date' as const
+        notificationTiming: 'on_due_date',
+        analysisId: analysisId
       };
       
-      const updatedPlanos = [...planos, newPlano];
+      let updatedPlanos = [...planos, newPlano];
+      
+      // Create next month's payment if not the last month
+      const totalMonths = parseInt(planoData.meses);
+      if (month.month < totalMonths) {
+        const nextMonth = month.month + 1;
+        const nextDueDate = new Date(month.dueDate);
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        
+        const nextPlano: PlanoMensal = {
+          id: `${analysisId}-month-${nextMonth}`,
+          clientName: clientName,
+          type: 'plano',
+          amount: parseFloat(planoData.valorMensal),
+          dueDate: nextDueDate.toISOString().split('T')[0],
+          month: nextMonth,
+          totalMonths: totalMonths,
+          created: new Date().toISOString(),
+          active: true,
+          notificationTiming: 'on_due_date',
+          analysisId: analysisId
+        };
+        
+        updatedPlanos.push(nextPlano);
+      }
+      
       savePlanos(updatedPlanos);
       
       const updatedMonths = [...planoMonths];

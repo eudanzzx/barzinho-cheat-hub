@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,6 +73,13 @@ const SemanalPaymentControl: React.FC<SemanalPaymentControlProps> = ({
     const newIsPaid = !week.isPaid;
     
     if (week.semanalId) {
+      const updatedPlanos = planos.map(plano => 
+        plano.id === week.semanalId 
+          ? { ...plano, active: !newIsPaid }
+          : plano
+      );
+      savePlanos(updatedPlanos);
+      
       const updatedWeeks = [...semanalWeeks];
       updatedWeeks[weekIndex].isPaid = newIsPaid;
       setSemanalWeeks(updatedWeeks);
@@ -88,10 +94,36 @@ const SemanalPaymentControl: React.FC<SemanalPaymentControlProps> = ({
         totalWeeks: parseInt(semanalData.semanas),
         created: new Date().toISOString(),
         active: false,
-        notificationTiming: 'on_due_date'
+        notificationTiming: 'on_due_date',
+        analysisId: analysisId
       };
       
-      const updatedPlanos = [...planos, newSemanal];
+      let updatedPlanos = [...planos, newSemanal];
+      
+      // Create next week's payment if not the last week
+      const totalWeeks = parseInt(semanalData.semanas);
+      if (week.week < totalWeeks) {
+        const nextWeek = week.week + 1;
+        const nextDueDate = new Date(week.dueDate);
+        nextDueDate.setDate(nextDueDate.getDate() + 7);
+        
+        const nextSemanal: PlanoSemanal = {
+          id: `${analysisId}-week-${nextWeek}`,
+          clientName: clientName,
+          type: 'semanal',
+          amount: parseFloat(semanalData.valorSemanal),
+          dueDate: nextDueDate.toISOString().split('T')[0],
+          week: nextWeek,
+          totalWeeks: totalWeeks,
+          created: new Date().toISOString(),
+          active: true,
+          notificationTiming: 'on_due_date',
+          analysisId: analysisId
+        };
+        
+        updatedPlanos.push(nextSemanal);
+      }
+      
       savePlanos(updatedPlanos);
       
       const updatedWeeks = [...semanalWeeks];
