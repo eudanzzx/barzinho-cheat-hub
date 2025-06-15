@@ -1,10 +1,9 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { CreditCard } from "lucide-react";
+import PlanoSelectorHeader from "./PlanoSelector/PlanoSelectorHeader";
+import PlanoMonthsSelect from "./PlanoSelector/PlanoMonthsSelect";
+import PlanoValueInput from "./PlanoSelector/PlanoValueInput";
+import PlanoDueDateSelect from "./PlanoSelector/PlanoDueDateSelect";
 
 interface PlanoSelectorProps {
   planoAtivo: boolean;
@@ -25,69 +24,28 @@ const PlanoSelector: React.FC<PlanoSelectorProps> = ({
 }) => {
   return (
     <div className="space-y-2 flex flex-col">
-      <div className="flex items-center justify-between">
-        <Label htmlFor="plano" className="text-slate-700 font-medium flex items-center">
-          <CreditCard className={`mr-2 h-4 w-4 ${planoAtivo ? "text-[#6B21A8]" : "text-slate-400"}`} />
-          PLANO
-        </Label>
-        <Switch 
-          checked={planoAtivo} 
-          onCheckedChange={onPlanoAtivoChange} 
-          className="data-[state=checked]:bg-[#6B21A8]"
-        />
-      </div>
+      <PlanoSelectorHeader 
+        planoAtivo={planoAtivo}
+        onPlanoAtivoChange={onPlanoAtivoChange}
+      />
       
       {planoAtivo && (
         <div className="grid grid-cols-1 gap-2 mt-2">
           <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-sm text-slate-600">Meses</Label>
-              <Select 
-                value={planoData.meses} 
-                onValueChange={(value) => onPlanoDataChange("meses", value)}
-              >
-                <SelectTrigger className="bg-[#6B21A8]/10 border-[#6B21A8]/30 focus:border-[#6B21A8]">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[...Array(12)].map((_, i) => (
-                    <SelectItem key={i + 1} value={(i + 1).toString()}>
-                      {i + 1} {i === 0 ? 'mês' : 'meses'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-slate-600">Valor Mensal (R$)</Label>
-              <Input 
-                type="number" 
-                placeholder="0.00" 
-                value={planoData.valorMensal}
-                onChange={(e) => onPlanoDataChange("valorMensal", e.target.value)}
-                className="bg-[#6B21A8]/10 border-[#6B21A8]/30 focus:border-[#6B21A8] focus:ring-[#6B21A8]/20"
-              />
-            </div>
+            <PlanoMonthsSelect
+              value={planoData.meses}
+              onChange={(value) => onPlanoDataChange("meses", value)}
+            />
+            <PlanoValueInput
+              value={planoData.valorMensal}
+              onChange={(value) => onPlanoDataChange("valorMensal", value)}
+            />
           </div>
           
-          <div className="space-y-1">
-            <Label className="text-sm text-slate-600">Dia de Vencimento</Label>
-            <Select 
-              value={planoData.diaVencimento || '5'}
-              onValueChange={(value) => onPlanoDataChange("diaVencimento", value)}
-            >
-              <SelectTrigger className="bg-[#6B21A8]/10 border-[#6B21A8]/30 focus:border-[#6B21A8]">
-                <SelectValue placeholder="Dia do mês" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
-                {[...Array(31)].map((_, i) => (
-                  <SelectItem key={i + 1} value={(i + 1).toString()}>
-                    Dia {i + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <PlanoDueDateSelect
+            value={planoData.diaVencimento || '5'}
+            onChange={(value) => onPlanoDataChange("diaVencimento", value)}
+          />
         </div>
       )}
     </div>
