@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Calendar,
@@ -59,11 +58,11 @@ const TarotAnalysisCard = React.memo(({
         className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
       >
         <CardContent className="p-6">
-          {/* CONTADOR DO TRATAMENTO (fica logo abaixo do nome e badges) */}
+          {/* CABEÇALHO: nome, status, tempo restante e contador prioritário */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <h3 className="text-lg font-semibold text-[#32204a] group-hover:text-[#673193] transition-colors duration-300 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h3 className="text-lg font-semibold text-[#32204a] group-hover:text-[#673193] transition-colors duration-300 flex items-center gap-2 truncate">
                   {analise.nomeCliente}
                   {formattedTime && (
                     <Badge
@@ -80,6 +79,10 @@ const TarotAnalysisCard = React.memo(({
                       {formattedTime}
                     </Badge>
                   )}
+                  {/* NOVO: Contador Prioritário inline ao lado do nome */}
+                  {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
+                    <TratamentoContadores lembretes={analise.lembretes} inline />
+                  )}
                 </h3>
                 {analise.atencaoFlag && (
                   <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
@@ -95,13 +98,7 @@ const TarotAnalysisCard = React.memo(({
                   {analise.finalizado ? "Finalizada" : "Em andamento"}
                 </Badge>
               </div>
-              {/* >>> CONTADOR DE TRATAMENTO DESTACADO AQUI <<< */}
-              {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
-                <div className="mb-4">
-                  <TratamentoContadores lembretes={analise.lembretes} />
-                </div>
-              )}
-              {/* >>> FIM CONTADOR <<< */}
+              {/* >>> REMOVIDO bloco grande do contador antigo, agora já está acima <<< */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-[#673193]" />
