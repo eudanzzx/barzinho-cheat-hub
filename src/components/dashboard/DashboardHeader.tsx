@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -45,20 +44,7 @@ const DashboardHeader = () => {
             
             <div className="flex items-center gap-3">
               {/* ---- NOVO BOTÃO SÓ NA /listagem-tarot ---- */}
-              {isTarotListagem && (
-                <PaymentOverviewModal context="tarot">
-                  <Button
-                    className="flex items-center gap-2 text-tarot-primary bg-purple-100 hover:bg-purple-200 px-4 py-2 rounded-xl font-bold shadow border border-purple-200 transition-all text-base relative"
-                    style={{ minHeight: 40 }}
-                  >
-                    <Sparkles className="h-5 w-5 text-[#8e46dd] mr-1" />
-                    Próximos Vencimentos - Análises de Tarot
-                    {totalClients > 0 && (
-                      <Badge className="ml-2 bg-purple-200 text-purple-700 text-xs">{totalClients} cliente{totalClients > 1 ? "s" : ""}</Badge>
-                    )}
-                  </Button>
-                </PaymentOverviewModal>
-              )}
+              {/* Removido: PaymentOverviewModal com botão "Próximos Vencimentos - Análises de Tarot" */}
               {/* ---- FIM DO BOTÃO NOVO ---- */}
 
               {isMobile ? (
@@ -149,16 +135,7 @@ const DashboardHeader = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-gray-600 hover:text-gray-800"
-                    >
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Próximos Vencimentos
-                    </Button>
-                  </PaymentOverviewModal>
+                  {/* Removido: PaymentOverviewModal com botão "Próximos Vencimentos" */}
                   
                   <Button 
                     className={`text-white h-9 px-4 text-sm ${
