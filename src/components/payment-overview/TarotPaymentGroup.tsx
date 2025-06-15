@@ -58,13 +58,16 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2">
+            {/* Aqui: só mostra o botão se houver adicionais */}
             {hasAdditionalPayments && (
               <CollapsibleTrigger asChild>
                 <Button
+                  type="button"
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
+                  onClick={() => setIsOpen((o) => !o)}
                 >
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -77,6 +80,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
             <Button
               className="ml-1 px-3 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
               title="Marcar como pago"
+              type="button"
               onClick={() => onMarkAsPaid(mostUrgent.id)}
             >
               <CheckCircle className="h-4 w-4 mr-1" />
