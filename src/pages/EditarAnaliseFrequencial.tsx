@@ -20,8 +20,6 @@ import PlanoMonthsVisualizer from "@/components/PlanoMonthsVisualizer";
 import useUserDataService from "@/services/userDataService";
 import ClientForm from "@/components/tarot/ClientForm";
 import AnalysisCards from "@/components/tarot/AnalysisCards";
-import PlanoSelector from "@/components/tarot/PlanoSelector";
-import SemanalSelector from "@/components/tarot/SemanalSelector";
 
 // Memoized reminder component to prevent unnecessary re-renders
 const ReminderCard = memo(({ lembrete, onUpdate, onRemove }: {
@@ -340,10 +338,6 @@ const EditarAnaliseFrequencial = () => {
       dataAnalise: new Date().toISOString(),
       analiseAntes,
       analiseDepois,
-      planoAtivo,
-      planoData: planoAtivo ? planoData : null,
-      semanalAtivo,
-      semanalData: semanalAtivo ? semanalData : null,
       lembretes: [...lembretes],
       dataCriacao: new Date().toISOString(),
       finalizado: false,
@@ -370,25 +364,6 @@ const EditarAnaliseFrequencial = () => {
     // Save the updated analyses array
     saveTarotAnalyses(analises);
     
-    // Se tem plano ativo, criar as notificações
-    if (planoAtivo && planoData.meses && planoData.valorMensal && dataInicio) {
-      const notifications = createPlanoNotifications(
-        nomeCliente,
-        planoData.meses,
-        planoData.valorMensal,
-        dataInicio
-      );
-      
-      // Salvar as notificações de plano
-      const existingPlanos = getPlanos() || [];
-      const updatedPlanos = [...existingPlanos, ...notifications];
-      savePlanos(updatedPlanos);
-      
-      toast.success(`Análise frequencial salva! Plano de ${planoData.meses} meses criado com sucesso.`);
-    } else {
-      toast.success("Análise frequencial salva com sucesso!");
-    }
-    
     // Notificar usuário
     toast.success("Análise frequencial salva com sucesso!");
     
@@ -413,7 +388,7 @@ const EditarAnaliseFrequencial = () => {
     
     // Voltar para a página de listagem
     navigate("/listagem-tarot");
-  }, [id, nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, planoAtivo, planoData, semanalAtivo, semanalData, lembretes, navigate, getTarotAnalyses, saveTarotAnalyses, createPlanoNotifications, getPlanos, savePlanos]);
+  }, [id, nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, lembretes, navigate, getTarotAnalyses, saveTarotAnalyses]);
 
   const handleBack = useCallback(() => {
     navigate("/listagem-tarot");
@@ -427,16 +402,6 @@ const EditarAnaliseFrequencial = () => {
   const shouldShowBirthdayAlert = useMemo(() => {
     return nomeCliente && dataNascimento;
   }, [nomeCliente, dataNascimento]);
-
-  // Create a mock atendimento object for PlanoMonthsVisualizer
-  const mockAtendimento = useMemo(() => ({
-    id: Date.now().toString(),
-    nome: nomeCliente,
-    planoAtivo,
-    planoData: planoAtivo ? planoData : null,
-    dataAtendimento: dataInicio,
-    data: new Date().toISOString(),
-  }), [nomeCliente, planoAtivo, planoData, dataInicio]);
 
   return (
     <div className="min-h-screen bg-[#F1F7FF] py-6 px-4">
@@ -456,7 +421,6 @@ const EditarAnaliseFrequencial = () => {
             </h1>
           </div>
         </div>
-
         {shouldShowBirthdayAlert && (
           <ClientBirthdayAlert 
             clientName={nomeCliente}
@@ -464,7 +428,6 @@ const EditarAnaliseFrequencial = () => {
             context="tarot"
           />
         )}
-
         <Card className="border-[#6B21A8]/20 shadow-sm mb-6 bg-white/80 backdrop-blur-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="text-[#6B21A8] flex items-center gap-2">
@@ -486,34 +449,18 @@ const EditarAnaliseFrequencial = () => {
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}
             />
-
             <div className="mt-6 space-y-4">
               <h3 className="text-lg font-semibold text-slate-700 border-b border-slate-200 pb-2">
-                Configurações de Planos
+                {/* Configurações de Planos removida */}
               </h3>
-              
-              <PlanoSelector
-                planoAtivo={planoAtivo}
-                planoData={planoData}
-                onPlanoAtivoChange={setPlanoAtivo}
-                onPlanoDataChange={handlePlanoDataChange}
-              />
-
-              <SemanalSelector
-                semanalAtivo={semanalAtivo}
-                semanalData={semanalData}
-                onSemanalAtivoChange={setSemanalAtivo}
-                onSemanalDataChange={handleSemanalDataChange}
-              />
+              {/* PlanoSelector e SemanalSelector removidos */}
             </div>
-
             <AnalysisCards
               analiseAntes={analiseAntes}
               analiseDepois={analiseDepois}
               onAnaliseAntesChange={setAnaliseAntes}
               onAnaliseDepoisChange={setAnaliseDepois}
             />
-            
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-[#6B21A8] flex items-center gap-2">
@@ -559,11 +506,6 @@ const EditarAnaliseFrequencial = () => {
             </Button>
           </CardFooter>
         </Card>
-
-        {/* Plan Months Visualizer */}
-        {planoAtivo && nomeCliente && planoData.meses && planoData.valorMensal && dataInicio && (
-          <PlanoMonthsVisualizer atendimento={mockAtendimento} />
-        )}
       </div>
     </div>
   );
