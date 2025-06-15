@@ -1,4 +1,3 @@
-
 import React from "react";
 import TarotAnalysisCard from "./TarotAnalysisCard";
 
@@ -33,7 +32,6 @@ const TarotAnalysisList = React.memo(
               onToggleFinished={onToggleFinished}
               onEdit={onEdit}
               onDelete={onDelete}
-              lembretes={analise.lembretes || []}
             />
           );
         })}

@@ -1,22 +1,34 @@
+
 import React from "react";
-import { 
-  Calendar, 
-  DollarSign, 
-  Sparkles, 
-  AlertTriangle, 
-  Clock, 
-  Check, 
-  X, 
-  Edit3, 
-  Trash2 
+import {
+  Calendar,
+  DollarSign,
+  Sparkles,
+  AlertTriangle,
+  Clock,
+  Check,
+  X,
+  Edit3,
+  Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from "@/components/ui/alert-dialog";
 import PlanoPaymentButton from "@/components/tarot/PlanoPaymentButton";
 import SemanalPaymentButton from "@/components/tarot/SemanalPaymentButton";
 import { useNavigate } from "react-router-dom";
+import TratamentoContadores from "./TratamentoContadores";
 
 // Otimize ao máximo este card - só renderiza se props mudarem!
 const TarotAnalysisCard = React.memo(({
@@ -34,7 +46,7 @@ const TarotAnalysisCard = React.memo(({
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
   }) => {
-  
+
   console.log('TarotAnalysisCard - analise:', analise);
   console.log('TarotAnalysisCard - planoAtivo:', analise.planoAtivo);
   console.log('TarotAnalysisCard - semanalAtivo:', analise.semanalAtivo);
@@ -43,21 +55,22 @@ const TarotAnalysisCard = React.memo(({
 
   return (
     <div key={analise.id} className="space-y-3">
-      <Card 
+      <Card
         className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
       >
         <CardContent className="p-6">
+          {/* CONTADOR DO TRATAMENTO (fica logo abaixo do nome e badges) */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <h3 className="text-lg font-semibold text-[#32204a] group-hover:text-[#673193] transition-colors duration-300 flex items-center gap-2">
                   {analise.nomeCliente}
                   {formattedTime && (
-                    <Badge 
-                      variant="outline" 
+                    <Badge
+                      variant="outline"
                       className={`text-xs flex items-center gap-1 ${
-                        timeRemaining?.days === 0 
-                          ? "border-red-300 text-red-600 bg-red-50" 
+                        timeRemaining?.days === 0
+                          ? "border-red-300 text-red-600 bg-red-50"
                           : timeRemaining?.days === 1
                           ? "border-amber-300 text-amber-600 bg-amber-50"
                           : "border-[#bda3f2] text-[#673193] bg-[#ede9fe]/50"
@@ -71,22 +84,29 @@ const TarotAnalysisCard = React.memo(({
                 {analise.atencaoFlag && (
                   <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
                 )}
-                <Badge 
+                <Badge
                   variant={analise.finalizado ? "default" : "secondary"}
                   className={`${
-                    analise.finalizado 
-                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200" 
+                    analise.finalizado
+                      ? "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200"
                       : "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200"
                   } transition-all duration-300`}
                 >
                   {analise.finalizado ? "Finalizada" : "Em andamento"}
                 </Badge>
               </div>
+              {/* >>> CONTADOR DE TRATAMENTO DESTACADO AQUI <<< */}
+              {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
+                <div className="mb-4">
+                  <TratamentoContadores lembretes={analise.lembretes} />
+                </div>
+              )}
+              {/* >>> FIM CONTADOR <<< */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-[#673193]" />
                   <span>
-                    {analise.dataInicio 
+                    {analise.dataInicio
                       ? new Date(analise.dataInicio).toLocaleDateString('pt-BR')
                       : 'Data não informada'
                     }
@@ -143,7 +163,7 @@ const TarotAnalysisCard = React.memo(({
                   <AlertDialogHeader>
                     <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Tem certeza que deseja excluir a análise de <strong>{analise.nomeCliente}</strong>? 
+                      Tem certeza que deseja excluir a análise de <strong>{analise.nomeCliente}</strong>?
                       Esta ação não pode ser desfeita.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -151,7 +171,7 @@ const TarotAnalysisCard = React.memo(({
                     <AlertDialogCancel className="hover:bg-slate-100 transition-colors duration-300">
                       Cancelar
                     </AlertDialogCancel>
-                    <AlertDialogAction 
+                    <AlertDialogAction
                       onClick={() => onDelete(analise.id)}
                       className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-300"
                     >
@@ -164,7 +184,6 @@ const TarotAnalysisCard = React.memo(({
           </div>
         </CardContent>
       </Card>
-      
       {/* Removido: Botões de Controle de Pagamentos */}
       {/* 
       <div className="space-y-2">
