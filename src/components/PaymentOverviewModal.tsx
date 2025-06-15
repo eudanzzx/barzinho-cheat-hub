@@ -9,6 +9,9 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
 import PaymentSection from "./payment-overview/PaymentSection";
+import { CheckCircle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 
 interface PaymentOverviewModalProps {
   children: React.ReactNode;
@@ -453,8 +456,137 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     }
   };
 
+  // Hook para pagamentos de tarot (reutiliza lógica/tela do Tarot)
+  const {
+    groupedPayments: groupedTarotPaymentsState,
+    markAsPaid: markAsPaidTarot,
+    refresh: refreshTarotPayments,
+  } = usePaymentNotifications();
+
+  // Estado para controlar os pagamentos de tarot exibidos na UI (sincroniza ao abrir o modal)
+  const [filteredTarotGroups, setFilteredTarotGroups] = useState<GroupedPayment[]>([]);
+
+  // Recarregar pagamentos ao abrir/atualizar modal
+  const syncTarotPaymentsToModal = useCallback(() => {
+    // Só se contexto for 'tarot' ou 'all'
+    if (context === "tarot" || context === "all") {
+      setFilteredTarotGroups(groupedTarotPaymentsState.slice(0, 20));
+    }
+  }, [groupedTarotPaymentsState, context]);
+
+  useEffect(() => {
+    syncTarotPaymentsToModal();
+    // eslint-disable-next-line
+  }, [groupedTarotPaymentsState, context]);
+
+  // Refletir ação: ao marcar como pago tira da UI instantaneamente!
+  const handleMarkAsPaidTarot = useCallback((paymentId: string) => {
+    markAsPaidTarot(paymentId);
+    setFilteredTarotGroups((prevGroups) =>
+      prevGroups
+        .map(group => ({
+          ...group,
+          // Remove dos pagamentos do grupo o pago
+          mostUrgent: group.mostUrgent.id === paymentId
+            ? null
+            : group.mostUrgent,
+          additionalPayments: group.additionalPayments.filter(p => p.id !== paymentId)
+        }))
+        // Remove grupos que ficaram vazios
+        .filter(group => group.mostUrgent)
+    );
+    toast.success("Pagamento marcado como pago!");
+  }, [markAsPaidTarot]);
+
+  // Adaptação ao renderizar a seção de tarot, inserindo botão "Marcar como pago"
+  function TarotPaymentSection({
+    groupedPayments
+  }: { groupedPayments: GroupedPayment[] }) {
+    if (groupedPayments.length === 0) {
+      return (
+        <div className="p-4 text-slate-500 text-center">
+          <AlertTriangle className="h-6 w-6 mx-auto mb-3 opacity-40" />
+          Nenhum vencimento de análises de tarot
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {groupedPayments.map(group => (
+          <div key={group.clientName} className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm">
+            <div className="font-semibold text-slate-800 mb-2">{group.clientName}</div>
+            <div className="space-y-3">
+              {/* mostUrgent sempre vem primeiro */}
+              {[group.mostUrgent, ...group.additionalPayments].map(payment =>
+                payment ? (
+                  <div key={payment.id} className="flex items-center">
+                    {/* Card visual igual à sua referência */}
+                    <div className="flex-1">
+                      <div className="rounded-xl border border-[#ceb8fa] bg-[#f6f0ff] shadow-sm p-4 flex flex-col gap-2 relative">
+                        <div className="flex justify-between items-center mb-1">
+                          <Badge
+                            variant="outline"
+                            className="border-transparent bg-white/60 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
+                            style={{ boxShadow: 'none' }}
+                          >
+                            {payment.type === "plano" ? "Mensal" : "Semanal"}
+                          </Badge>
+                          <span className="text-lg font-bold text-green-600">
+                            R$ {payment.amount.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-[#8e46dd] font-medium">
+                          <Calendar className="h-4 w-4" />
+                          <span>
+                            {(() => {
+                              const date = new Date(payment.dueDate);
+                              return `${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`;
+                            })()}
+                          </span>
+                        </div>
+                        <div className="text-sm font-medium text-[#9156e0]">
+                          {(() => {
+                            // Urgência estilizada
+                            const daysUntilDue = (() => {
+                              const today = new Date(); today.setHours(0,0,0,0);
+                              const due = new Date(payment.dueDate); due.setHours(0,0,0,0);
+                              return Math.ceil((due.getTime() - today.getTime()) / (1000*60*60*24));
+                            })();
+                            if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? '' : 's'} em atraso`;
+                            if (daysUntilDue === 0) return "Vence hoje";
+                            if (daysUntilDue === 1) return "Vence amanhã";
+                            return `${daysUntilDue} dias restantes`;
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                    {/* Botão marcar pago */}
+                    <button
+                      className="ml-3 p-0.5 px-3 h-9 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
+                      title="Marcar como pago"
+                      onClick={() => handleMarkAsPaidTarot(payment.id)}
+                    >
+                      <CheckCircle className="h-5 w-5 mr-1" />
+                      Pago
+                    </button>
+                  </div>
+                ) : null
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <Dialog onOpenChange={loadUpcomingPayments}>
+    <Dialog onOpenChange={() => {
+      loadUpcomingPayments();
+      // Atualizar lista de tarot do hook
+      refreshTarotPayments();
+      setTimeout(syncTarotPaymentsToModal, 100);
+    }}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
@@ -468,7 +600,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
             Visualize e gerencie os próximos vencimentos de pagamentos.
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-6">
           {totalGroups === 0 ? (
             <Card className="border-slate-200">
@@ -486,6 +617,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
             </Card>
           ) : (
             <div className={`grid gap-6 ${context === 'all' ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
+              {/* PRINCIPAL (sem alteração) */}
               {(context === 'principal' || context === 'all') && filteredPayments.principal.length > 0 && (
                 <Card className="border-blue-200 bg-blue-50/30">
                   <CardHeader className="pb-4">
@@ -494,6 +626,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                   <CardContent>
                     <PaymentSection
                       groupedPayments={filteredPayments.principal}
+                      // ... keep existing code (props) the same ...
                       title=""
                       icon={<Users className="h-5 w-5 text-blue-600" />}
                       emptyMessage="Nenhum vencimento de atendimentos principais"
@@ -511,27 +644,14 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                 </Card>
               )}
 
-              {(context === 'tarot' || context === 'all') && filteredPayments.tarot.length > 0 && (
+              {/* TAROT (agora com lista customizada e botão de pagamento) */}
+              {(context === 'tarot' || context === 'all') && (filteredTarotGroups.length > 0) && (
                 <Card className="border-purple-200 bg-purple-50/30">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-purple-800">Análises de Tarot</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PaymentSection
-                      groupedPayments={filteredPayments.tarot}
-                      title=""
-                      icon={<Sparkles className="h-5 w-5 text-purple-600" />}
-                      emptyMessage="Nenhum vencimento de análises de tarot"
-                      isPrincipal={false}
-                      expandedClients={expandedClients}
-                      toggleExpandClient={toggleExpandClient}
-                      normalizeClientName={normalizeClientName}
-                      getDaysUntilDue={getDaysUntilDue}
-                      getUrgencyLevel={getUrgencyLevel}
-                      getUrgencyColor={getUrgencyColor}
-                      getUrgencyText={getUrgencyText}
-                      formatDate={formatDate}
-                    />
+                    <TarotPaymentSection groupedPayments={filteredTarotGroups} />
                   </CardContent>
                 </Card>
               )}
