@@ -17,11 +17,16 @@ interface ClientPaymentGroupProps {
 export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
   group,
   onMarkAsPaid,
-  onPostponePayment,
+  // onPostponePayment, // Removido, não usamos mais
   onDeleteNotification
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const hasAdditionalPayments = group.additionalPayments.length > 0;
+
+  // Remove duplicidade: não mostrar o mostUrgent na lista de adicionais
+  const additionalPayments = group.additionalPayments.filter(
+    payment => payment.id !== group.mostUrgent.id
+  );
+  const hasAdditionalPayments = additionalPayments.length > 0;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -33,23 +38,11 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
             </span>
             {hasAdditionalPayments && (
               <Badge variant="secondary" className="text-xs">
-                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? 's' : ''}
+                +{additionalPayments.length} vencimento{additionalPayments.length !== 1 ? 's' : ''}
               </Badge>
             )}
           </div>
           <div className="flex gap-1 ml-2 items-center">
-            {/* Adia pagamento - só se mensal */}
-            {group.mostUrgent.type === 'plano' && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onPostponePayment(group.mostUrgent.id)}
-                className="h-6 w-6 p-0 text-purple-600 hover:bg-purple-100"
-                title="Adiar pagamento"
-              >
-                <Calendar className="h-3 w-3" />
-              </Button>
-            )}
             {/* Exclui pagamento - só se semanal */}
             {group.mostUrgent.type === 'semanal' && (
               <Button
@@ -95,7 +88,7 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
         
         {hasAdditionalPayments && (
           <CollapsibleContent className="space-y-2">
-            {group.additionalPayments.map((payment) => (
+            {additionalPayments.map((payment) => (
               <PaymentCard 
                 key={payment.id} 
                 payment={payment} 
