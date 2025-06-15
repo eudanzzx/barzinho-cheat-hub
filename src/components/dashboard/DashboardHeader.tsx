@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -15,6 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
+import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -32,6 +32,12 @@ const DashboardHeader = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-3">
+          {/* Se estamos na listagem-tarot, mostramos o bloco de notificação igual ao /analise-frequencial */}
+          {isTarotListagem && (
+            <div className="mb-4">
+              <TarotCounterPriorityNotifications analises={[]} />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Logo height={36} width={36} />
@@ -44,23 +50,6 @@ const DashboardHeader = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              {/* ---- NOVO BOTÃO SÓ NA /listagem-tarot ---- */}
-              {isTarotListagem && (
-                <PaymentOverviewModal context="tarot">
-                  <Button
-                    className="flex items-center gap-2 text-tarot-primary bg-purple-100 hover:bg-purple-200 px-4 py-2 rounded-xl font-bold shadow border border-purple-200 transition-all text-base relative"
-                    style={{ minHeight: 40 }}
-                  >
-                    <Sparkles className="h-5 w-5 text-[#8e46dd] mr-1" />
-                    Próximos Vencimentos - Análises de Tarot
-                    {totalClients > 0 && (
-                      <Badge className="ml-2 bg-purple-200 text-purple-700 text-xs">{totalClients} cliente{totalClients > 1 ? "s" : ""}</Badge>
-                    )}
-                  </Button>
-                </PaymentOverviewModal>
-              )}
-              {/* ---- FIM DO BOTÃO NOVO ---- */}
-
               {isMobile ? (
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
