@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useUserDataService from "@/services/userDataService";
 import { filterTarotPlans } from "./utils/tarotPlanFilters";
 import { groupPaymentsByClient, GroupedPayment } from "./utils/paymentGrouping";
@@ -9,7 +9,7 @@ export const usePaymentNotifications = () => {
   const { getPlanos, savePlanos } = useUserDataService();
   const [groupedPayments, setGroupedPayments] = useState<GroupedPayment[]>([]);
 
-  const checkTarotPaymentNotifications = () => {
+  const checkTarotPaymentNotifications = useCallback(() => {
     console.log('usePaymentNotifications - Verificando notificações...');
     const allPlanos = getPlanos();
     console.log('usePaymentNotifications - Total de planos:', allPlanos.length);
@@ -21,39 +21,45 @@ export const usePaymentNotifications = () => {
     console.log('usePaymentNotifications - Grupos de pagamento:', grouped.length);
     
     setGroupedPayments(grouped);
-  };
+  }, [getPlanos]);
 
-  const markAsPaid = (notificationId: string) => {
+  const markAsPaid = useCallback((notificationId: string) => {
     console.log('markAsPaid - Iniciando para ID:', notificationId);
     const allPlanos = getPlanos();
     const updatedPlanos = handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
     // Force immediate refresh
     console.log('markAsPaid - Forçando refresh das notificações');
-    checkTarotPaymentNotifications();
-  };
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
+  }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
-  const postponePayment = (notificationId: string) => {
+  const postponePayment = useCallback((notificationId: string) => {
     console.log('postponePayment - Adiando pagamento:', notificationId);
     const allPlanos = getPlanos();
     handlePostponePayment(notificationId, allPlanos, savePlanos);
-    checkTarotPaymentNotifications();
-  };
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
+  }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
-  const deleteNotification = (notificationId: string) => {
+  const deleteNotification = useCallback((notificationId: string) => {
     console.log('deleteNotification - Excluindo notificação:', notificationId);
     const allPlanos = getPlanos();
     handleDeleteNotification(notificationId, allPlanos, savePlanos);
-    checkTarotPaymentNotifications();
-  };
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
+  }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   useEffect(() => {
     console.log('usePaymentNotifications - Inicializando...');
     checkTarotPaymentNotifications();
     
     // Listen for payment updates from control components
-    const handlePaymentUpdate = (event?: any) => {
-      console.log('handlePaymentUpdate - Evento de atualização recebido:', event?.type);
+    const handlePaymentUpdate = () => {
+      console.log('handlePaymentUpdate - Evento de atualização recebido');
       checkTarotPaymentNotifications();
     };
     
@@ -74,7 +80,7 @@ export const usePaymentNotifications = () => {
       window.removeEventListener('storage', handlePaymentUpdate);
       clearInterval(interval);
     };
-  }, []);
+  }, [checkTarotPaymentNotifications]);
 
   return {
     groupedPayments,
