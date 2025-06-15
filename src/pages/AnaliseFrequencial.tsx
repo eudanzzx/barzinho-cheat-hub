@@ -50,7 +50,7 @@ function AnaliseFrequencial() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* TarotCounterPriorityNotifications removido daqui */}
+      {/* Removido TarotCounterPriorityNotifications daqui */}
       {/* <TarotCounterPriorityNotifications analises={analises} /> */}
       <div className="mb-4 flex items-center justify-between">
         <div>
