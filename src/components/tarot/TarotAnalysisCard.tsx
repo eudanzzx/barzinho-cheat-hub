@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Calendar, 
@@ -166,7 +165,8 @@ const TarotAnalysisCard = React.memo(({
         </CardContent>
       </Card>
       
-      {/* Botões de Pagamento - sempre exibir se os planos estão ativos */}
+      {/* Removido: Botões de Controle de Pagamentos */}
+      {/* 
       <div className="space-y-2">
         {analise.planoAtivo && analise.planoData && (
           <PlanoPaymentButton
@@ -185,6 +185,7 @@ const TarotAnalysisCard = React.memo(({
           />
         )}
       </div>
+      */}
     </div>
   );
 });
