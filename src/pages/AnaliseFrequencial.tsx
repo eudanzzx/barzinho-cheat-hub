@@ -329,10 +329,10 @@ const AnaliseFrequencial = () => {
   const [semanalValorSemanal, setSemanalValorSemanal] = useState("");
   const [semanalDiaVencimento, setSemanalDiaVencimento] = useState("sexta");
 
-  // Adapter "form" fake para usar PlanosSideBySideSection
+  // Adapter "form" fake for compatibility
   const form = useMemo(() => ({
-    control: {}, // não será utilizado
-    // FAKE método para PlanosSideBySideSection funcionar: "get" para watcher e "set" para onCheckedChange
+    control: {}, // not used
+    // FAKE method for PlanosSideBySideSection to work: "get" for watcher and "set" for onCheckedChange
     watch: (field: string) => {
       switch (field) {
         case "planoAtivo": return planoAtivo;
@@ -416,7 +416,7 @@ const AnaliseFrequencial = () => {
               onPrecoChange={setPreco}
             />
 
-            {/* NOVO BLOCO VISUAL DOS PLANOS (SEM DEPENDÊNCIA DO FORM HOOK) */}
+            {/* Use the correct, simple visual version */}
             <PlanosSideBySideSimpleSection
               planoAtivo={planoAtivo}
               setPlanoAtivo={setPlanoAtivo}
