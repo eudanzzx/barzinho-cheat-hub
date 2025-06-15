@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
 import useUserDataService from "@/services/userDataService";
+import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
 
 // Import das dependências
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -24,6 +24,7 @@ import TarotCounterPriorityNotifications from "@/components/TarotCounterPriority
 
 const DashboardHeader = () => {
   const [openContadores, setOpenContadores] = useState(false);
+  const [openTratamentoContadores, setOpenTratamentoContadores] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -84,6 +85,25 @@ const DashboardHeader = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
+                </>
+              )}
+
+              {/* Botão de CONTADORES DE TRATAMENTO (novo, só na listagem tarot) */}
+              {isTarotListagem && (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-1 text-violet-700 bg-violet-100 hover:bg-violet-200 px-2 py-2 rounded-xl font-bold shadow border border-violet-200"
+                    title="Ver contadores de tratamento"
+                    onClick={() => setOpenTratamentoContadores(true)}
+                  >
+                    <Bell className="h-5 w-5 text-[#8e46dd]" />
+                    <span className="hidden sm:inline">Contadores</span>
+                  </Button>
+                  <TratamentoContadoresModal
+                    open={openTratamentoContadores}
+                    onOpenChange={setOpenTratamentoContadores}
+                  />
                 </>
               )}
 
@@ -201,4 +221,3 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
-
