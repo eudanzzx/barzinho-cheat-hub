@@ -87,11 +87,40 @@ export const usePlanoMonths = ({
     const newIsPaid = !month.isPaid;
     
     if (month.planoId) {
+      // Mark as paid or unpaid
       const updatedPlanos = planos.map(plano => 
         plano.id === month.planoId 
           ? { ...plano, active: !newIsPaid }
           : plano
       );
+      
+      // If marking as paid, automatically create next month's payment
+      if (newIsPaid) {
+        const totalMonths = parseInt(planoData.meses);
+        const nextMonthIndex = monthIndex + 1;
+        
+        if (nextMonthIndex < totalMonths) {
+          const nextMonth = planoMonths[nextMonthIndex];
+          if (nextMonth && !nextMonth.planoId) {
+            const nextPlano: PlanoMensal = {
+              id: `${analysisId}-month-${nextMonth.month}`,
+              clientName: clientName,
+              type: 'plano',
+              amount: parseFloat(planoData.valorMensal),
+              dueDate: nextMonth.dueDate,
+              month: nextMonth.month,
+              totalMonths: totalMonths,
+              created: new Date().toISOString(),
+              active: true,
+              notificationTiming: 'on_due_date',
+              analysisId: analysisId
+            };
+            
+            updatedPlanos.push(nextPlano);
+          }
+        }
+      }
+      
       savePlanos(updatedPlanos);
       
       const updatedMonths = [...planoMonths];
@@ -116,26 +145,27 @@ export const usePlanoMonths = ({
       
       // Create next month's payment if not the last month
       const totalMonths = parseInt(planoData.meses);
-      if (month.month < totalMonths) {
-        const nextMonth = month.month + 1;
-        const nextDueDate = new Date(month.dueDate);
-        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-        
-        const nextPlano: PlanoMensal = {
-          id: `${analysisId}-month-${nextMonth}`,
-          clientName: clientName,
-          type: 'plano',
-          amount: parseFloat(planoData.valorMensal),
-          dueDate: nextDueDate.toISOString().split('T')[0],
-          month: nextMonth,
-          totalMonths: totalMonths,
-          created: new Date().toISOString(),
-          active: true,
-          notificationTiming: 'on_due_date',
-          analysisId: analysisId
-        };
-        
-        updatedPlanos.push(nextPlano);
+      const nextMonthIndex = monthIndex + 1;
+      
+      if (nextMonthIndex < totalMonths) {
+        const nextMonth = planoMonths[nextMonthIndex];
+        if (nextMonth && !nextMonth.planoId) {
+          const nextPlano: PlanoMensal = {
+            id: `${analysisId}-month-${nextMonth.month}`,
+            clientName: clientName,
+            type: 'plano',
+            amount: parseFloat(planoData.valorMensal),
+            dueDate: nextMonth.dueDate,
+            month: nextMonth.month,
+            totalMonths: totalMonths,
+            created: new Date().toISOString(),
+            active: true,
+            notificationTiming: 'on_due_date',
+            analysisId: analysisId
+          };
+          
+          updatedPlanos.push(nextPlano);
+        }
       }
       
       savePlanos(updatedPlanos);

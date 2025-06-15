@@ -70,11 +70,40 @@ export const useSemanalWeeks = ({
     const newIsPaid = !week.isPaid;
     
     if (week.semanalId) {
+      // Mark as paid or unpaid
       const updatedPlanos = planos.map(plano => 
         plano.id === week.semanalId 
           ? { ...plano, active: !newIsPaid }
           : plano
       );
+      
+      // If marking as paid, automatically create next week's payment
+      if (newIsPaid) {
+        const totalWeeks = parseInt(semanalData.semanas);
+        const nextWeekIndex = weekIndex + 1;
+        
+        if (nextWeekIndex < totalWeeks) {
+          const nextWeek = semanalWeeks[nextWeekIndex];
+          if (nextWeek && !nextWeek.semanalId) {
+            const nextSemanal: PlanoSemanal = {
+              id: `${analysisId}-week-${nextWeek.week}`,
+              clientName: clientName,
+              type: 'semanal',
+              amount: parseFloat(semanalData.valorSemanal),
+              dueDate: nextWeek.dueDate,
+              week: nextWeek.week,
+              totalWeeks: totalWeeks,
+              created: new Date().toISOString(),
+              active: true,
+              notificationTiming: 'on_due_date',
+              analysisId: analysisId
+            };
+            
+            updatedPlanos.push(nextSemanal);
+          }
+        }
+      }
+      
       savePlanos(updatedPlanos);
       
       const updatedWeeks = [...semanalWeeks];
@@ -99,26 +128,27 @@ export const useSemanalWeeks = ({
       
       // Create next week's payment if not the last week
       const totalWeeks = parseInt(semanalData.semanas);
-      if (week.week < totalWeeks) {
-        const nextWeek = week.week + 1;
-        const nextDueDate = new Date(week.dueDate);
-        nextDueDate.setDate(nextDueDate.getDate() + 7);
-        
-        const nextSemanal: PlanoSemanal = {
-          id: `${analysisId}-week-${nextWeek}`,
-          clientName: clientName,
-          type: 'semanal',
-          amount: parseFloat(semanalData.valorSemanal),
-          dueDate: nextDueDate.toISOString().split('T')[0],
-          week: nextWeek,
-          totalWeeks: totalWeeks,
-          created: new Date().toISOString(),
-          active: true,
-          notificationTiming: 'on_due_date',
-          analysisId: analysisId
-        };
-        
-        updatedPlanos.push(nextSemanal);
+      const nextWeekIndex = weekIndex + 1;
+      
+      if (nextWeekIndex < totalWeeks) {
+        const nextWeek = semanalWeeks[nextWeekIndex];
+        if (nextWeek && !nextWeek.semanalId) {
+          const nextSemanal: PlanoSemanal = {
+            id: `${analysisId}-week-${nextWeek.week}`,
+            clientName: clientName,
+            type: 'semanal',
+            amount: parseFloat(semanalData.valorSemanal),
+            dueDate: nextWeek.dueDate,
+            week: nextWeek.week,
+            totalWeeks: totalWeeks,
+            created: new Date().toISOString(),
+            active: true,
+            notificationTiming: 'on_due_date',
+            analysisId: analysisId
+          };
+          
+          updatedPlanos.push(nextSemanal);
+        }
       }
       
       savePlanos(updatedPlanos);
