@@ -120,11 +120,6 @@ const ListagemTarot = () => {
                 <div className="divide-y divide-gray-100">
                   {tabAnalises.map((analise) => (
                     <div key={analise.id} className="px-5 pt-4 pb-2">
-                      {/* CONTADORES GRANDE E SUBMENU */}
-                      {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
-                        <TratamentoContadores lembretes={analise.lembretes} />
-                      )}
-                      {/* CARD ORIGINAL (com todos os controles) */}
                       <TarotAnalysisList
                         analises={[analise]}
                         calculateTimeRemaining={() => null}
