@@ -14,6 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
+import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -26,6 +27,11 @@ const DashboardHeader = () => {
   // Buscamos notificações de vencimentos do tarot
   const { groupedPayments } = usePaymentNotifications();
   const totalClients = groupedPayments.length;
+
+  // -- Novo botão/modal deve receber analises, mas DashboardHeader não tem esses dados.
+  // Solução: Buscar análises do Tarot do storage aqui (igual ao hook useTarotAnalises)
+  const { getAllTarotAnalyses } = require("@/services/userDataService").default();
+  const analisesTarot = isTarotListagem ? getAllTarotAnalyses() : [];
 
   return (
     <>
