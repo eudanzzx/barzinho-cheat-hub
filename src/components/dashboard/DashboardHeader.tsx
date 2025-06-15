@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -16,7 +15,7 @@ import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
-import useUserDataService from "@/services/userDataService"; // Import the hook properly
+import useUserDataService from "@/services/userDataService"; // <--- CORRECT ES IMPORT
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
