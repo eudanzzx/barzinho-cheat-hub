@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Check, Calendar, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { CheckCircle, Calendar, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { PaymentCard } from "./PaymentCard";
 import { GroupedPayment } from "./utils/paymentGrouping";
 
@@ -37,7 +37,8 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
               </Badge>
             )}
           </div>
-          <div className="flex gap-1 ml-2">
+          <div className="flex gap-1 ml-2 items-center">
+            {/* Adia pagamento - só se mensal */}
             {group.mostUrgent.type === 'plano' && (
               <Button
                 size="sm"
@@ -49,6 +50,7 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
                 <Calendar className="h-3 w-3" />
               </Button>
             )}
+            {/* Exclui pagamento - só se semanal */}
             {group.mostUrgent.type === 'semanal' && (
               <Button
                 size="sm"
@@ -60,15 +62,17 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
                 <Trash2 className="h-3 w-3" />
               </Button>
             )}
+            {/* Certinho de marcar como pago */}
             <Button
-              size="sm"
+              size="icon"
               variant="ghost"
               onClick={() => onMarkAsPaid(group.mostUrgent.id)}
-              className="h-6 w-6 p-0 text-green-600 hover:bg-green-100"
+              className="h-8 w-8 p-0 bg-green-50 hover:bg-green-200 text-green-600 border border-green-100 shadow-sm transition"
               title="Marcar como pago"
             >
-              <Check className="h-3 w-3" />
+              <CheckCircle className="h-6 w-6" />
             </Button>
+            {/* Toggle de ver mais */}
             {hasAdditionalPayments && (
               <CollapsibleTrigger asChild>
                 <Button 
