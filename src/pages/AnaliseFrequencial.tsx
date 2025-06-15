@@ -26,7 +26,6 @@ import DailySemanalNotificationManager from "@/components/DailySemanalNotificati
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
 // Memoized reminder component to prevent unnecessary re-renders
 const ReminderCard = memo(({ lembrete, onUpdate, onRemove }: {
@@ -526,9 +525,6 @@ const AnaliseFrequencial = () => {
             </h1>
           </div>
         </div>
-
-        {/* Mostrar contadores ativos */}
-        <TarotCounterPriorityNotifications analises={analises} />
 
         {shouldShowBirthdayAlert && (
           <ClientBirthdayAlert 

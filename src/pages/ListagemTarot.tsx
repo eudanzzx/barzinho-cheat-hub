@@ -6,7 +6,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
-// import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications"; // Removido
+import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 import TarotSearchInput from "@/components/tarot/TarotSearchInput";
 import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,11 @@ const ListagemTarot = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
 
+      {/* Adiciona TarotCounterPriorityNotifications aqui */}
+      <div className="container mx-auto pt-3">
+        <TarotCounterPriorityNotifications analises={analises} />
+      </div>
+
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         {aniversarianteHoje && (
           <ClientBirthdayAlert
@@ -50,10 +55,7 @@ const ListagemTarot = () => {
           />
         )}
 
-        {/* Notificações removidas */}
-        {/* <div className="mb-6">
-          <TarotCounterPriorityNotifications analises={analises} />
-        </div> */}
+        {/* Removido: TarotCounterPriorityNotifications (daqui) */}
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -140,4 +142,3 @@ const ListagemTarot = () => {
 };
 
 export default ListagemTarot;
-
