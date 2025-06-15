@@ -6,9 +6,13 @@ export const createNextPayment = (
   currentPlano: PlanoMensal | PlanoSemanal,
   allPlanos: (PlanoMensal | PlanoSemanal)[]
 ): PlanoMensal | PlanoSemanal | null => {
+  console.log('createNextPayment - currentPlano:', currentPlano);
+  
   if (currentPlano.type === 'plano' && 'month' in currentPlano && 'totalMonths' in currentPlano) {
     const currentMonth = currentPlano.month;
     const totalMonths = currentPlano.totalMonths;
+    
+    console.log(`createNextPayment - Mês atual: ${currentMonth}, Total: ${totalMonths}`);
     
     if (currentMonth < totalMonths) {
       const nextDueDate = new Date(currentPlano.dueDate);
@@ -28,6 +32,7 @@ export const createNextPayment = (
         analysisId: currentPlano.analysisId
       };
       
+      console.log('createNextPayment - Próximo plano criado:', nextPlano);
       return nextPlano;
     }
   } else if (currentPlano.type === 'semanal') {
@@ -56,6 +61,7 @@ export const createNextPayment = (
     }
   }
   
+  console.log('createNextPayment - Nenhum próximo pagamento criado');
   return null;
 };
 
@@ -64,12 +70,17 @@ export const handleMarkAsPaid = (
   allPlanos: (PlanoMensal | PlanoSemanal)[],
   savePlanos: (planos: (PlanoMensal | PlanoSemanal)[]) => void
 ) => {
+  console.log('handleMarkAsPaid - Marcando como pago:', notificationId);
+  
   const currentPlano = allPlanos.find(plano => plano.id === notificationId);
   
   if (!currentPlano) {
+    console.error('handleMarkAsPaid - Plano não encontrado:', notificationId);
     toast.error("Plano não encontrado!");
     return allPlanos;
   }
+
+  console.log('handleMarkAsPaid - Plano encontrado:', currentPlano);
 
   // Mark current payment as paid (inactive)
   const updatedPlanos = allPlanos.map(plano => 
@@ -82,16 +93,20 @@ export const handleMarkAsPaid = (
   if (nextPayment) {
     updatedPlanos.push(nextPayment);
     const nextDueDate = new Date(nextPayment.dueDate);
+    console.log('handleMarkAsPaid - Próximo pagamento criado e adicionado:', nextPayment);
     toast.success(`Pagamento marcado como pago! Próximo vencimento: ${nextDueDate.toLocaleDateString('pt-BR')}`);
   } else {
     const paymentType = currentPlano.type === 'plano' ? 'plano' : 'semanal';
+    console.log('handleMarkAsPaid - Último pagamento do plano');
     toast.success(`Último pagamento do ${paymentType} marcado como pago!`);
   }
   
+  console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
   
   // Disparar evento customizado para notificar que houve mudança nos pagamentos do tarot
   window.dispatchEvent(new Event('tarot-payment-updated'));
+  window.dispatchEvent(new Event('planosUpdated'));
   
   return updatedPlanos;
 };
@@ -117,6 +132,7 @@ export const handlePostponePayment = (
   
   // Disparar evento customizado
   window.dispatchEvent(new Event('tarot-payment-updated'));
+  window.dispatchEvent(new Event('planosUpdated'));
   
   return updatedPlanos;
 };
@@ -132,6 +148,7 @@ export const handleDeleteNotification = (
   
   // Disparar evento customizado
   window.dispatchEvent(new Event('tarot-payment-updated'));
+  window.dispatchEvent(new Event('planosUpdated'));
   
   return updatedPlanos;
 };
