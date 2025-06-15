@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -57,7 +56,7 @@ export const usePlanoMonths = ({
     
     for (let i = 1; i <= totalMonths; i++) {
       const dueDate = new Date(baseDate);
-      dueDate.setMonth(dueDate.getMonth() + i - 1);
+      dueDate.setMonth(dueDate.getMonth() + i);
       
       // Ajustar para o último dia do mês se necessário
       const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate();
@@ -145,13 +144,20 @@ export const usePlanoMonths = ({
 
       console.log(`handlePaymentToggle - Mês ${month.month} marcado como ${newIsPaid ? 'pago' : 'pendente'}`);
     } else if (newIsPaid) {
+      // Usar o dia de vencimento correto ao criar novo plano
+      const dueDay = planoData.diaVencimento ? parseInt(planoData.diaVencimento) : 5;
+      const actualDueDate = new Date(month.dueDate);
+      const lastDayOfMonth = new Date(actualDueDate.getFullYear(), actualDueDate.getMonth() + 1, 0).getDate();
+      const correctedDueDay = Math.min(dueDay, lastDayOfMonth);
+      actualDueDate.setDate(correctedDueDay);
+      
       // Criar novo plano se não existir
       const newPlano: PlanoMensal = {
         id: `${analysisId}-month-${month.month}-${Date.now()}`,
         clientName: clientName,
         type: 'plano',
         amount: parseFloat(planoData.valorMensal),
-        dueDate: month.dueDate,
+        dueDate: actualDueDate.toISOString().split('T')[0],
         month: month.month,
         totalMonths: parseInt(planoData.meses),
         created: new Date().toISOString(),
@@ -166,6 +172,7 @@ export const usePlanoMonths = ({
       const updatedMonths = [...planoMonths];
       updatedMonths[monthIndex].planoId = newPlano.id;
       updatedMonths[monthIndex].isPaid = true;
+      updatedMonths[monthIndex].dueDate = actualDueDate.toISOString().split('T')[0];
       setPlanoMonths(updatedMonths);
 
       console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);

@@ -36,13 +36,21 @@ const NovoAtendimento = () => {
     setSemanalAtivo,
   } = useAtendimentoForm();
 
-  const createPlanoNotifications = (nomeCliente: string, meses: string, valorMensal: string, dataInicio: string) => {
+  const createPlanoNotifications = (nomeCliente: string, meses: string, valorMensal: string, dataInicio: string, diaVencimento?: string) => {
     const notifications: PlanoMensal[] = [];
     const startDate = new Date(dataInicio);
+    
+    // Usar o dia de vencimento selecionado ou padrão (5)
+    const dueDay = diaVencimento ? parseInt(diaVencimento) : 5;
     
     for (let i = 1; i <= parseInt(meses); i++) {
       const notificationDate = new Date(startDate);
       notificationDate.setMonth(notificationDate.getMonth() + i);
+      
+      // Ajustar para o dia de vencimento correto
+      const lastDayOfMonth = new Date(notificationDate.getFullYear(), notificationDate.getMonth() + 1, 0).getDate();
+      const actualDueDay = Math.min(dueDay, lastDayOfMonth);
+      notificationDate.setDate(actualDueDay);
       
       notifications.push({
         id: `plano-${Date.now()}-${i}`,
@@ -53,7 +61,8 @@ const NovoAtendimento = () => {
         month: i,
         totalMonths: parseInt(meses),
         created: new Date().toISOString(),
-        active: true
+        active: true,
+        notificationTiming: 'on_due_date'
       });
     }
     
@@ -106,20 +115,22 @@ const NovoAtendimento = () => {
     existingAtendimentos.push(novoAtendimento);
     saveAtendimentos(existingAtendimentos);
     
-    // Criar notificações de plano se ativo
+    // Criar notificações de plano se ativo - agora passando o dia de vencimento
     if (planoAtivo && planoData.meses && planoData.valorMensal && formData.dataAtendimento) {
       const notifications = createPlanoNotifications(
         formData.nome,
         planoData.meses,
         planoData.valorMensal,
-        formData.dataAtendimento
+        formData.dataAtendimento,
+        planoData.diaVencimento // Passando o dia de vencimento selecionado
       );
       
       const existingPlanos = getPlanos() || [];
       const updatedPlanos = [...existingPlanos, ...notifications];
       savePlanos(updatedPlanos);
       
-      toast.success(`Atendimento salvo! Plano de ${planoData.meses} meses criado com sucesso.`);
+      const diaVencimentoLabel = planoData.diaVencimento || "5";
+      toast.success(`Atendimento salvo! Plano de ${planoData.meses} meses criado com vencimentos no dia ${diaVencimentoLabel}.`);
     }
     
     // Criar notificações semanais se ativo
