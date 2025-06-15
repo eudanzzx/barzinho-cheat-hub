@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useMemo, memo } from "react";
 import {
   Form,
@@ -199,9 +200,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
               </FormItem>
             )}
           />
-          {planoAtivo && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {planoAtivo && (
+              <>
                 <FormField
                   control={form.control}
                   name="planoMeses"
@@ -263,28 +264,35 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
                     </FormItem>
                   )}
                 />
-              </div>
-              {/* Botão Plano Mensal (só visual, desabilitado durante criação) */}
-              <div className="mt-4">
-                <PlanoPaymentButton
-                  analysisId={editingAnalysis?.id || "novo"}
-                  clientName={form.getValues("clientName") || ""}
-                  planoData={{
-                    meses: form.getValues("planoMeses") || "",
-                    valorMensal: form.getValues("planoValorMensal") || "",
-                  }}
-                  startDate={
-                    form.getValues("startDate")
-                      ? form.getValues("startDate").toString()
-                      : ""
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  (O controle de pagamentos será ativado após salvar a análise)
-                </p>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
+          {/* Botão Plano Mensal Sempre Visível */}
+          <div className="mt-4">
+            <PlanoPaymentButton
+              analysisId={editingAnalysis?.id || "novo"}
+              clientName={form.getValues("clientName") || ""}
+              planoData={{
+                meses: form.getValues("planoMeses") || "",
+                valorMensal: form.getValues("planoValorMensal") || "",
+              }}
+              startDate={
+                form.getValues("startDate")
+                  ? form.getValues("startDate").toString()
+                  : ""
+              }
+            />
+            {!planoAtivo && (
+              <p className="text-xs text-muted-foreground mt-1">
+                (Ative o plano mensal para configurar pagamentos)
+              </p>
+            )}
+            {planoAtivo && (
+              <p className="text-xs text-muted-foreground mt-1">
+                (O controle de pagamentos será ativado após salvar a análise)
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Plano Semanal Section */}
@@ -310,9 +318,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
               </FormItem>
             )}
           />
-          {semanalAtivo && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {semanalAtivo && (
+              <>
                 <FormField
                   control={form.control}
                   name="semanalSemanas"
@@ -376,28 +384,35 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
                     </FormItem>
                   )}
                 />
-              </div>
-              {/* Botão Plano Semanal (só visual, desabilitado durante criação) */}
-              <div className="mt-4">
-                <SemanalPaymentButton
-                  analysisId={editingAnalysis?.id || "novo"}
-                  clientName={form.getValues("clientName") || ""}
-                  semanalData={{
-                    semanas: form.getValues("semanalSemanas") || "",
-                    valorSemanal: form.getValues("semanalValorSemanal") || "",
-                  }}
-                  startDate={
-                    form.getValues("startDate")
-                      ? form.getValues("startDate").toString()
-                      : ""
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  (O controle de pagamentos será ativado após salvar a análise)
-                </p>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
+          {/* Botão Plano Semanal Sempre Visível */}
+          <div className="mt-4">
+            <SemanalPaymentButton
+              analysisId={editingAnalysis?.id || "novo"}
+              clientName={form.getValues("clientName") || ""}
+              semanalData={{
+                semanas: form.getValues("semanalSemanas") || "",
+                valorSemanal: form.getValues("semanalValorSemanal") || "",
+              }}
+              startDate={
+                form.getValues("startDate")
+                  ? form.getValues("startDate").toString()
+                  : ""
+              }
+            />
+            {!semanalAtivo && (
+              <p className="text-xs text-muted-foreground mt-1">
+                (Ative o plano semanal para configurar pagamentos)
+              </p>
+            )}
+            {semanalAtivo && (
+              <p className="text-xs text-muted-foreground mt-1">
+                (O controle de pagamentos será ativado após salvar a análise)
+              </p>
+            )}
+          </div>
         </div>
 
         <CountersSection
@@ -426,3 +441,4 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
 FrequencyAnalysisForm.displayName = 'FrequencyAnalysisForm';
 
 export default FrequencyAnalysisForm;
+
