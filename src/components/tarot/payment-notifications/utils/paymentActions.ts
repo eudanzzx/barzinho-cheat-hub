@@ -22,9 +22,9 @@ export const createNextPayment = (
       // Adicionar exatamente 1 mês
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
       
-      // Se o dia mudou devido ao número de dias do mês, ajustar
+      // Se o dia mudou devido ao número de dias do mês, ajustar para o mesmo dia
       if (nextDueDate.getDate() !== currentDueDate.getDate()) {
-        nextDueDate.setDate(0); // Vai para o último dia do mês anterior
+        nextDueDate.setDate(currentDueDate.getDate());
       }
       
       const nextPlano: PlanoMensal = {
@@ -118,17 +118,6 @@ export const handleMarkAsPaid = (
   console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
   
-  // Force immediate refresh of all payment notifications
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { 
-      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new Event('storage'));
-  }, 50);
-  
   return updatedPlanos;
 };
 
@@ -154,16 +143,6 @@ export const handlePostponePayment = (
   savePlanos(updatedPlanos);
   toast.info("Pagamento do tarot adiado por 7 dias");
   
-  // Force immediate refresh
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { 
-      detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
-    }));
-  }, 50);
-  
   return updatedPlanos;
 };
 
@@ -177,16 +156,6 @@ export const handleDeleteNotification = (
   const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
   savePlanos(updatedPlanos);
   toast.success("Notificação de pagamento excluída!");
-  
-  // Force immediate refresh
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { 
-      detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
-    }));
-  }, 50);
   
   return updatedPlanos;
 };

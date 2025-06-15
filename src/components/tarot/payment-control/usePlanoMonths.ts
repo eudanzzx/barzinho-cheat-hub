@@ -53,13 +53,14 @@ export const usePlanoMonths = ({
     
     for (let i = 1; i <= totalMonths; i++) {
       const dueDate = new Date(baseDate);
-      dueDate.setMonth(dueDate.getMonth() + i);
+      dueDate.setMonth(dueDate.getMonth() + i - 1);
       
       const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate();
       const actualDueDay = Math.min(dueDay, lastDayOfMonth);
       dueDate.setDate(actualDueDay);
       
       const planoForMonth = planos.find((plano) => 
+        plano.analysisId === analysisId &&
         plano.clientName === clientName && 
         plano.type === 'plano' &&
         'month' in plano &&
@@ -94,33 +95,6 @@ export const usePlanoMonths = ({
           : plano
       );
       
-      // If marking as paid, automatically create next month's payment
-      if (newIsPaid) {
-        const totalMonths = parseInt(planoData.meses);
-        const nextMonthIndex = monthIndex + 1;
-        
-        if (nextMonthIndex < totalMonths) {
-          const nextMonth = planoMonths[nextMonthIndex];
-          if (nextMonth && !nextMonth.planoId) {
-            const nextPlano: PlanoMensal = {
-              id: `${analysisId}-month-${nextMonth.month}`,
-              clientName: clientName,
-              type: 'plano',
-              amount: parseFloat(planoData.valorMensal),
-              dueDate: nextMonth.dueDate,
-              month: nextMonth.month,
-              totalMonths: totalMonths,
-              created: new Date().toISOString(),
-              active: true,
-              notificationTiming: 'on_due_date',
-              analysisId: analysisId
-            };
-            
-            updatedPlanos.push(nextPlano);
-          }
-        }
-      }
-      
       savePlanos(updatedPlanos);
       
       const updatedMonths = [...planoMonths];
@@ -128,7 +102,7 @@ export const usePlanoMonths = ({
       setPlanoMonths(updatedMonths);
     } else if (newIsPaid) {
       const newPlano: PlanoMensal = {
-        id: `${analysisId}-month-${month.month}`,
+        id: `${analysisId}-month-${month.month}-${Date.now()}`,
         clientName: clientName,
         type: 'plano',
         amount: parseFloat(planoData.valorMensal),
@@ -141,33 +115,7 @@ export const usePlanoMonths = ({
         analysisId: analysisId
       };
       
-      let updatedPlanos = [...planos, newPlano];
-      
-      // Create next month's payment if not the last month
-      const totalMonths = parseInt(planoData.meses);
-      const nextMonthIndex = monthIndex + 1;
-      
-      if (nextMonthIndex < totalMonths) {
-        const nextMonth = planoMonths[nextMonthIndex];
-        if (nextMonth && !nextMonth.planoId) {
-          const nextPlano: PlanoMensal = {
-            id: `${analysisId}-month-${nextMonth.month}`,
-            clientName: clientName,
-            type: 'plano',
-            amount: parseFloat(planoData.valorMensal),
-            dueDate: nextMonth.dueDate,
-            month: nextMonth.month,
-            totalMonths: totalMonths,
-            created: new Date().toISOString(),
-            active: true,
-            notificationTiming: 'on_due_date',
-            analysisId: analysisId
-          };
-          
-          updatedPlanos.push(nextPlano);
-        }
-      }
-      
+      const updatedPlanos = [...planos, newPlano];
       savePlanos(updatedPlanos);
       
       const updatedMonths = [...planoMonths];
@@ -180,8 +128,13 @@ export const usePlanoMonths = ({
       setPlanoMonths(updatedMonths);
     }
     
-    // Force refresh of notification button by dispatching custom event
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated'));
+    // Force refresh of notification components
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+    }));
     
     toast.success(
       newIsPaid 
