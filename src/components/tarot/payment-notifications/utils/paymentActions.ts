@@ -15,7 +15,9 @@ export const createNextPayment = (
     console.log(`createNextPayment - Mês atual: ${currentMonth}, Total: ${totalMonths}`);
     
     if (currentMonth < totalMonths) {
-      const nextDueDate = new Date(currentPlano.dueDate);
+      // Calcular a próxima data de vencimento corretamente
+      const currentDueDate = new Date(currentPlano.dueDate);
+      const nextDueDate = new Date(currentDueDate);
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
       
       const nextPlano: PlanoMensal = {
@@ -33,6 +35,7 @@ export const createNextPayment = (
       };
       
       console.log('createNextPayment - Próximo plano criado:', nextPlano);
+      console.log('createNextPayment - Nova data de vencimento:', nextPlano.dueDate);
       return nextPlano;
     }
   } else if (currentPlano.type === 'semanal') {
@@ -40,7 +43,8 @@ export const createNextPayment = (
     const totalWeeks = currentPlano.totalWeeks || 1;
     
     if (currentWeek < totalWeeks) {
-      const nextDueDate = new Date(currentPlano.dueDate);
+      const currentDueDate = new Date(currentPlano.dueDate);
+      const nextDueDate = new Date(currentDueDate);
       nextDueDate.setDate(nextDueDate.getDate() + 7);
       
       const nextPlano: PlanoSemanal = {
@@ -61,7 +65,7 @@ export const createNextPayment = (
     }
   }
   
-  console.log('createNextPayment - Nenhum próximo pagamento criado');
+  console.log('createNextPayment - Nenhum próximo pagamento criado (último pagamento do plano)');
   return null;
 };
 
@@ -70,7 +74,7 @@ export const handleMarkAsPaid = (
   allPlanos: (PlanoMensal | PlanoSemanal)[],
   savePlanos: (planos: (PlanoMensal | PlanoSemanal)[]) => void
 ) => {
-  console.log('handleMarkAsPaid - Marcando como pago:', notificationId);
+  console.log('handleMarkAsPaid - Iniciando para ID:', notificationId);
   
   const currentPlano = allPlanos.find(plano => plano.id === notificationId);
   
@@ -83,9 +87,11 @@ export const handleMarkAsPaid = (
   console.log('handleMarkAsPaid - Plano encontrado:', currentPlano);
 
   // Mark current payment as paid (inactive)
-  const updatedPlanos = allPlanos.map(plano => 
+  let updatedPlanos = allPlanos.map(plano => 
     plano.id === notificationId ? { ...plano, active: false } : plano
   );
+
+  console.log('handleMarkAsPaid - Plano marcado como inativo');
 
   // Create next payment if applicable
   const nextPayment = createNextPayment(currentPlano, allPlanos);
@@ -94,9 +100,10 @@ export const handleMarkAsPaid = (
     updatedPlanos.push(nextPayment);
     const nextDueDate = new Date(nextPayment.dueDate);
     console.log('handleMarkAsPaid - Próximo pagamento criado e adicionado:', nextPayment);
+    console.log('handleMarkAsPaid - Total de planos após adicionar:', updatedPlanos.length);
     toast.success(`Pagamento marcado como pago! Próximo vencimento: ${nextDueDate.toLocaleDateString('pt-BR')}`);
   } else {
-    const paymentType = currentPlano.type === 'plano' ? 'plano' : 'semanal';
+    const paymentType = currentPlano.type === 'plano' ? 'plano mensal' : 'plano semanal';
     console.log('handleMarkAsPaid - Último pagamento do plano');
     toast.success(`Último pagamento do ${paymentType} marcado como pago!`);
   }
@@ -104,9 +111,13 @@ export const handleMarkAsPaid = (
   console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
   
-  // Disparar evento customizado para notificar que houve mudança nos pagamentos do tarot
-  window.dispatchEvent(new Event('tarot-payment-updated'));
-  window.dispatchEvent(new Event('planosUpdated'));
+  // Force immediate notification refresh with multiple events
+  setTimeout(() => {
+    console.log('handleMarkAsPaid - Disparando eventos de atualização');
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
+    window.dispatchEvent(new Event('storage')); // Force localStorage change detection
+  }, 50);
   
   return updatedPlanos;
 };
@@ -116,11 +127,14 @@ export const handlePostponePayment = (
   allPlanos: (PlanoMensal | PlanoSemanal)[],
   savePlanos: (planos: (PlanoMensal | PlanoSemanal)[]) => void
 ) => {
+  console.log('handlePostponePayment - Adiando pagamento:', notificationId);
+  
   const updatedPlanos = allPlanos.map(plano => {
     if (plano.id === notificationId) {
       if (plano.type === 'plano') {
         const newDueDate = new Date(plano.dueDate);
         newDueDate.setDate(newDueDate.getDate() + 7);
+        console.log('handlePostponePayment - Nova data:', newDueDate.toISOString().split('T')[0]);
         return { ...plano, dueDate: newDueDate.toISOString().split('T')[0] };
       }
     }
@@ -130,9 +144,11 @@ export const handlePostponePayment = (
   savePlanos(updatedPlanos);
   toast.info("Pagamento do tarot adiado por 7 dias");
   
-  // Disparar evento customizado
-  window.dispatchEvent(new Event('tarot-payment-updated'));
-  window.dispatchEvent(new Event('planosUpdated'));
+  // Dispatch events for immediate update
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
+  }, 50);
   
   return updatedPlanos;
 };
@@ -142,13 +158,17 @@ export const handleDeleteNotification = (
   allPlanos: (PlanoMensal | PlanoSemanal)[],
   savePlanos: (planos: (PlanoMensal | PlanoSemanal)[]) => void
 ) => {
+  console.log('handleDeleteNotification - Excluindo notificação:', notificationId);
+  
   const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
   savePlanos(updatedPlanos);
   toast.success("Notificação de pagamento excluída!");
   
-  // Disparar evento customizado
-  window.dispatchEvent(new Event('tarot-payment-updated'));
-  window.dispatchEvent(new Event('planosUpdated'));
+  // Dispatch events for immediate update
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true } }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true } }));
+  }, 50);
   
   return updatedPlanos;
 };
