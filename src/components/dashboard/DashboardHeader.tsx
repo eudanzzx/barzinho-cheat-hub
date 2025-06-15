@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu,
@@ -15,9 +16,14 @@ import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
-import useUserDataService from "@/services/userDataService"; // <--- CORRECT ES IMPORT
+import useUserDataService from "@/services/userDataService";
+
+// Import das dependências
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
 const DashboardHeader = () => {
+  const [openContadores, setOpenContadores] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -49,7 +55,39 @@ const DashboardHeader = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              {/* ---- NOVO BOTÃO SÓ NA /listagem-tarot ---- */}
+              {/* Botão novo para mostrar os contadores do tarot */}
+              {isTarotListagem && (
+                <>
+                  <Dialog open={openContadores} onOpenChange={setOpenContadores}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex items-center gap-1 text-tarot-primary bg-purple-100 hover:bg-purple-200 px-2 py-2 rounded-xl font-bold shadow border border-purple-200 transition-all text-base"
+                        title="Ver contadores prioritários"
+                      >
+                        <Bell className="h-5 w-5 text-[#8e46dd]" />
+                        <span className="hidden sm:inline">Contadores</span>
+                        {totalClients > 0 && (
+                          <Badge className="ml-1 px-2 py-0 bg-purple-600 text-white">{totalClients}</Badge>
+                        )}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg w-[96vw]">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-purple-800">
+                          <Bell className="h-5 w-5" />
+                          Contadores Prioritários - Tarot
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div>
+                        <TarotCounterPriorityNotifications analises={analisesTarot} />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
+
+              {/* ---- MODAL PRÓXIMOS VENCIMENTOS JÁ EXISTENTE ---- */}
               {isTarotListagem && (
                 <TarotPriorityPaymentsModal analises={analisesTarot} />
               )}
@@ -141,8 +179,6 @@ const DashboardHeader = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-
-                  {/* Removido: PaymentOverviewModal com botão "Próximos Vencimentos" */}
                   
                   <Button 
                     className={`text-white h-9 px-4 text-sm ${
@@ -165,3 +201,4 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
+
