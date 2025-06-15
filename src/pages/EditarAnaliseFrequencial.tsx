@@ -139,7 +139,11 @@ const EditarAnaliseFrequencial = () => {
     setPlanoAtivo(analise.planoAtivo || false);
     setPlanoData(analise.planoData || { meses: "", valorMensal: "" });
     setSemanalAtivo(analise.semanalAtivo || false);
-    setSemanalData(analise.semanalData || { semanas: "", valorSemanal: "", diaVencimento: "sexta" });
+    setSemanalData({
+      semanas: analise.semanalData?.semanas || "",
+      valorSemanal: analise.semanalData?.valorSemanal || "",
+      diaVencimento: analise.semanalData?.diaVencimento || "sexta"
+    });
 
     // Load reminders only once when the component mounts
     if (!initialLembretesLoaded) {
