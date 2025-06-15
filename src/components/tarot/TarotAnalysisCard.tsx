@@ -21,28 +21,28 @@ const TarotAnalysisCard = React.memo(({
   }) => {
 
   return (
-    <div key={analise.id} className="space-y-3">
-      <Card
-        className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
-      >
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-            <AnalysisHeader 
-              analise={analise}
-              formattedTime={formattedTime}
-              timeRemaining={timeRemaining}
-            />
-            <AnalysisActions
-              analise={analise}
-              onToggleFinished={onToggleFinished}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card
+      className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] animate-fade-in group"
+    >
+      <CardContent className="p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-3">
+          <AnalysisHeader 
+            analise={analise}
+            formattedTime={formattedTime}
+            timeRemaining={timeRemaining}
+          />
+          <AnalysisActions
+            analise={analise}
+            onToggleFinished={onToggleFinished}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 });
+
+TarotAnalysisCard.displayName = 'TarotAnalysisCard';
 
 export default TarotAnalysisCard;

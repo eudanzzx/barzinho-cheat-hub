@@ -1,7 +1,7 @@
+
 import React from "react";
 import TarotAnalysisCard from "./TarotAnalysisCard";
 
-// Otimização extra: usa React.memo e só re-renderiza se análises mudarem
 const TarotAnalysisList = React.memo(
   ({
     analises,
@@ -18,9 +18,13 @@ const TarotAnalysisList = React.memo(
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
   }) => {
+    
+    // Renderizar apenas os primeiros 20 itens para melhor performance
+    const visibleAnalises = analises.slice(0, 20);
+    
     return (
-      <div className="grid gap-4">
-        {analises.map((analise, index) => {
+      <div className="space-y-3">
+        {visibleAnalises.map((analise) => {
           const timeRemaining = calculateTimeRemaining(analise);
           const formattedTime = formatTimeRemaining(timeRemaining);
           return (
@@ -35,9 +39,16 @@ const TarotAnalysisList = React.memo(
             />
           );
         })}
+        {analises.length > 20 && (
+          <div className="text-center text-slate-500 text-sm py-2">
+            Mostrando {visibleAnalises.length} de {analises.length} análises
+          </div>
+        )}
       </div>
     );
   }
 );
+
+TarotAnalysisList.displayName = 'TarotAnalysisList';
 
 export default TarotAnalysisList;

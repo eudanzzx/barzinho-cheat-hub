@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Search } from "lucide-react";
@@ -5,7 +6,6 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
-import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 import TarotSearchInput from "@/components/tarot/TarotSearchInput";
 import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 import { Tabs } from "@/components/ui/tabs";
-import TratamentoContadores from "@/components/tarot/TratamentoContadores";
 
-const ListagemTarot = () => {
+const ListagemTarot = React.memo(() => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -88,7 +87,6 @@ const ListagemTarot = () => {
             </div>
           </div>
 
-          {/* Abas de filtro */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TarotTabsFilter
               activeTab={activeTab}
@@ -116,21 +114,15 @@ const ListagemTarot = () => {
             </Card>
           ) : (
             <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-              <CardContent className="p-0">
-                <div className="divide-y divide-gray-100">
-                  {tabAnalises.map((analise) => (
-                    <div key={analise.id} className="px-5 pt-4 pb-2">
-                      <TarotAnalysisList
-                        analises={[analise]}
-                        calculateTimeRemaining={() => null}
-                        formatTimeRemaining={() => null}
-                        onToggleFinished={handleToggleFinished}
-                        onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
-                        onDelete={handleDelete}
-                      />
-                    </div>
-                  ))}
-                </div>
+              <CardContent className="p-4">
+                <TarotAnalysisList
+                  analises={tabAnalises}
+                  calculateTimeRemaining={() => null}
+                  formatTimeRemaining={() => null}
+                  onToggleFinished={handleToggleFinished}
+                  onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
+                  onDelete={handleDelete}
+                />
               </CardContent>
             </Card>
           )}
@@ -138,6 +130,8 @@ const ListagemTarot = () => {
       </main>
     </div>
   );
-};
+});
+
+ListagemTarot.displayName = 'ListagemTarot';
 
 export default ListagemTarot;
