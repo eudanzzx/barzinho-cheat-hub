@@ -1,4 +1,3 @@
-
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
 export interface GroupedPayment {
@@ -9,18 +8,29 @@ export interface GroupedPayment {
 }
 
 export const groupPaymentsByClient = (payments: (PlanoMensal | PlanoSemanal)[]): GroupedPayment[] => {
+  // **Prevent multiple payments with same dueDate per client**
   const clientGroups = new Map<string, (PlanoMensal | PlanoSemanal)[]>();
-  
+
   payments.forEach(payment => {
     const existing = clientGroups.get(payment.clientName) || [];
-    existing.push(payment);
+    // Só adiciona se não houver outro pagamento ativo do mesmo tipo, prazo e analysisId + dueDate
+    const isDuplicate = existing.some(
+      p =>
+        p.dueDate === payment.dueDate &&
+        p.type === payment.type &&
+        p.analysisId === payment.analysisId
+    );
+    if (!isDuplicate) {
+      existing.push(payment);
+    }
     clientGroups.set(payment.clientName, existing);
   });
 
   const groupedPayments: GroupedPayment[] = [];
-  
+
   clientGroups.forEach((clientPayments, clientName) => {
-    const sortedPayments = clientPayments.sort((a, b) => 
+    // Mantém ordenado mais próximo primeiro
+    const sortedPayments = clientPayments.sort((a, b) =>
       new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
     );
 
@@ -35,7 +45,8 @@ export const groupPaymentsByClient = (payments: (PlanoMensal | PlanoSemanal)[]):
     });
   });
 
-  return groupedPayments.sort((a, b) => 
+  // Ordena todos clientes pelo vencimento mais próximo do maisUrgent deles
+  return groupedPayments.sort((a, b) =>
     new Date(a.mostUrgent.dueDate).getTime() - new Date(b.mostUrgent.dueDate).getTime()
   );
 };

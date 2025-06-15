@@ -28,12 +28,27 @@ export const createNextPayment = (
         nextDueDate.setDate(0); // Vai para o último dia do mês anterior
       }
       
+      const nextDueDateStr = nextDueDate.toISOString().split('T')[0];
+      
+      // **CHECAGEM CRÍTICA: já existe um pagamento ativo para mesmo analysisId e data de vencimento?**
+      const exists = allPlanos.some(
+        plano =>
+          plano.active &&
+          plano.analysisId === currentPlano.analysisId &&
+          plano.dueDate === nextDueDateStr &&
+          plano.type === 'plano'
+      );
+      if (exists) {
+        console.warn("createNextPayment - Pagamento já existente para o próximo vencimento, não duplica.");
+        return null;
+      }
+      
       const nextPlano: PlanoMensal = {
         id: `${currentPlano.analysisId}-month-${currentMonth + 1}-${Date.now()}`,
         clientName: currentPlano.clientName,
         type: 'plano',
         amount: currentPlano.amount,
-        dueDate: nextDueDate.toISOString().split('T')[0],
+        dueDate: nextDueDateStr,
         month: currentMonth + 1,
         totalMonths: totalMonths,
         created: new Date().toISOString(),
@@ -55,12 +70,27 @@ export const createNextPayment = (
       const nextDueDate = new Date(currentDueDate);
       nextDueDate.setDate(nextDueDate.getDate() + 7);
       
+      const nextDueDateStr = nextDueDate.toISOString().split('T')[0];
+      
+      // **CHECAGEM CRÍTICA: já existe um pagamento ativo para mesmo analysisId e data de vencimento?**
+      const exists = allPlanos.some(
+        plano =>
+          plano.active &&
+          plano.analysisId === currentPlano.analysisId &&
+          plano.dueDate === nextDueDateStr &&
+          plano.type === 'semanal'
+      );
+      if (exists) {
+        console.warn("createNextPayment - Pagamento já existente para o próximo vencimento, não duplica (semanal).");
+        return null;
+      }
+      
       const nextPlano: PlanoSemanal = {
         id: `${currentPlano.analysisId}-week-${currentWeek + 1}-${Date.now()}`,
         clientName: currentPlano.clientName,
         type: 'semanal',
         amount: currentPlano.amount,
-        dueDate: nextDueDate.toISOString().split('T')[0],
+        dueDate: nextDueDateStr,
         week: currentWeek + 1,
         totalWeeks: totalWeeks,
         created: new Date().toISOString(),
