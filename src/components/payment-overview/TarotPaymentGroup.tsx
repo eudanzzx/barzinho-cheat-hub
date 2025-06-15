@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,7 +19,11 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   additionalPayments,
   onMarkAsPaid,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  // Remove duplicados e também o mostUrgent, só para garantir
+  const uniqueAdditionalPayments = additionalPayments.filter(
+    (p) => p.id !== mostUrgent.id
+  );
+  const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
   // Mostra quantos dias faltam
   function getUrgencyText(daysUntilDue: number) {
@@ -39,15 +43,9 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
     return diffDays;
   };
 
-  // Remove duplicados e também o mostUrgent, só para garantir
-  const uniqueAdditionalPayments = additionalPayments.filter(
-    (p) => p.id !== mostUrgent.id
-  );
-  const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
-
   return (
     <div className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm mb-2">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-800">{clientName}</span>
@@ -58,7 +56,6 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {/* Aqui: só mostra o botão se houver adicionais */}
             {hasAdditionalPayments && (
               <CollapsibleTrigger asChild>
                 <Button
@@ -66,14 +63,10 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 p-0"
-                  aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
-                  onClick={() => setIsOpen((o) => !o)}
+                  aria-label="Ver adicionais"
                 >
-                  {isOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
+                  <ChevronRight className="h-4 w-4 data-[state=open]:hidden" />
+                  <ChevronDown className="h-4 w-4 hidden data-[state=open]:block" />
                 </Button>
               </CollapsibleTrigger>
             )}
