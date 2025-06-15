@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,28 +19,33 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   additionalPayments,
   onMarkAsPaid,
 }) => {
-  // Estado controlado. Começa FECHADO por padrão.
+  // Garante que Collapsible comece fechado SEMPRE ao montar/com mudança de clientName
   const [isOpen, setIsOpen] = useState(false);
+  const initialRender = useRef(true);
+
+  useEffect(() => {
+    // Sempre fecha o submenu ao montar ou ao mudar o cliente (grupo)
+    setIsOpen(false);
+    // eslint-disable-next-line
+  }, [clientName]);
 
   // Remove duplicados e o mostUrgent, só para garantir
-  const uniqueAdditionalPayments = additionalPayments.filter(
-    (p) => p.id !== mostUrgent.id
-  );
+  const uniqueAdditionalPayments = additionalPayments.filter((p) => p.id !== mostUrgent.id);
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
-  // Controla totalmente o estado, começa fechado.
   function handleCollapsibleChange(open: boolean) {
     setIsOpen(open);
   }
 
-  // Botão "Pago"
+  // O botão Pago só chama a prop, nunca altera o Collapsible
   function handlePagoClick(e: React.MouseEvent) {
-    e.stopPropagation(); // Garante que clique no botão não interfere no submenu!
+    e.stopPropagation(); // Previne bugs de colapso no submenu em clique
     onMarkAsPaid(mostUrgent.id);
   }
 
   function getUrgencyText(daysUntilDue: number) {
-    if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
+    if (daysUntilDue < 0)
+      return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
     if (daysUntilDue === 0) return "Vence hoje";
     if (daysUntilDue === 1) return "Vence amanhã";
     return `${daysUntilDue} dias restantes`;
@@ -77,13 +82,9 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   size="icon"
                   className="h-7 w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
-                  tabIndex={0} // Foco acessível
+                  tabIndex={0}
                 >
-                  {isOpen ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
+                  {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
               </CollapsibleTrigger>
             )}
