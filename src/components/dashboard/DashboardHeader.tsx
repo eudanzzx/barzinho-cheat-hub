@@ -36,6 +36,7 @@ const DashboardHeader = () => {
           {/* Botão de Próximos Vencimentos - Análises de Tarot para /listagem-tarot */}
           {isTarotListagem && (
             <div className="mb-4">
+              {/* Só o novo botão/modal! */}
               <TarotPriorityNotificationsModal />
             </div>
           )}
@@ -139,16 +140,19 @@ const DashboardHeader = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-gray-600 hover:text-gray-800"
-                    >
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Próximos Vencimentos
-                    </Button>
-                  </PaymentOverviewModal>
+                  {/* Remover o antigo botão de PaymentOverviewModal apenas na listagem-tarot */}
+                  {(!isTarotListagem) && (
+                    <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        <Calendar className="h-4 w-4 mr-1" />
+                        Próximos Vencimentos
+                      </Button>
+                    </PaymentOverviewModal>
+                  )}
                   
                   <Button 
                     className={`text-white h-9 px-4 text-sm ${
