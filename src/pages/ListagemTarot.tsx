@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 import { Tabs } from "@/components/ui/tabs";
+import TratamentoContadores from "@/components/tarot/TratamentoContadores";
 
 const ListagemTarot = () => {
   const navigate = useNavigate();
@@ -119,23 +120,9 @@ const ListagemTarot = () => {
                 <div className="divide-y divide-gray-100">
                   {tabAnalises.map((analise) => (
                     <div key={analise.id} className="px-5 pt-4 pb-2">
-                      {/* EXIBE OS LEMBRETES caso existam */}
+                      {/* CONTADORES GRANDE E SUBMENU */}
                       {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
-                        <div className="mb-2">
-                          <div className="font-semibold text-[#A067DF] text-sm mb-1">
-                            Contadores do Tratamento:
-                          </div>
-                          <ul className="list-disc ml-5 space-y-0.5">
-                            {analise.lembretes.map((l: any) => (
-                              <li key={l.id} className="text-xs text-gray-700">
-                                <span className="font-medium">{l.texto || "Sem descrição"}</span>
-                                <span className="ml-2 text-gray-400">
-                                  ({l.dias} dia{l.dias > 1 ? "s" : ""})
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        <TratamentoContadores lembretes={analise.lembretes} />
                       )}
                       {/* CARD ORIGINAL (com todos os controles) */}
                       <TarotAnalysisList
