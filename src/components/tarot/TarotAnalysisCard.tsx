@@ -35,8 +35,15 @@ const TarotAnalysisCard = React.memo(({
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
   }) => {
+  
+  console.log('TarotAnalysisCard - analise:', analise);
+  console.log('TarotAnalysisCard - planoAtivo:', analise.planoAtivo);
+  console.log('TarotAnalysisCard - semanalAtivo:', analise.semanalAtivo);
+  console.log('TarotAnalysisCard - planoData:', analise.planoData);
+  console.log('TarotAnalysisCard - semanalData:', analise.semanalData);
+
   return (
-    <div key={analise.id}>
+    <div key={analise.id} className="space-y-3">
       <Card 
         className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
       >
@@ -158,22 +165,26 @@ const TarotAnalysisCard = React.memo(({
           </div>
         </CardContent>
       </Card>
-      {analise.planoAtivo && analise.planoData && (
-        <PlanoPaymentButton
-          analysisId={analise.id}
-          clientName={analise.nomeCliente}
-          planoData={analise.planoData}
-          startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
-        />
-      )}
-      {analise.semanalAtivo && analise.semanalData && (
-        <SemanalPaymentButton
-          analysisId={analise.id}
-          clientName={analise.nomeCliente}
-          semanalData={analise.semanalData}
-          startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
-        />
-      )}
+      
+      {/* Botões de Pagamento - sempre exibir se os planos estão ativos */}
+      <div className="space-y-2">
+        {analise.planoAtivo && analise.planoData && (
+          <PlanoPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            planoData={analise.planoData}
+            startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
+          />
+        )}
+        {analise.semanalAtivo && analise.semanalData && (
+          <SemanalPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            semanalData={analise.semanalData}
+            startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
+          />
+        )}
+      </div>
     </div>
   );
 });
