@@ -1,0 +1,162 @@
+
+import React, { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CheckCircle, Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { PlanoMensal, PlanoSemanal } from "@/types/payment";
+
+interface TarotPaymentGroupProps {
+  clientName: string;
+  mostUrgent: PlanoMensal | PlanoSemanal;
+  additionalPayments: (PlanoMensal | PlanoSemanal)[];
+  onMarkAsPaid: (paymentId: string) => void;
+}
+
+export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
+  clientName,
+  mostUrgent,
+  additionalPayments,
+  onMarkAsPaid,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Função para mostrar quantos dias faltam
+  function getUrgencyText(daysUntilDue: number) {
+    if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
+    if (daysUntilDue === 0) return "Vence hoje";
+    if (daysUntilDue === 1) return "Vence amanhã";
+    return `${daysUntilDue} dias restantes`;
+  }
+
+  const getDaysUntilDue = (dueDate: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // Remove duplicados no submenu (por via das dúvidas)
+  const uniqueAdditionalPayments = Array.from(
+    new Map(additionalPayments.map((p) => [p.id, p])).values()
+  );
+  const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
+
+  return (
+    <div className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm mb-2">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-800">{clientName}</span>
+            {hasAdditionalPayments && (
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                +{uniqueAdditionalPayments.length} vencimento{uniqueAdditionalPayments.length !== 1 ? "s" : ""}
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {hasAdditionalPayments && (
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 p-0"
+                  aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
+                >
+                  {isOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            )}
+            {/* Botão de marcar como pago só para o mais urgente */}
+            <Button
+              className="ml-1 px-3 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
+              title="Marcar como pago"
+              onClick={() => onMarkAsPaid(mostUrgent.id)}
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Pago
+            </Button>
+          </div>
+        </div>
+        {/* Mostra o principal */}
+        <div className="rounded-xl border border-[#ceb8fa] bg-[#f6f0ff] shadow-sm p-4 flex flex-col gap-2 relative mb-1">
+          <div className="flex justify-between items-center mb-1">
+            <Badge
+              variant="outline"
+              className="border-transparent bg-white/60 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
+              style={{ boxShadow: "none" }}
+            >
+              {mostUrgent.type === "plano" ? "Mensal" : "Semanal"}
+            </Badge>
+            <span className="text-lg font-bold text-green-600">
+              R$ {mostUrgent.amount.toFixed(2)}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-[#8e46dd] font-medium">
+            <Calendar className="h-4 w-4" />
+            <span>
+              {(() => {
+                const date = new Date(mostUrgent.dueDate);
+                return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}`;
+              })()}
+            </span>
+          </div>
+          <div className="text-sm font-medium text-[#9156e0]">
+            {getUrgencyText(getDaysUntilDue(mostUrgent.dueDate))}
+          </div>
+        </div>
+        {/* Submenu colapsável */}
+        {hasAdditionalPayments && (
+          <CollapsibleContent className="pl-2 pt-1 space-y-1">
+            {uniqueAdditionalPayments.map((payment) => (
+              <div
+                key={payment.id}
+                className="rounded-xl border border-[#ceb8fa] bg-white shadow-sm p-3 flex flex-col gap-2 relative"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <Badge
+                    variant="outline"
+                    className="border-transparent bg-purple-100 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
+                    style={{ boxShadow: "none" }}
+                  >
+                    {payment.type === "plano" ? "Mensal" : "Semanal"}
+                  </Badge>
+                  <span className="text-base font-bold text-green-600">
+                    R$ {payment.amount.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-[#8e46dd] font-medium">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {(() => {
+                      const date = new Date(payment.dueDate);
+                      return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`;
+                    })()}
+                  </span>
+                </div>
+                <div className="text-xs font-medium text-[#9156e0]">
+                  {getUrgencyText(getDaysUntilDue(payment.dueDate))}
+                </div>
+              </div>
+            ))}
+          </CollapsibleContent>
+        )}
+      </Collapsible>
+    </div>
+  );
+};
+
+export default TarotPaymentGroup;

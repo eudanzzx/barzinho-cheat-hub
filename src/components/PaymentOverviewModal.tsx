@@ -498,9 +498,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     toast({ title: "Pagamento marcado como pago!" });
   }, [markAsPaidTarot]);
 
-  // Adaptação ao renderizar a seção de tarot, inserindo botão "Marcar como pago"
+  // Adaptação ao renderizar a seção de tarot, com collapsible group (submenu)
   function TarotPaymentSection({
-    groupedPayments
+    groupedPayments,
   }: { groupedPayments: GroupedPayment[] }) {
     if (groupedPayments.length === 0) {
       return (
@@ -510,71 +510,16 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         </div>
       );
     }
-
     return (
-      <div className="space-y-6">
-        {groupedPayments.map(group => (
-          <div key={group.clientName} className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm">
-            <div className="font-semibold text-slate-800 mb-2">{group.clientName}</div>
-            <div className="space-y-3">
-              {/* mostUrgent sempre vem primeiro */}
-              {[group.mostUrgent, ...group.additionalPayments].map(payment =>
-                payment ? (
-                  <div key={payment.id} className="flex items-center">
-                    {/* Card visual igual à sua referência */}
-                    <div className="flex-1">
-                      <div className="rounded-xl border border-[#ceb8fa] bg-[#f6f0ff] shadow-sm p-4 flex flex-col gap-2 relative">
-                        <div className="flex justify-between items-center mb-1">
-                          <Badge
-                            variant="outline"
-                            className="border-transparent bg-white/60 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
-                            style={{ boxShadow: 'none' }}
-                          >
-                            {payment.type === "plano" ? "Mensal" : "Semanal"}
-                          </Badge>
-                          <span className="text-lg font-bold text-green-600">
-                            R$ {payment.amount.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-[#8e46dd] font-medium">
-                          <Calendar className="h-4 w-4" />
-                          <span>
-                            {(() => {
-                              const date = new Date(payment.dueDate);
-                              return `${date.toLocaleDateString('pt-BR')} às ${date.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`;
-                            })()}
-                          </span>
-                        </div>
-                        <div className="text-sm font-medium text-[#9156e0]">
-                          {(() => {
-                            // Urgência estilizada
-                            const daysUntilDue = (() => {
-                              const today = new Date(); today.setHours(0,0,0,0);
-                              const due = new Date(payment.dueDate); due.setHours(0,0,0,0);
-                              return Math.ceil((due.getTime() - today.getTime()) / (1000*60*60*24));
-                            })();
-                            if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? '' : 's'} em atraso`;
-                            if (daysUntilDue === 0) return "Vence hoje";
-                            if (daysUntilDue === 1) return "Vence amanhã";
-                            return `${daysUntilDue} dias restantes`;
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                    {/* Botão marcar pago */}
-                    <button
-                      className="ml-3 p-0.5 px-3 h-9 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
-                      title="Marcar como pago"
-                      onClick={() => handleMarkAsPaidTarot(payment.id)}
-                    >
-                      <CheckCircle className="h-5 w-5 mr-1" />
-                      Pago
-                    </button>
-                  </div>
-                ) : null
-              )}
-            </div>
-          </div>
+      <div className="space-y-4">
+        {groupedPayments.map((group) => (
+          <TarotPaymentGroup
+            key={group.clientName}
+            clientName={group.clientName}
+            mostUrgent={group.mostUrgent}
+            additionalPayments={group.additionalPayments}
+            onMarkAsPaid={handleMarkAsPaidTarot}
+          />
         ))}
       </div>
     );
@@ -644,7 +589,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                 </Card>
               )}
 
-              {/* TAROT (agora com lista customizada e botão de pagamento) */}
+              {/* TAROT (agora com lista customizada e botão de pagamento com collapsible) */}
               {(context === 'tarot' || context === 'all') && (filteredTarotGroups.length > 0) && (
                 <Card className="border-purple-200 bg-purple-50/30">
                   <CardHeader className="pb-4">
