@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -19,6 +19,9 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   additionalPayments,
   onMarkAsPaid,
 }) => {
+  // Mantém estado aberto/fechado do submenu localmente
+  const [isOpen, setIsOpen] = useState(false);
+
   // Remove duplicados e também o mostUrgent, só para garantir
   const uniqueAdditionalPayments = additionalPayments.filter(
     (p) => p.id !== mostUrgent.id
@@ -45,7 +48,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
 
   return (
     <div className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm mb-2">
-      <Collapsible>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-800">{clientName}</span>
@@ -63,10 +66,13 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 p-0"
-                  aria-label="Ver adicionais"
+                  aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
                 >
-                  <ChevronRight className="h-4 w-4 data-[state=open]:hidden" />
-                  <ChevronDown className="h-4 w-4 hidden data-[state=open]:block" />
+                  {isOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
                 </Button>
               </CollapsibleTrigger>
             )}
@@ -155,3 +161,4 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
 };
 
 export default TarotPaymentGroup;
+
