@@ -23,7 +23,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
 const DashboardHeader = () => {
-  const [openContadores, setOpenContadores] = useState(false);
   const [openTratamentoContadores, setOpenTratamentoContadores] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,39 +55,7 @@ const DashboardHeader = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              {/* Botão novo para mostrar os contadores do tarot */}
-              {isTarotListagem && (
-                <>
-                  <Dialog open={openContadores} onOpenChange={setOpenContadores}>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="flex items-center gap-1 text-tarot-primary bg-purple-100 hover:bg-purple-200 px-2 py-2 rounded-xl font-bold shadow border border-purple-200 transition-all text-base"
-                        title="Ver contadores prioritários"
-                      >
-                        <Bell className="h-5 w-5 text-[#8e46dd]" />
-                        <span className="hidden sm:inline">Contadores</span>
-                        {totalClients > 0 && (
-                          <Badge className="ml-1 px-2 py-0 bg-purple-600 text-white">{totalClients}</Badge>
-                        )}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg w-[96vw]">
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-purple-800">
-                          <Bell className="h-5 w-5" />
-                          Contadores Prioritários - Tarot
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div>
-                        <TarotCounterPriorityNotifications analises={analisesTarot} />
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </>
-              )}
-
-              {/* Botão de CONTADORES DE TRATAMENTO (novo, só na listagem tarot) */}
+              {/* Botão de CONTADORES DE TRATAMENTO (só na listagem tarot) */}
               {isTarotListagem && (
                 <>
                   <Button
