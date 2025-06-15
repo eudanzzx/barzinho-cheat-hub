@@ -28,11 +28,13 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     const updatedPlanos = handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
-    // Refresh immediately
-    console.log('markAsPaid - Forçando refresh das notificações');
-    checkTarotPaymentNotifications();
+    // Força refresh imediato com um pequeno delay para garantir que os dados foram salvos
+    setTimeout(() => {
+      console.log('markAsPaid - Executando refresh após delay');
+      checkTarotPaymentNotifications();
+    }, 100);
     
-    // Also trigger events for other components to update
+    // Dispara eventos para outros componentes
     window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
       detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
     }));
@@ -45,7 +47,10 @@ export const usePaymentNotifications = () => {
     console.log('postponePayment - Adiando pagamento:', notificationId);
     const allPlanos = getPlanos();
     handlePostponePayment(notificationId, allPlanos, savePlanos);
-    checkTarotPaymentNotifications();
+    
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
     
     window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
       detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
@@ -56,7 +61,10 @@ export const usePaymentNotifications = () => {
     console.log('deleteNotification - Excluindo notificação:', notificationId);
     const allPlanos = getPlanos();
     handleDeleteNotification(notificationId, allPlanos, savePlanos);
-    checkTarotPaymentNotifications();
+    
+    setTimeout(() => {
+      checkTarotPaymentNotifications();
+    }, 100);
     
     window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
       detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
@@ -67,13 +75,14 @@ export const usePaymentNotifications = () => {
     console.log('usePaymentNotifications - Inicializando...');
     checkTarotPaymentNotifications();
     
-    // Listen for payment updates from control components
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      checkTarotPaymentNotifications();
+      setTimeout(() => {
+        checkTarotPaymentNotifications();
+      }, 50);
     };
     
-    // Multiple event listeners to catch all possible update scenarios
+    // Escuta múltiplos eventos para capturar todas as atualizações
     window.addEventListener('tarot-payment-updated', handlePaymentUpdate as EventListener);
     window.addEventListener('planosUpdated', handlePaymentUpdate as EventListener);
     

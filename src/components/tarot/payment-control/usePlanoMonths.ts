@@ -88,7 +88,7 @@ export const usePlanoMonths = ({
     const newIsPaid = !month.isPaid;
     
     if (month.planoId) {
-      // Mark as paid or unpaid
+      // Marcar como pago ou não pago
       const updatedPlanos = planos.map(plano => 
         plano.id === month.planoId 
           ? { ...plano, active: !newIsPaid }
@@ -100,7 +100,10 @@ export const usePlanoMonths = ({
       const updatedMonths = [...planoMonths];
       updatedMonths[monthIndex].isPaid = newIsPaid;
       setPlanoMonths(updatedMonths);
+      
+      console.log(`handlePaymentToggle - Mês ${month.month} marcado como ${newIsPaid ? 'pago' : 'pendente'}`);
     } else if (newIsPaid) {
+      // Criar novo plano se não existir
       const newPlano: PlanoMensal = {
         id: `${analysisId}-month-${month.month}-${Date.now()}`,
         clientName: clientName,
@@ -110,7 +113,7 @@ export const usePlanoMonths = ({
         month: month.month,
         totalMonths: parseInt(planoData.meses),
         created: new Date().toISOString(),
-        active: false,
+        active: false, // Marcado como pago (inativo)
         notificationTiming: 'on_due_date',
         analysisId: analysisId
       };
@@ -122,19 +125,19 @@ export const usePlanoMonths = ({
       updatedMonths[monthIndex].planoId = newPlano.id;
       updatedMonths[monthIndex].isPaid = true;
       setPlanoMonths(updatedMonths);
-    } else {
-      const updatedMonths = [...planoMonths];
-      updatedMonths[monthIndex].isPaid = false;
-      setPlanoMonths(updatedMonths);
+      
+      console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);
     }
     
-    // Force refresh of notification components
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { 
-      detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
-    }));
+    // Força refresh das notificações com delay para garantir sincronização
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+      }));
+      window.dispatchEvent(new CustomEvent('planosUpdated', { 
+        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+      }));
+    }, 100);
     
     toast.success(
       newIsPaid 
