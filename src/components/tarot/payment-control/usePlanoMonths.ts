@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
+import { handleMarkAsPaid } from "@/components/tarot/payment-notifications/utils/paymentActions";
 
 interface PlanoMonth {
   month: number;
@@ -84,23 +84,59 @@ export const usePlanoMonths = ({
   const handlePaymentToggle = (monthIndex: number) => {
     const month = planoMonths[monthIndex];
     const planos = getPlanos();
-    
     const newIsPaid = !month.isPaid;
-    
+
+    // Identificar se existe o plano pendente (ativo)
+    const currentPlano = month.planoId
+      ? planos.find((plano) => plano.id === month.planoId)
+      : undefined;
+
+    // Só chamar a lógica de marcar como pago se:
+    // - O mês atual está pendente (ativo)
+    // - E é o plano mais próximo vencendo (o "pendente" mais próximo)
+    const isCurrentPendingPlano = currentPlano && currentPlano.active;
+
+    // Encontrar o plano ativo (pendente) mais próximo do vencimento
+    const allActivePlanos = planoMonths
+      .filter((pm) => pm.planoId)
+      .map((pm) => planos.find((plano) => plano.id === pm.planoId))
+      .filter((plano): plano is PlanoMensal => !!plano && plano.active);
+
+    // O próximo a vencer (e único que pode ser pago pelo fluxo "oficial")
+    let nextDuePlano;
+    if (allActivePlanos.length > 0) {
+      nextDuePlano = allActivePlanos.reduce((acc, curr) =>
+        new Date(curr.dueDate) < new Date(acc.dueDate) ? curr : acc
+      );
+    }
+
+    if (
+      isCurrentPendingPlano &&
+      nextDuePlano &&
+      currentPlano &&
+      currentPlano.id === nextDuePlano.id &&
+      newIsPaid
+    ) {
+      // Marca como pago usando a mesma lógica dos botões das notificações
+      handleMarkAsPaid(currentPlano.id, planos, savePlanos);
+      // O resto do sistema já receberá os eventos de atualização e atualizará interface/notificações
+      return;
+    }
+
+    // Continua funcionando a lógica local para os demais meses (histórico/manual)
     if (month.planoId) {
-      // Marcar como pago ou não pago
-      const updatedPlanos = planos.map(plano => 
-        plano.id === month.planoId 
+      const updatedPlanos = planos.map(plano =>
+        plano.id === month.planoId
           ? { ...plano, active: !newIsPaid }
           : plano
       );
-      
+
       savePlanos(updatedPlanos);
-      
+
       const updatedMonths = [...planoMonths];
       updatedMonths[monthIndex].isPaid = newIsPaid;
       setPlanoMonths(updatedMonths);
-      
+
       console.log(`handlePaymentToggle - Mês ${month.month} marcado como ${newIsPaid ? 'pago' : 'pendente'}`);
     } else if (newIsPaid) {
       // Criar novo plano se não existir
@@ -117,31 +153,31 @@ export const usePlanoMonths = ({
         notificationTiming: 'on_due_date',
         analysisId: analysisId
       };
-      
+
       const updatedPlanos = [...planos, newPlano];
       savePlanos(updatedPlanos);
-      
+
       const updatedMonths = [...planoMonths];
       updatedMonths[monthIndex].planoId = newPlano.id;
       updatedMonths[monthIndex].isPaid = true;
       setPlanoMonths(updatedMonths);
-      
+
       console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);
     }
-    
+
     // Força refresh das notificações com delay para garantir sincronização
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+      window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
+        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() }
       }));
-      window.dispatchEvent(new CustomEvent('planosUpdated', { 
-        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() } 
+      window.dispatchEvent(new CustomEvent('planosUpdated', {
+        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() }
       }));
     }, 100);
-    
+
     toast.success(
-      newIsPaid 
-        ? `Mês ${month.month} marcado como pago` 
+      newIsPaid
+        ? `Mês ${month.month} marcado como pago`
         : `Mês ${month.month} marcado como pendente`
     );
   };
