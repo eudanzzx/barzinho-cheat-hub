@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -128,14 +127,81 @@ const TarotPaymentNotificationsButton = () => {
 
   const markAsPaid = (notificationId: string) => {
     const allPlanos = getPlanos();
+    const currentPlano = allPlanos.find(plano => plano.id === notificationId);
+    
+    if (!currentPlano) {
+      toast.error("Plano não encontrado!");
+      return;
+    }
+
+    // Mark current payment as paid (inactive)
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === notificationId ? { ...plano, active: false } : plano
     );
+
+    // For monthly plans, create next month's payment if not the last month
+    if (currentPlano.type === 'plano' && 'month' in currentPlano && 'totalMonths' in currentPlano) {
+      const currentMonth = currentPlano.month;
+      const totalMonths = currentPlano.totalMonths;
+      
+      if (currentMonth < totalMonths) {
+        // Create next month's payment
+        const nextDueDate = new Date(currentPlano.dueDate);
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        
+        const nextPlano: PlanoMensal = {
+          id: `${currentPlano.analysisId}-month-${currentMonth + 1}`,
+          clientName: currentPlano.clientName,
+          type: 'plano',
+          amount: currentPlano.amount,
+          dueDate: nextDueDate.toISOString().split('T')[0],
+          month: currentMonth + 1,
+          totalMonths: totalMonths,
+          created: new Date().toISOString(),
+          active: true,
+          notificationTiming: currentPlano.notificationTiming || 'on_due_date',
+          analysisId: currentPlano.analysisId
+        };
+        
+        updatedPlanos.push(nextPlano);
+        toast.success(`Pagamento marcado como pago! Próximo vencimento: ${nextDueDate.toLocaleDateString('pt-BR')}`);
+      } else {
+        toast.success("Último pagamento do plano marcado como pago!");
+      }
+    } 
+    // For weekly plans, create next week's payment
+    else if (currentPlano.type === 'semanal') {
+      const currentWeek = currentPlano.week || 1;
+      const totalWeeks = currentPlano.totalWeeks || 1;
+      
+      if (currentWeek < totalWeeks) {
+        // Create next week's payment
+        const nextDueDate = new Date(currentPlano.dueDate);
+        nextDueDate.setDate(nextDueDate.getDate() + 7);
+        
+        const nextPlano: PlanoSemanal = {
+          id: `${currentPlano.analysisId}-week-${currentWeek + 1}`,
+          clientName: currentPlano.clientName,
+          type: 'semanal',
+          amount: currentPlano.amount,
+          dueDate: nextDueDate.toISOString().split('T')[0],
+          week: currentWeek + 1,
+          totalWeeks: totalWeeks,
+          created: new Date().toISOString(),
+          active: true,
+          notificationTiming: currentPlano.notificationTiming || 'on_due_date',
+          analysisId: currentPlano.analysisId
+        };
+        
+        updatedPlanos.push(nextPlano);
+        toast.success(`Pagamento semanal marcado como pago! Próxima semana: ${nextDueDate.toLocaleDateString('pt-BR')}`);
+      } else {
+        toast.success("Último pagamento semanal marcado como pago!");
+      }
+    }
     
     savePlanos(updatedPlanos);
     checkTarotPaymentNotifications();
-    
-    toast.success("Pagamento do tarot marcado como realizado!");
   };
 
   const postponePayment = (notificationId: string) => {
