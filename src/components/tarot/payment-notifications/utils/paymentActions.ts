@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
@@ -164,10 +163,30 @@ export const handleDeleteNotification = (
   savePlanos: (planos: (PlanoMensal | PlanoSemanal)[]) => void
 ) => {
   console.log('handleDeleteNotification - Excluindo notificação:', notificationId);
-  
+
+  // Filtro reforçado: remove TODOS planos que tenham esse mesmo ID
   const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
+
+  // Checagem extra de segurança
+  const stillPresent = updatedPlanos.find(p => p.id === notificationId);
+  if (stillPresent) {
+    console.error('handleDeleteNotification - Falha ao remover plano, ID ainda presente:', notificationId);
+  } else {
+    console.log('handleDeleteNotification - Plano removido com sucesso:', notificationId);
+  }
+
   savePlanos(updatedPlanos);
   toast.success("Notificação de pagamento excluída!");
-  
+
+  // Forçar atualização dos eventos
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'deleteNotification', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'deleteNotification', id: notificationId, timestamp: Date.now() } 
+    }));
+  }, 50);
+
   return updatedPlanos;
 };
