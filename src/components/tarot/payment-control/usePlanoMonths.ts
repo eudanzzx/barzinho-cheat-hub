@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -41,7 +42,8 @@ export const usePlanoMonths = ({
     const baseDate = new Date(startDate);
     const planos = getPlanos();
     
-    let dueDay = 5;
+    // Garantir que o dia de vencimento seja válido
+    let dueDay = 5; // valor padrão
     if (planoData.diaVencimento) {
       const parsedDay = parseInt(planoData.diaVencimento);
       if (!isNaN(parsedDay) && parsedDay >= 1 && parsedDay <= 31) {
@@ -49,15 +51,20 @@ export const usePlanoMonths = ({
       }
     }
     
+    console.log('initializePlanoMonths - Dia de vencimento configurado:', dueDay);
+    
     const months: PlanoMonth[] = [];
     
     for (let i = 1; i <= totalMonths; i++) {
       const dueDate = new Date(baseDate);
       dueDate.setMonth(dueDate.getMonth() + i - 1);
       
+      // Ajustar para o último dia do mês se necessário
       const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate();
       const actualDueDay = Math.min(dueDay, lastDayOfMonth);
       dueDate.setDate(actualDueDay);
+      
+      console.log(`initializePlanoMonths - Mês ${i}: ${dueDate.toISOString().split('T')[0]} (dia ${actualDueDay})`);
       
       const planoForMonth = planos.find((plano) => 
         plano.analysisId === analysisId &&
@@ -119,7 +126,6 @@ export const usePlanoMonths = ({
     ) {
       // Marca como pago usando a mesma lógica dos botões das notificações
       handleMarkAsPaid(currentPlano.id, planos, savePlanos);
-      // O resto do sistema já receberá os eventos de atualização e atualizará interface/notificações
       return;
     }
 

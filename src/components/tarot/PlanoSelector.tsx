@@ -42,7 +42,10 @@ const PlanoSelector: React.FC<PlanoSelectorProps> = ({
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <Label className="text-sm text-slate-600">Meses</Label>
-              <Select onValueChange={(value) => onPlanoDataChange("meses", value)}>
+              <Select 
+                value={planoData.meses} 
+                onValueChange={(value) => onPlanoDataChange("meses", value)}
+              >
                 <SelectTrigger className="bg-[#6B21A8]/10 border-[#6B21A8]/30 focus:border-[#6B21A8]">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -76,8 +79,8 @@ const PlanoSelector: React.FC<PlanoSelectorProps> = ({
               <SelectTrigger className="bg-[#6B21A8]/10 border-[#6B21A8]/30 focus:border-[#6B21A8]">
                 <SelectValue placeholder="Dia do mês" />
               </SelectTrigger>
-              <SelectContent>
-                {[...Array(30)].map((_, i) => (
+              <SelectContent className="max-h-[200px] overflow-y-auto">
+                {[...Array(31)].map((_, i) => (
                   <SelectItem key={i + 1} value={(i + 1).toString()}>
                     Dia {i + 1}
                   </SelectItem>
