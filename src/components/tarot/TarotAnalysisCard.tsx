@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Calendar,
@@ -27,7 +28,6 @@ import {
 import PlanoPaymentButton from "@/components/tarot/PlanoPaymentButton";
 import SemanalPaymentButton from "@/components/tarot/SemanalPaymentButton";
 import { useNavigate } from "react-router-dom";
-import TratamentoContadores from "./TratamentoContadores";
 
 // Otimize ao máximo este card - só renderiza se props mudarem!
 const TarotAnalysisCard = React.memo(({
@@ -58,7 +58,7 @@ const TarotAnalysisCard = React.memo(({
         className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] animate-fade-in group"
       >
         <CardContent className="p-6">
-          {/* CABEÇALHO: nome, status, tempo restante e contador prioritário */}
+          {/* CABEÇALHO: nome, status e tempo restante */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -79,10 +79,6 @@ const TarotAnalysisCard = React.memo(({
                       {formattedTime}
                     </Badge>
                   )}
-                  {/* NOVO: Contador Prioritário inline ao lado do nome */}
-                  {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
-                    <TratamentoContadores lembretes={analise.lembretes} inline />
-                  )}
                 </h3>
                 {analise.atencaoFlag && (
                   <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
@@ -98,7 +94,6 @@ const TarotAnalysisCard = React.memo(({
                   {analise.finalizado ? "Finalizada" : "Em andamento"}
                 </Badge>
               </div>
-              {/* >>> REMOVIDO bloco grande do contador antigo, agora já está acima <<< */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-[#673193]" />
@@ -181,27 +176,6 @@ const TarotAnalysisCard = React.memo(({
           </div>
         </CardContent>
       </Card>
-      {/* Removido: Botões de Controle de Pagamentos */}
-      {/* 
-      <div className="space-y-2">
-        {analise.planoAtivo && analise.planoData && (
-          <PlanoPaymentButton
-            analysisId={analise.id}
-            clientName={analise.nomeCliente}
-            planoData={analise.planoData}
-            startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
-          />
-        )}
-        {analise.semanalAtivo && analise.semanalData && (
-          <SemanalPaymentButton
-            analysisId={analise.id}
-            clientName={analise.nomeCliente}
-            semanalData={analise.semanalData}
-            startDate={analise.dataInicio || analise.dataAtendimento || new Date().toISOString().split('T')[0]}
-          />
-        )}
-      </div>
-      */}
     </div>
   );
 });
