@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -15,6 +16,7 @@ import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
+import useUserDataService from "@/services/userDataService"; // Import the hook properly
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -28,9 +30,8 @@ const DashboardHeader = () => {
   const { groupedPayments } = usePaymentNotifications();
   const totalClients = groupedPayments.length;
 
-  // -- Novo botão/modal deve receber analises, mas DashboardHeader não tem esses dados.
-  // Solução: Buscar análises do Tarot do storage aqui (igual ao hook useTarotAnalises)
-  const { getAllTarotAnalyses } = require("@/services/userDataService").default();
+  // Usando o hook corretamente para buscar análises de tarot (evita 'require')
+  const { getAllTarotAnalyses } = useUserDataService();
   const analisesTarot = isTarotListagem ? getAllTarotAnalyses() : [];
 
   return (
@@ -50,8 +51,9 @@ const DashboardHeader = () => {
             
             <div className="flex items-center gap-3">
               {/* ---- NOVO BOTÃO SÓ NA /listagem-tarot ---- */}
-              {/* Removido: PaymentOverviewModal com botão "Próximos Vencimentos - Análises de Tarot" */}
-              {/* ---- FIM DO BOTÃO NOVO ---- */}
+              {isTarotListagem && (
+                <TarotPriorityPaymentsModal analises={analisesTarot} />
+              )}
 
               {isMobile ? (
                 <div className="flex items-center gap-2">
