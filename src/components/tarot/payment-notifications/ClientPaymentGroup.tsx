@@ -10,23 +10,27 @@ import { GroupedPayment } from "./utils/paymentGrouping";
 interface ClientPaymentGroupProps {
   group: GroupedPayment;
   onMarkAsPaid: (id: string) => void;
-  onPostponePayment: (id: string) => void;
+  // Removido o onPostponePayment dos props pois não é mais utilizado
   onDeleteNotification: (id: string) => void;
 }
 
 export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
   group,
   onMarkAsPaid,
-  // onPostponePayment, // Removido, não usamos mais
   onDeleteNotification
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Remove duplicidade: não mostrar o mostUrgent na lista de adicionais
+  // Filtro refeito: não mostrar mostUrgent entre os adicionais (mesmo que apareça repetido por falha de geração)
   const additionalPayments = group.additionalPayments.filter(
-    payment => payment.id !== group.mostUrgent.id
+    (payment) =>
+      payment.id !== group.mostUrgent.id
   );
-  const hasAdditionalPayments = additionalPayments.length > 0;
+  // Adicional: garantir que não haja duplicados usando Set (pelo id)
+  const uniqueAdditionalPayments = Array.from(
+    new Map(additionalPayments.map((p) => [p.id, p])).values()
+  );
+  const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -38,12 +42,12 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
             </span>
             {hasAdditionalPayments && (
               <Badge variant="secondary" className="text-xs">
-                +{additionalPayments.length} vencimento{additionalPayments.length !== 1 ? 's' : ''}
+                +{uniqueAdditionalPayments.length} vencimento{uniqueAdditionalPayments.length !== 1 ? 's' : ''}
               </Badge>
             )}
           </div>
           <div className="flex gap-1 ml-2 items-center">
-            {/* Exclui pagamento - só se semanal */}
+            {/* Excluir pagamento - só se semanal */}
             {group.mostUrgent.type === 'semanal' && (
               <Button
                 size="sm"
@@ -55,7 +59,7 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
                 <Trash2 className="h-3 w-3" />
               </Button>
             )}
-            {/* Certinho de marcar como pago */}
+            {/* Botão de marcar como pago */}
             <Button
               size="icon"
               variant="ghost"
@@ -88,7 +92,7 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
         
         {hasAdditionalPayments && (
           <CollapsibleContent className="space-y-2">
-            {additionalPayments.map((payment) => (
+            {uniqueAdditionalPayments.map((payment) => (
               <PaymentCard 
                 key={payment.id} 
                 payment={payment} 
@@ -101,3 +105,4 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
     </Collapsible>
   );
 };
+
