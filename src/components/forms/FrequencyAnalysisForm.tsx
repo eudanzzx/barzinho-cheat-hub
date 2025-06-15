@@ -17,6 +17,8 @@ import { v4 as uuidv4 } from "uuid";
 import ClientInfoFields from "./frequency-analysis/ClientInfoFields";
 import AnalysisFields from "./frequency-analysis/AnalysisFields";
 import CountersSection from "./frequency-analysis/CountersSection";
+import PlanoPaymentButton from "@/components/tarot/PlanoPaymentButton";
+import SemanalPaymentButton from "@/components/tarot/SemanalPaymentButton";
 
 const formSchema = z.object({
   clientName: z.string().min(1, "Nome é obrigatório"),
@@ -198,69 +200,90 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
             )}
           />
           {planoAtivo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="planoMeses"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantidade de Meses</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ex: 12"
-                        {...field}
-                        className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="planoMeses"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantidade de Meses</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ex: 12"
+                          {...field}
+                          className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="planoValorMensal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Mensal (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Ex: 150.00"
-                        {...field}
-                        className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="planoValorMensal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Valor Mensal (R$)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Ex: 150.00"
+                          {...field}
+                          className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="planoDiaVencimento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dia de Vencimento</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-10 w-full rounded-md border border-[#6B21A8]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {[...Array(28)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            Dia {i + 1}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <FormField
+                  control={form.control}
+                  name="planoDiaVencimento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dia de Vencimento</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="flex h-10 w-full rounded-md border border-[#6B21A8]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {[...Array(28)].map((_, i) => (
+                            <option key={i + 1} value={i + 1}>
+                              Dia {i + 1}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* Botão Plano Mensal (só visual, desabilitado durante criação) */}
+              <div className="mt-4">
+                <PlanoPaymentButton
+                  analysisId={editingAnalysis?.id || "novo"}
+                  clientName={form.getValues("clientName") || ""}
+                  planoData={{
+                    meses: form.getValues("planoMeses") || "",
+                    valorMensal: form.getValues("planoValorMensal") || "",
+                  }}
+                  startDate={
+                    form.getValues("startDate")
+                      ? form.getValues("startDate").toString()
+                      : ""
+                  }
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  (O controle de pagamentos será ativado após salvar a análise)
+                </p>
+              </div>
+            </>
           )}
         </div>
 
@@ -288,71 +311,92 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
             )}
           />
           {semanalAtivo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="semanalSemanas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantidade de Semanas</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ex: 8"
-                        {...field}
-                        className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="semanalSemanas"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantidade de Semanas</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Ex: 8"
+                          {...field}
+                          className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="semanalValorSemanal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Semanal (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Ex: 37.50"
-                        {...field}
-                        className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="semanalValorSemanal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Valor Semanal (R$)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Ex: 37.50"
+                          {...field}
+                          className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="semanalDiaVencimento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dia de Vencimento</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-10 w-full rounded-md border border-[#10B981]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="domingo">Domingo</option>
-                        <option value="segunda">Segunda-feira</option>
-                        <option value="terca">Terça-feira</option>
-                        <option value="quarta">Quarta-feira</option>
-                        <option value="quinta">Quinta-feira</option>
-                        <option value="sexta">Sexta-feira</option>
-                        <option value="sabado">Sábado</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <FormField
+                  control={form.control}
+                  name="semanalDiaVencimento"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dia de Vencimento</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="flex h-10 w-full rounded-md border border-[#10B981]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="domingo">Domingo</option>
+                          <option value="segunda">Segunda-feira</option>
+                          <option value="terca">Terça-feira</option>
+                          <option value="quarta">Quarta-feira</option>
+                          <option value="quinta">Quinta-feira</option>
+                          <option value="sexta">Sexta-feira</option>
+                          <option value="sabado">Sábado</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* Botão Plano Semanal (só visual, desabilitado durante criação) */}
+              <div className="mt-4">
+                <SemanalPaymentButton
+                  analysisId={editingAnalysis?.id || "novo"}
+                  clientName={form.getValues("clientName") || ""}
+                  semanalData={{
+                    semanas: form.getValues("semanalSemanas") || "",
+                    valorSemanal: form.getValues("semanalValorSemanal") || "",
+                  }}
+                  startDate={
+                    form.getValues("startDate")
+                      ? form.getValues("startDate").toString()
+                      : ""
+                  }
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  (O controle de pagamentos será ativado após salvar a análise)
+                </p>
+              </div>
+            </>
           )}
         </div>
 
