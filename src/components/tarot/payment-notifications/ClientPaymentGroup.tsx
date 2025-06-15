@@ -10,7 +10,6 @@ import { GroupedPayment } from "./utils/paymentGrouping";
 interface ClientPaymentGroupProps {
   group: GroupedPayment;
   onMarkAsPaid: (id: string) => void;
-  // Removido o onPostponePayment dos props pois não é mais utilizado
   onDeleteNotification: (id: string) => void;
 }
 
@@ -21,14 +20,17 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Filtro refeito: não mostrar mostUrgent entre os adicionais (mesmo que apareça repetido por falha de geração)
+  // Filtro refeito: remova QUALQUER adicional com mesmo id do mostUrgent
   const additionalPayments = group.additionalPayments.filter(
-    (payment) =>
-      payment.id !== group.mostUrgent.id
+    (payment) => payment.id !== group.mostUrgent.id
   );
-  // Adicional: garantir que não haja duplicados usando Set (pelo id)
+  // Garantir deduplicação total por id, inclusive cross-verificando com mostUrgent
   const uniqueAdditionalPayments = Array.from(
-    new Map(additionalPayments.map((p) => [p.id, p])).values()
+    new Map(
+      additionalPayments
+        .filter(p => p.id !== group.mostUrgent.id)
+        .map((p) => [p.id, p])
+    ).values()
   );
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
