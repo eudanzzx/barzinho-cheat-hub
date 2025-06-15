@@ -11,6 +11,7 @@ export function useTarotAnalises() {
   const [analises, setAnalises] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("todas");
+  const [selectedPeriod, setSelectedPeriod] = useState<"semana" | "mes" | "ano" | "total">("total");
   const [aniversarianteHoje, setAniversarianteHoje] = useState<any>(null);
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
@@ -120,8 +121,12 @@ export function useTarotAnalises() {
     const updatedAnalises = analises.map((a) =>
       a.id === id ? { ...a, finalizado: !a.finalizado } : a
     );
-    saveAllTarotAnalyses(updatedAnalises); // <-- corrigido aqui!
+    saveAllTarotAnalyses(updatedAnalises);
     setAnalises(updatedAnalises);
+  }
+
+  function handlePeriodChange(period: "semana" | "mes" | "ano" | "total") {
+    setSelectedPeriod(period);
   }
 
   return {
@@ -133,6 +138,8 @@ export function useTarotAnalises() {
     activeTab,
     setActiveTab,
     tabAnalises,
+    selectedPeriod,
+    handlePeriodChange,
     aniversarianteHoje,
     recebidoStats,
     getStatusCounts,

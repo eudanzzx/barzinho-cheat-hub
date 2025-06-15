@@ -26,6 +26,8 @@ const ListagemTarot = () => {
     activeTab,
     setActiveTab,
     tabAnalises,
+    selectedPeriod,
+    handlePeriodChange,
     aniversarianteHoje,
     recebidoStats,
     getStatusCounts,
@@ -73,8 +75,8 @@ const ListagemTarot = () => {
             totalRecebidoAno={recebidoStats.ano}
             finalizados={counts.finalizados}
             lembretes={analises.filter((a) => a.lembretes && a.lembretes.length > 0).length}
-            selectedPeriod="total"
-            onPeriodChange={() => null}
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={handlePeriodChange}
             variant="tarot"
           />
 
