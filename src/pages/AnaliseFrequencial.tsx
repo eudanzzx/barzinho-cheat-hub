@@ -22,6 +22,7 @@ import AnalysisCards from "@/components/tarot/AnalysisCards";
 import DailySemanalNotificationManager from "@/components/DailySemanalNotificationManager";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
+import PlanosSideBySideSection from "@/components/forms/frequency-analysis/PlanosSideBySideSection";
 
 // Memoized reminder component to prevent unnecessary re-renders
 const ReminderCard = memo(({ lembrete, onUpdate, onRemove }: {
@@ -317,6 +318,52 @@ const AnaliseFrequencial = () => {
     navigate(-1);
   }, [navigate]);
 
+  // ESTADOS PARA OS PLANOS
+  const [planoAtivo, setPlanoAtivo] = useState(false);
+  const [planoMeses, setPlanoMeses] = useState("");
+  const [planoValorMensal, setPlanoValorMensal] = useState("");
+  const [planoDiaVencimento, setPlanoDiaVencimento] = useState("5");
+
+  const [semanalAtivo, setSemanalAtivo] = useState(false);
+  const [semanalSemanas, setSemanalSemanas] = useState("");
+  const [semanalValorSemanal, setSemanalValorSemanal] = useState("");
+  const [semanalDiaVencimento, setSemanalDiaVencimento] = useState("sexta");
+
+  // Adapter "form" fake para usar PlanosSideBySideSection
+  const form = useMemo(() => ({
+    control: {}, // não será utilizado
+    // FAKE método para PlanosSideBySideSection funcionar: "get" para watcher e "set" para onCheckedChange
+    watch: (field: string) => {
+      switch (field) {
+        case "planoAtivo": return planoAtivo;
+        case "planoMeses": return planoMeses;
+        case "planoValorMensal": return planoValorMensal;
+        case "planoDiaVencimento": return planoDiaVencimento;
+        case "semanalAtivo": return semanalAtivo;
+        case "semanalSemanas": return semanalSemanas;
+        case "semanalValorSemanal": return semanalValorSemanal;
+        case "semanalDiaVencimento": return semanalDiaVencimento;
+        default: return "";
+      }
+    },
+    setValue: (field: string, value: any) => {
+      switch (field) {
+        case "planoAtivo": setPlanoAtivo(value); break;
+        case "planoMeses": setPlanoMeses(value); break;
+        case "planoValorMensal": setPlanoValorMensal(value); break;
+        case "planoDiaVencimento": setPlanoDiaVencimento(value); break;
+        case "semanalAtivo": setSemanalAtivo(value); break;
+        case "semanalSemanas": setSemanalSemanas(value); break;
+        case "semanalValorSemanal": setSemanalValorSemanal(value); break;
+        case "semanalDiaVencimento": setSemanalDiaVencimento(value); break;
+        default: break;
+      }
+    },
+  }), [
+    planoAtivo, planoMeses, planoValorMensal, planoDiaVencimento,
+    semanalAtivo, semanalSemanas, semanalValorSemanal, semanalDiaVencimento
+  ]);
+
   // Memoize the birthday alert check
   const shouldShowBirthdayAlert = useMemo(() => {
     return nomeCliente && dataNascimento;
@@ -368,6 +415,10 @@ const AnaliseFrequencial = () => {
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}
             />
+
+            {/* NOVO BLOCO VISUAL DOS PLANOS */}
+            <PlanosSideBySideSection form={form} />
+
             <AnalysisCards
               analiseAntes={analiseAntes}
               analiseDepois={analiseDepois}
