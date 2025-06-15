@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,25 +19,19 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   additionalPayments,
   onMarkAsPaid,
 }) => {
-  // Mantém estado aberto/fechado do submenu localmente
+  // Começa fechado por padrão
   const [isOpen, setIsOpen] = useState(false);
 
-  // Remove duplicados e também o mostUrgent, só para garantir
+  // Remove duplicados e o mostUrgent, só para garantir
   const uniqueAdditionalPayments = additionalPayments.filter(
     (p) => p.id !== mostUrgent.id
   );
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
+  // Corrige: apenas seta novo estado, sem lógica manual
   function handleCollapsibleChange(open: boolean) {
     console.log("Alterando Collapsible:", open);
     setIsOpen(open);
-  }
-
-  function handleTriggerClick(e: React.MouseEvent) {
-    e.stopPropagation();
-    const novoEstado = !isOpen;
-    console.log("Trigger clicado - novo estado:", novoEstado);
-    setIsOpen(novoEstado);
   }
 
   function handlePagoClick() {
@@ -83,7 +78,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   size="icon"
                   className="h-7 w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
-                  onClick={handleTriggerClick}
+                  // Removido onClick pois Radix já cuida do trigger!
                 >
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4" />
