@@ -19,7 +19,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   additionalPayments,
   onMarkAsPaid,
 }) => {
-  // Começa fechado por padrão
+  // Estado controlado. Começa FECHADO por padrão.
   const [isOpen, setIsOpen] = useState(false);
 
   // Remove duplicados e o mostUrgent, só para garantir
@@ -28,18 +28,17 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   );
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
-  // Corrige: apenas seta novo estado, sem lógica manual
+  // Controla totalmente o estado, começa fechado.
   function handleCollapsibleChange(open: boolean) {
-    console.log("Alterando Collapsible:", open);
     setIsOpen(open);
   }
 
-  function handlePagoClick() {
-    console.log("Botão Pago clicado para ID:", mostUrgent.id);
+  // Botão "Pago"
+  function handlePagoClick(e: React.MouseEvent) {
+    e.stopPropagation(); // Garante que clique no botão não interfere no submenu!
     onMarkAsPaid(mostUrgent.id);
   }
 
-  // Mostra quantos dias faltam
   function getUrgencyText(daysUntilDue: number) {
     if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
     if (daysUntilDue === 0) return "Vence hoje";
@@ -78,7 +77,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   size="icon"
                   className="h-7 w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
-                  // Removido onClick pois Radix já cuida do trigger!
+                  tabIndex={0} // Foco acessível
                 >
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -99,7 +98,6 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
             </Button>
           </div>
         </div>
-        {/* Mostra o principal */}
         <div className="rounded-xl border border-[#ceb8fa] bg-[#f6f0ff] shadow-sm p-4 flex flex-col gap-2 relative mb-1">
           <div className="flex justify-between items-center mb-1">
             <Badge
