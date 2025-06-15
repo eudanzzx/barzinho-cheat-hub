@@ -449,6 +449,12 @@ const EditarAnaliseFrequencial = () => {
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}
             />
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-slate-700 border-b border-slate-200 pb-2">
+                {/* Configurações de Planos removida */}
+              </h3>
+              {/* PlanoSelector e SemanalSelector removidos */}
+            </div>
             <AnalysisCards
               analiseAntes={analiseAntes}
               analiseDepois={analiseDepois}
@@ -470,6 +476,7 @@ const EditarAnaliseFrequencial = () => {
                   Adicionar Tratamento
                 </Button>
               </div>
+              
               <div className="space-y-4">
                 {lembretes.map((lembrete) => (
                   <ReminderCard

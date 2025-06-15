@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -228,11 +229,12 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                   className="data-[state=checked]:bg-[#0EA5E9]"
                 />
               </div>
+              
               {planoAtivo && (
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Meses</Label>
-                    <Select value={planoData.meses} onValueChange={(value) => onPlanoDataChange("meses", value)}>
+                    <Select onValueChange={(value) => onPlanoDataChange("meses", value)}>
                       <SelectTrigger className="bg-[#0EA5E9]/10 border-[#0EA5E9]/30 focus:border-[#0EA5E9]">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -257,7 +259,7 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                   </div>
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Dia Vencimento</Label>
-                    <Select value={planoData.diaVencimento} onValueChange={(value) => onPlanoDataChange("diaVencimento", value)}>
+                    <Select onValueChange={(value) => onPlanoDataChange("diaVencimento", value)}>
                       <SelectTrigger className="bg-[#0EA5E9]/10 border-[#0EA5E9]/30 focus:border-[#0EA5E9]">
                         <SelectValue placeholder="Dia" />
                       </SelectTrigger>
@@ -286,11 +288,12 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                   className="data-[state=checked]:bg-[#10B981]"
                 />
               </div>
+              
               {semanalAtivo && (
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Semanas</Label>
-                    <Select value={semanalData.semanas} onValueChange={(value) => onSemanalDataChange("semanas", value)}>
+                    <Select onValueChange={(value) => onSemanalDataChange("semanas", value)}>
                       <SelectTrigger className="bg-[#10B981]/10 border-[#10B981]/30 focus:border-[#10B981]">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -315,7 +318,7 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                   </div>
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Dia Vencimento</Label>
-                    <Select value={semanalData.diaVencimento} onValueChange={(value) => onSemanalDataChange("diaVencimento", value)}>
+                    <Select onValueChange={(value) => onSemanalDataChange("diaVencimento", value)}>
                       <SelectTrigger className="bg-[#10B981]/10 border-[#10B981]/30 focus:border-[#10B981]">
                         <SelectValue placeholder="Dia" />
                       </SelectTrigger>
