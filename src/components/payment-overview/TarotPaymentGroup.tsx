@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,23 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   );
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
+  function handleCollapsibleChange(open: boolean) {
+    console.log("Alterando Collapsible:", open);
+    setIsOpen(open);
+  }
+
+  function handleTriggerClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    const novoEstado = !isOpen;
+    console.log("Trigger clicado - novo estado:", novoEstado);
+    setIsOpen(novoEstado);
+  }
+
+  function handlePagoClick() {
+    console.log("Botão Pago clicado para ID:", mostUrgent.id);
+    onMarkAsPaid(mostUrgent.id);
+  }
+
   // Mostra quantos dias faltam
   function getUrgencyText(daysUntilDue: number) {
     if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
@@ -48,7 +64,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
 
   return (
     <div className="rounded-lg border border-purple-200 bg-purple-50/30 p-4 shadow-sm mb-2">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isOpen} onOpenChange={handleCollapsibleChange}>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-800">{clientName}</span>
@@ -67,6 +83,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                   size="icon"
                   className="h-7 w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
+                  onClick={handleTriggerClick}
                 >
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4" />
@@ -80,7 +97,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
               className="ml-1 px-3 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
               title="Marcar como pago"
               type="button"
-              onClick={() => onMarkAsPaid(mostUrgent.id)}
+              onClick={handlePagoClick}
             >
               <CheckCircle className="h-4 w-4 mr-1" />
               Pago
@@ -118,7 +135,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
           </div>
         </div>
         {hasAdditionalPayments && (
-          <CollapsibleContent className="pl-2 pt-1 space-y-1">
+          <CollapsibleContent className="pl-2 pt-1 space-y-1" forceMount>
             {uniqueAdditionalPayments.map((payment) => (
               <div
                 key={payment.id}
@@ -161,4 +178,3 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
 };
 
 export default TarotPaymentGroup;
-
