@@ -495,7 +495,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         // Remove grupos que ficaram vazios
         .filter(group => group.mostUrgent)
     );
-    toast.success("Pagamento marcado como pago!");
+    toast({ title: "Pagamento marcado como pago!" });
   }, [markAsPaidTarot]);
 
   // Adaptação ao renderizar a seção de tarot, inserindo botão "Marcar como pago"
