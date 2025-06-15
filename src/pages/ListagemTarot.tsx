@@ -6,7 +6,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
-import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
+// import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications"; // Removido
 import TarotSearchInput from "@/components/tarot/TarotSearchInput";
 import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import { Input } from "@/components/ui/input";
@@ -50,10 +50,10 @@ const ListagemTarot = () => {
           />
         )}
 
-        {/* Notificações */}
-        <div className="mb-6">
+        {/* Notificações removidas */}
+        {/* <div className="mb-6">
           <TarotCounterPriorityNotifications analises={analises} />
-        </div>
+        </div> */}
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -140,3 +140,4 @@ const ListagemTarot = () => {
 };
 
 export default ListagemTarot;
+
