@@ -15,10 +15,17 @@ export const createNextPayment = (
     console.log(`createNextPayment - Mês atual: ${currentMonth}, Total: ${totalMonths}`);
     
     if (currentMonth < totalMonths) {
-      // Calcular a próxima data de vencimento corretamente
+      // Calcular a próxima data de vencimento baseada na data atual do plano
       const currentDueDate = new Date(currentPlano.dueDate);
       const nextDueDate = new Date(currentDueDate);
+      
+      // Adicionar exatamente 1 mês
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+      
+      // Se o dia mudou devido ao número de dias do mês, ajustar
+      if (nextDueDate.getDate() !== currentDueDate.getDate()) {
+        nextDueDate.setDate(0); // Vai para o último dia do mês anterior
+      }
       
       const nextPlano: PlanoMensal = {
         id: `${currentPlano.analysisId}-month-${currentMonth + 1}-${Date.now()}`,
@@ -111,11 +118,16 @@ export const handleMarkAsPaid = (
   console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
   
-  // Dispatch multiple events to ensure all components update
-  console.log('handleMarkAsPaid - Disparando eventos de atualização');
-  window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'markAsPaid', id: notificationId } }));
-  window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'markAsPaid', id: notificationId } }));
-  window.dispatchEvent(new Event('storage'));
+  // Force immediate refresh of all payment notifications
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new Event('storage'));
+  }, 50);
   
   return updatedPlanos;
 };
@@ -142,9 +154,15 @@ export const handlePostponePayment = (
   savePlanos(updatedPlanos);
   toast.info("Pagamento do tarot adiado por 7 dias");
   
-  // Dispatch events for immediate update
-  window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'postpone', id: notificationId } }));
-  window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'postpone', id: notificationId } }));
+  // Force immediate refresh
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
+    }));
+  }, 50);
   
   return updatedPlanos;
 };
@@ -160,9 +178,15 @@ export const handleDeleteNotification = (
   savePlanos(updatedPlanos);
   toast.success("Notificação de pagamento excluída!");
   
-  // Dispatch events for immediate update
-  window.dispatchEvent(new CustomEvent('tarot-payment-updated', { detail: { updated: true, action: 'delete', id: notificationId } }));
-  window.dispatchEvent(new CustomEvent('planosUpdated', { detail: { updated: true, action: 'delete', id: notificationId } }));
+  // Force immediate refresh
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
+    }));
+  }, 50);
   
   return updatedPlanos;
 };
