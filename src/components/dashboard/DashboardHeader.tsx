@@ -7,12 +7,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, BarChart3, Home, ChevronDown, Users, Menu, Calendar } from "lucide-react";
+import { Plus, BarChart3, Home, ChevronDown, Users, Menu, Calendar, Bell, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PaymentOverviewModal from "@/components/PaymentOverviewModal";
+import { Badge } from "@/components/ui/badge";
+import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -20,8 +22,11 @@ const DashboardHeader = () => {
   const isMobile = useIsMobile();
   const isDashboardPage = location.pathname === '/' || location.pathname === '/dashboard';
   const isTarotPage = location.pathname === '/listagem-tarot' || location.pathname === '/analise-frequencial' || location.pathname === '/relatorio-frequencial' || location.pathname.includes('tarot');
+  const isTarotListagem = location.pathname === '/listagem-tarot';
 
-  console.log('DashboardHeader - Current path:', location.pathname, 'isDashboardPage:', isDashboardPage);
+  // Buscamos notificações de vencimentos do tarot
+  const { groupedPayments } = usePaymentNotifications();
+  const totalClients = groupedPayments.length;
 
   return (
     <>
@@ -38,117 +43,136 @@ const DashboardHeader = () => {
               </div>
             </div>
             
-            {isMobile ? (
-              <div className="flex items-center gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2">
-                      <Menu className="h-5 w-5" />
+            <div className="flex items-center gap-3">
+              {/* ---- NOVO BOTÃO SÓ NA /listagem-tarot ---- */}
+              {isTarotListagem && (
+                <PaymentOverviewModal context="tarot">
+                  <Button
+                    className="flex items-center gap-2 text-tarot-primary bg-purple-100 hover:bg-purple-200 px-4 py-2 rounded-xl font-bold shadow border border-purple-200 transition-all text-base relative"
+                    style={{ minHeight: 40 }}
+                  >
+                    <Sparkles className="h-5 w-5 text-[#8e46dd] mr-1" />
+                    Próximos Vencimentos - Análises de Tarot
+                    {totalClients > 0 && (
+                      <Badge className="ml-2 bg-purple-200 text-purple-700 text-xs">{totalClients} cliente{totalClients > 1 ? "s" : ""}</Badge>
+                    )}
+                  </Button>
+                </PaymentOverviewModal>
+              )}
+              {/* ---- FIM DO BOTÃO NOVO ---- */}
+
+              {isMobile ? (
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-2">
+                        <Menu className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {!isDashboardPage && (
+                        <DropdownMenuItem onClick={() => navigate('/')}>
+                          <Home className="h-4 w-4 mr-2" />
+                          Início
+                        </DropdownMenuItem>
+                      )}
+                      {!isTarotPage && (
+                        <DropdownMenuItem onClick={() => navigate('/listagem-tarot')}>
+                          Tarot
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Relatórios Individuais
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Relatórios Financeiros
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button 
+                    className={`text-white h-9 px-3 text-sm ${
+                      isTarotPage ? 'bg-tarot-primary hover:bg-tarot-primary-light' : 'bg-main-primary hover:bg-main-primary-light'
+                    }`}
+                    onClick={() => navigate(isTarotPage ? '/analise-frequencial' : '/novo-atendimento')}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                  <UserMenu />
+                </div>
+              ) : (
+                <>
+                  {!isDashboardPage && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-gray-600 hover:text-main-primary hover:bg-main-accent"
+                      onClick={() => navigate('/')}
+                    >
+                      <Home className="h-4 w-4 mr-1" />
+                      Início
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    {!isDashboardPage && (
-                      <DropdownMenuItem onClick={() => navigate('/')}>
-                        <Home className="h-4 w-4 mr-2" />
-                        Início
+                  )}
+                  {!isTarotPage && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-gray-600 hover:text-tarot-primary hover:bg-tarot-accent"
+                      onClick={() => navigate('/listagem-tarot')}
+                    >
+                      Tarot
+                    </Button>
+                  )}
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-gray-600 hover:text-gray-800"
+                      >
+                        <BarChart3 className="h-4 w-4 mr-1" />
+                        Relatórios
+                        <ChevronDown className="h-3 w-3 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}>
+                        <Users className="h-4 w-4 mr-2" />
+                        Relatórios Individuais
                       </DropdownMenuItem>
-                    )}
-                    {!isTarotPage && (
-                      <DropdownMenuItem onClick={() => navigate('/listagem-tarot')}>
-                        Tarot
+                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Relatórios Financeiros
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}>
-                      <Users className="h-4 w-4 mr-2" />
-                      Relatórios Individuais
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      Relatórios Financeiros
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button 
-                  className={`text-white h-9 px-3 text-sm ${
-                    isTarotPage ? 'bg-tarot-primary hover:bg-tarot-primary-light' : 'bg-main-primary hover:bg-main-primary-light'
-                  }`}
-                  onClick={() => navigate(isTarotPage ? '/analise-frequencial' : '/novo-atendimento')}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-                <UserMenu />
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                {!isDashboardPage && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-gray-600 hover:text-main-primary hover:bg-main-accent"
-                    onClick={() => navigate('/')}
-                  >
-                    <Home className="h-4 w-4 mr-1" />
-                    Início
-                  </Button>
-                )}
-                {!isTarotPage && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-gray-600 hover:text-tarot-primary hover:bg-tarot-accent"
-                    onClick={() => navigate('/listagem-tarot')}
-                  >
-                    Tarot
-                  </Button>
-                )}
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
                     <Button 
                       variant="ghost" 
                       size="sm"
                       className="text-gray-600 hover:text-gray-800"
                     >
-                      <BarChart3 className="h-4 w-4 mr-1" />
-                      Relatórios
-                      <ChevronDown className="h-3 w-3 ml-1" />
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Próximos Vencimentos
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}>
-                      <Users className="h-4 w-4 mr-2" />
-                      Relatórios Individuais
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      Relatórios Financeiros
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
+                  </PaymentOverviewModal>
+                  
                   <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="text-gray-600 hover:text-gray-800"
+                    className={`text-white h-9 px-4 text-sm ${
+                      isTarotPage ? 'bg-tarot-primary hover:bg-tarot-primary-light' : 'bg-main-primary hover:bg-main-primary-light'
+                    }`}
+                    onClick={() => navigate(isTarotPage ? '/analise-frequencial' : '/novo-atendimento')}
                   >
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Próximos Vencimentos
+                    <Plus className="h-4 w-4 mr-1" />
+                    {isTarotPage ? 'Nova Análise' : 'Novo Atendimento'}
                   </Button>
-                </PaymentOverviewModal>
-                
-                <Button 
-                  className={`text-white h-9 px-4 text-sm ${
-                    isTarotPage ? 'bg-tarot-primary hover:bg-tarot-primary-light' : 'bg-main-primary hover:bg-main-primary-light'
-                  }`}
-                  onClick={() => navigate(isTarotPage ? '/analise-frequencial' : '/novo-atendimento')}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  {isTarotPage ? 'Nova Análise' : 'Novo Atendimento'}
-                </Button>
-                <UserMenu />
-              </div>
-            )}
+                  <UserMenu />
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
