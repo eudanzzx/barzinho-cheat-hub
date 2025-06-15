@@ -15,6 +15,7 @@ import PaymentOverviewModal from "@/components/PaymentOverviewModal";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
+import TarotPriorityNotificationsModal from "./TarotPriorityNotificationsModal";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -32,10 +33,10 @@ const DashboardHeader = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-3">
-          {/* Se estamos na listagem-tarot, mostramos o bloco de notificação igual ao /analise-frequencial */}
+          {/* Botão de Próximos Vencimentos - Análises de Tarot para /listagem-tarot */}
           {isTarotListagem && (
             <div className="mb-4">
-              <TarotCounterPriorityNotifications analises={[]} />
+              <TarotPriorityNotificationsModal />
             </div>
           )}
           <div className="flex items-center justify-between">
