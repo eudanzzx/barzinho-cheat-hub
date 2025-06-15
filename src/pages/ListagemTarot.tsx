@@ -116,14 +116,39 @@ const ListagemTarot = () => {
           ) : (
             <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
               <CardContent className="p-0">
-                <TarotAnalysisList
-                  analises={tabAnalises}
-                  calculateTimeRemaining={() => null}
-                  formatTimeRemaining={() => null}
-                  onToggleFinished={handleToggleFinished}
-                  onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
-                  onDelete={handleDelete}
-                />
+                <div className="divide-y divide-gray-100">
+                  {tabAnalises.map((analise) => (
+                    <div key={analise.id} className="px-5 pt-4 pb-2">
+                      {/* EXIBE OS LEMBRETES caso existam */}
+                      {Array.isArray(analise.lembretes) && analise.lembretes.length > 0 && (
+                        <div className="mb-2">
+                          <div className="font-semibold text-[#A067DF] text-sm mb-1">
+                            Contadores do Tratamento:
+                          </div>
+                          <ul className="list-disc ml-5 space-y-0.5">
+                            {analise.lembretes.map((l: any) => (
+                              <li key={l.id} className="text-xs text-gray-700">
+                                <span className="font-medium">{l.texto || "Sem descrição"}</span>
+                                <span className="ml-2 text-gray-400">
+                                  ({l.dias} dia{l.dias > 1 ? "s" : ""})
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {/* CARD ORIGINAL (com todos os controles) */}
+                      <TarotAnalysisList
+                        analises={[analise]}
+                        calculateTimeRemaining={() => null}
+                        formatTimeRemaining={() => null}
+                        onToggleFinished={handleToggleFinished}
+                        onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
+                        onDelete={handleDelete}
+                      />
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
