@@ -15,16 +15,18 @@ export const createNextPayment = (
     console.log(`createNextPayment - Mês atual: ${currentMonth}, Total: ${totalMonths}`);
     
     if (currentMonth < totalMonths) {
-      // Calcular a próxima data de vencimento baseada na data atual do plano
+      // Calcular a próxima data de vencimento
       const currentDueDate = new Date(currentPlano.dueDate);
       const nextDueDate = new Date(currentDueDate);
-      
-      // Adicionar exatamente 1 mês
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
       
-      // Se o dia mudou devido ao número de dias do mês, ajustar para o mesmo dia
-      if (nextDueDate.getDate() !== currentDueDate.getDate()) {
-        nextDueDate.setDate(currentDueDate.getDate());
+      // Garantir que mantemos o mesmo dia do mês
+      const originalDay = currentDueDate.getDate();
+      nextDueDate.setDate(originalDay);
+      
+      // Se o dia mudou (ex: 31 de janeiro -> 28 de fevereiro), ajustar para o último dia do mês
+      if (nextDueDate.getDate() !== originalDay) {
+        nextDueDate.setDate(0); // Vai para o último dia do mês anterior
       }
       
       const nextPlano: PlanoMensal = {
@@ -93,14 +95,14 @@ export const handleMarkAsPaid = (
 
   console.log('handleMarkAsPaid - Plano encontrado:', currentPlano);
 
-  // Mark current payment as paid (inactive)
+  // Marcar pagamento atual como pago (inativo)
   let updatedPlanos = allPlanos.map(plano => 
     plano.id === notificationId ? { ...plano, active: false } : plano
   );
 
   console.log('handleMarkAsPaid - Plano marcado como inativo');
 
-  // Create next payment if applicable
+  // Criar próximo pagamento se aplicável
   const nextPayment = createNextPayment(currentPlano, allPlanos);
   
   if (nextPayment) {
@@ -117,6 +119,16 @@ export const handleMarkAsPaid = (
   
   console.log('handleMarkAsPaid - Salvando planos atualizados. Total:', updatedPlanos.length);
   savePlanos(updatedPlanos);
+  
+  // Forçar atualização imediata dos eventos
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
+      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
+    }));
+    window.dispatchEvent(new CustomEvent('planosUpdated', { 
+      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
+    }));
+  }, 50);
   
   return updatedPlanos;
 };

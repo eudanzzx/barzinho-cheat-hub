@@ -28,19 +28,11 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     const updatedPlanos = handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
-    // Força refresh imediato com um pequeno delay para garantir que os dados foram salvos
+    // Refresh imediato
+    console.log('markAsPaid - Executando refresh imediato');
     setTimeout(() => {
-      console.log('markAsPaid - Executando refresh após delay');
       checkTarotPaymentNotifications();
     }, 100);
-    
-    // Dispara eventos para outros componentes
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
-    }));
-    window.dispatchEvent(new CustomEvent('planosUpdated', { 
-      detail: { updated: true, action: 'markAsPaid', id: notificationId, timestamp: Date.now() } 
-    }));
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   const postponePayment = useCallback((notificationId: string) => {
@@ -51,10 +43,6 @@ export const usePaymentNotifications = () => {
     setTimeout(() => {
       checkTarotPaymentNotifications();
     }, 100);
-    
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'postpone', id: notificationId, timestamp: Date.now() } 
-    }));
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   const deleteNotification = useCallback((notificationId: string) => {
@@ -65,10 +53,6 @@ export const usePaymentNotifications = () => {
     setTimeout(() => {
       checkTarotPaymentNotifications();
     }, 100);
-    
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated', { 
-      detail: { updated: true, action: 'delete', id: notificationId, timestamp: Date.now() } 
-    }));
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   useEffect(() => {
@@ -77,9 +61,8 @@ export const usePaymentNotifications = () => {
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      setTimeout(() => {
-        checkTarotPaymentNotifications();
-      }, 50);
+      // Refresh imediato sem delay
+      checkTarotPaymentNotifications();
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações
