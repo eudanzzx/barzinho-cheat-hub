@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Check, Calendar, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { PaymentCard } from "./PaymentCard";
-import { PlanoMensal, PlanoSemanal } from "@/types/payment";
-
-interface GroupedPayment {
-  clientName: string;
-  mostUrgent: PlanoMensal | PlanoSemanal;
-  additionalPayments: (PlanoMensal | PlanoSemanal)[];
-  totalPayments: number;
-}
+import { GroupedPayment } from "./utils/paymentGrouping";
 
 interface ClientPaymentGroupProps {
   group: GroupedPayment;
