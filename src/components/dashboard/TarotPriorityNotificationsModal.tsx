@@ -23,14 +23,14 @@ const TarotPriorityNotificationsModal: React.FC<TarotPriorityNotificationsModalP
           className={`flex items-center text-purple-700 hover:bg-purple-100 hover:text-purple-900 font-semibold ${triggerButtonClassName}`}
         >
           <Bell className="mr-2" />
-          Próximos Vencimentos - Análises de Tarot
+          Próximos Vencimentos
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl w-full">
         <DialogHeader>
           <DialogTitle className="text-purple-800 flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Próximos Vencimentos - Análises de Tarot
+            Próximos Vencimentos
           </DialogTitle>
         </DialogHeader>
         <TarotCounterPriorityNotifications analises={analises} />
@@ -40,3 +40,4 @@ const TarotPriorityNotificationsModal: React.FC<TarotPriorityNotificationsModalP
 };
 
 export default TarotPriorityNotificationsModal;
+
