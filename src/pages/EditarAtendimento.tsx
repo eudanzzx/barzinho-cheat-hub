@@ -420,7 +420,7 @@ const EditarAtendimento = () => {
                 getStatusColor={getStatusColor}
               />
 
-              {/* ATENCAO Flag mantida inline por ser simples */}
+              {/* ATENCAO Flag */}
               <div className="space-y-2 flex flex-col">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="atencao" className="text-base flex items-center text-slate-700">
@@ -443,21 +443,28 @@ const EditarAtendimento = () => {
               </div>
             </div>
 
-            <PlanoMensalSection
-              planoAtivo={planoAtivo}
-              setPlanoAtivo={setPlanoAtivo}
-              planoData={planoData}
-              handlePlanoDataChange={handlePlanoDataChange}
-              diasVencimento={diasVencimento}
-            />
+            {/* Seção de Planos - sempre visível */}
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-slate-700 border-b border-slate-200 pb-2">
+                Configurações de Planos
+              </h3>
+              
+              <PlanoMensalSection
+                planoAtivo={planoAtivo}
+                setPlanoAtivo={setPlanoAtivo}
+                planoData={planoData}
+                handlePlanoDataChange={handlePlanoDataChange}
+                diasVencimento={diasVencimento}
+              />
 
-            <PlanoSemanalSection
-              semanalAtivo={semanalAtivo}
-              setSemanalAtivo={setSemanalAtivo}
-              semanalData={semanalData}
-              handleSemanalDataChange={handleSemanalDataChange}
-              diasSemana={diasSemana}
-            />
+              <PlanoSemanalSection
+                semanalAtivo={semanalAtivo}
+                setSemanalAtivo={setSemanalAtivo}
+                semanalData={semanalData}
+                handleSemanalDataChange={handleSemanalDataChange}
+                diasSemana={diasSemana}
+              />
+            </div>
 
             <DetalhesSection
               detalhes={detalhes}
