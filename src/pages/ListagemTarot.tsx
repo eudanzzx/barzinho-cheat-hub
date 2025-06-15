@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Search } from "lucide-react";
@@ -41,11 +40,6 @@ const ListagemTarot = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
 
-      {/* Adiciona TarotCounterPriorityNotifications aqui */}
-      <div className="container mx-auto pt-3">
-        <TarotCounterPriorityNotifications analises={analises} />
-      </div>
-
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         {aniversarianteHoje && (
           <ClientBirthdayAlert
@@ -54,8 +48,6 @@ const ListagemTarot = () => {
             context="tarot"
           />
         )}
-
-        {/* Removido: TarotCounterPriorityNotifications (daqui) */}
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
