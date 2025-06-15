@@ -485,16 +485,28 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     markAsPaidTarot(paymentId);
     setFilteredTarotGroups((prevGroups) =>
       prevGroups
-        .map(group => ({
-          ...group,
-          // Remove dos pagamentos do grupo o pago
-          mostUrgent: group.mostUrgent.id === paymentId
-            ? null
-            : group.mostUrgent,
-          additionalPayments: group.additionalPayments.filter(p => p.id !== paymentId)
-        }))
-        // Remove grupos que ficaram vazios
-        .filter(group => group.mostUrgent)
+        .map(group => {
+          // atualiza o grupo só se o mostUrgent era o pago
+          if (group.mostUrgent.id === paymentId) {
+            const updatedPayments = group.additionalPayments.filter(p => p.id !== paymentId);
+            if (updatedPayments.length > 0) {
+              // promove o próximo da fila como mostUrgent
+              return {
+                ...group,
+                mostUrgent: updatedPayments[0],
+                additionalPayments: updatedPayments.slice(1),
+                totalPayments: updatedPayments.length,
+              };
+            } else {
+              // remove grupo se não houver pagamentos adicionais
+              return null;
+            }
+          } else {
+            // se não mexeu neste grupo
+            return group;
+          }
+        })
+        .filter((group): group is GroupedPayment => !!group && !!group.mostUrgent)
     );
     toast({ title: "Pagamento marcado como pago!" });
   }, [markAsPaidTarot]);

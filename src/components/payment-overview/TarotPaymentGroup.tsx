@@ -13,7 +13,7 @@ interface TarotPaymentGroupProps {
   onMarkAsPaid: (paymentId: string) => void;
 }
 
-export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
+const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
   clientName,
   mostUrgent,
   additionalPayments,
@@ -21,7 +21,7 @@ export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Função para mostrar quantos dias faltam
+  // Mostra quantos dias faltam
   function getUrgencyText(daysUntilDue: number) {
     if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
     if (daysUntilDue === 0) return "Vence hoje";
@@ -39,9 +39,9 @@ export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
     return diffDays;
   };
 
-  // Remove duplicados no submenu (por via das dúvidas)
-  const uniqueAdditionalPayments = Array.from(
-    new Map(additionalPayments.map((p) => [p.id, p])).values()
+  // Remove duplicados e também o mostUrgent, só para garantir
+  const uniqueAdditionalPayments = additionalPayments.filter(
+    (p) => p.id !== mostUrgent.id
   );
   const hasAdditionalPayments = uniqueAdditionalPayments.length > 0;
 
@@ -74,7 +74,6 @@ export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                 </Button>
               </CollapsibleTrigger>
             )}
-            {/* Botão de marcar como pago só para o mais urgente */}
             <Button
               className="ml-1 px-3 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
               title="Marcar como pago"
@@ -115,7 +114,6 @@ export const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
             {getUrgencyText(getDaysUntilDue(mostUrgent.dueDate))}
           </div>
         </div>
-        {/* Submenu colapsável */}
         {hasAdditionalPayments && (
           <CollapsibleContent className="pl-2 pt-1 space-y-1">
             {uniqueAdditionalPayments.map((payment) => (
