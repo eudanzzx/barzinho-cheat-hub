@@ -21,6 +21,7 @@ import useUserDataService from "@/services/userDataService";
 import ClientForm from "@/components/tarot/ClientForm";
 import AnalysisCards from "@/components/tarot/AnalysisCards";
 import PlanoSelector from "@/components/tarot/PlanoSelector";
+import SemanalSelector from "@/components/tarot/SemanalSelector";
 
 // Memoized reminder component to prevent unnecessary re-renders
 const ReminderCard = memo(({ lembrete, onUpdate, onRemove }: {
@@ -98,6 +99,12 @@ const EditarAnaliseFrequencial = () => {
     meses: "",
     valorMensal: "",
   });
+  const [semanalAtivo, setSemanalAtivo] = useState(false);
+  const [semanalData, setSemanalData] = useState({
+    semanas: "",
+    valorSemanal: "",
+    diaVencimento: "sexta",
+  });
   const [lembretes, setLembretes] = useState([{ id: 1, texto: "", dias: 7 }]);
   const [initialLembretesLoaded, setInitialLembretesLoaded] = useState(false);
   
@@ -131,6 +138,8 @@ const EditarAnaliseFrequencial = () => {
     setAnaliseDepois(analise.analiseDepois || "");
     setPlanoAtivo(analise.planoAtivo || false);
     setPlanoData(analise.planoData || { meses: "", valorMensal: "" });
+    setSemanalAtivo(analise.semanalAtivo || false);
+    setSemanalData(analise.semanalData || { semanas: "", valorSemanal: "", diaVencimento: "sexta" });
 
     // Load reminders only once when the component mounts
     if (!initialLembretesLoaded) {
@@ -196,6 +205,13 @@ const EditarAnaliseFrequencial = () => {
 
   const handlePlanoDataChange = useCallback((field: string, value: string) => {
     setPlanoData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
+  const handleSemanalDataChange = useCallback((field: string, value: string) => {
+    setSemanalData(prev => ({
       ...prev,
       [field]: value
     }));
@@ -322,6 +338,8 @@ const EditarAnaliseFrequencial = () => {
       analiseDepois,
       planoAtivo,
       planoData: planoAtivo ? planoData : null,
+      semanalAtivo,
+      semanalData: semanalAtivo ? semanalData : null,
       lembretes: [...lembretes],
       dataCriacao: new Date().toISOString(),
       finalizado: false,
@@ -391,7 +409,7 @@ const EditarAnaliseFrequencial = () => {
     
     // Voltar para a página de listagem
     navigate("/listagem-tarot");
-  }, [id, nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, planoAtivo, planoData, lembretes, navigate, getTarotAnalyses, saveTarotAnalyses, createPlanoNotifications, getPlanos, savePlanos]);
+  }, [id, nomeCliente, dataInicio, dataNascimento, signo, atencao, preco, analiseAntes, analiseDepois, planoAtivo, planoData, semanalAtivo, semanalData, lembretes, navigate, getTarotAnalyses, saveTarotAnalyses, createPlanoNotifications, getPlanos, savePlanos]);
 
   const handleBack = useCallback(() => {
     navigate("/listagem-tarot");
@@ -465,12 +483,23 @@ const EditarAnaliseFrequencial = () => {
               onPrecoChange={setPreco}
             />
 
-            <div className="mt-6">
+            <div className="mt-6 space-y-4">
+              <h3 className="text-lg font-semibold text-slate-700 border-b border-slate-200 pb-2">
+                Configurações de Planos
+              </h3>
+              
               <PlanoSelector
                 planoAtivo={planoAtivo}
                 planoData={planoData}
                 onPlanoAtivoChange={setPlanoAtivo}
                 onPlanoDataChange={handlePlanoDataChange}
+              />
+
+              <SemanalSelector
+                semanalAtivo={semanalAtivo}
+                semanalData={semanalData}
+                onSemanalAtivoChange={setSemanalAtivo}
+                onSemanalDataChange={handleSemanalDataChange}
               />
             </div>
 
