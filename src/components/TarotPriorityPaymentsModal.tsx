@@ -23,14 +23,14 @@ const TarotPriorityPaymentsModal: React.FC<TarotPriorityPaymentsModalProps> = ({
           Próximos Vencimentos
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg w-[96vw]">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl w-[96vw] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-purple-800">
             <Bell className="h-5 w-5" />
             Próximos Vencimentos - Análises de Tarot
           </DialogTitle>
         </DialogHeader>
-        <div>
+        <div className="flex-1 overflow-y-auto pr-2">
           <TarotCounterPriorityNotifications analises={analises} />
         </div>
       </DialogContent>
