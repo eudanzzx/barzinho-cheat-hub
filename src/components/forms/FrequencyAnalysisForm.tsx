@@ -174,10 +174,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
         <ClientInfoFields form={form} />
         <AnalysisFields form={form} />
 
-        {/* Plano Section */}
+        {/* Plano Mensal Section */}
         <div className="space-y-4 p-4 border border-[#6B21A8]/20 rounded-lg bg-[#6B21A8]/5">
-          <h3 className="text-lg font-medium text-[#6B21A8]">Plano de Pagamento</h3>
-          
+          <h3 className="text-lg font-medium text-[#6B21A8]">Plano Mensal</h3>
           <FormField
             control={form.control}
             name="planoAtivo"
@@ -186,7 +185,7 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">Ativar Plano Mensal</FormLabel>
                   <div className="text-sm text-muted-foreground">
-                    Habilita o sistema de pagamento parcelado mensal
+                    Ative para configurar pagamentos mensais.
                   </div>
                 </div>
                 <FormControl>
@@ -198,7 +197,6 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
               </FormItem>
             )}
           />
-
           {planoAtivo && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
@@ -266,10 +264,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
           )}
         </div>
 
-        {/* Semanal Section */}
+        {/* Plano Semanal Section */}
         <div className="space-y-4 p-4 border border-[#10B981]/20 rounded-lg bg-[#10B981]/5">
           <h3 className="text-lg font-medium text-[#10B981]">Plano Semanal</h3>
-          
           <FormField
             control={form.control}
             name="semanalAtivo"
@@ -278,7 +275,7 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">Ativar Plano Semanal</FormLabel>
                   <div className="text-sm text-muted-foreground">
-                    Habilita o sistema de pagamento semanal
+                    Ative para configurar pagamentos semanais.
                   </div>
                 </div>
                 <FormControl>
@@ -290,7 +287,6 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
               </FormItem>
             )}
           />
-
           {semanalAtivo && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
