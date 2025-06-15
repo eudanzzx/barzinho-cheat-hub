@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -135,6 +136,9 @@ const SemanalPaymentControl: React.FC<SemanalPaymentControlProps> = ({
       updatedWeeks[weekIndex].isPaid = false;
       setSemanalWeeks(updatedWeeks);
     }
+    
+    // Force refresh of notification button by dispatching custom event
+    window.dispatchEvent(new CustomEvent('tarot-payment-updated'));
     
     toast.success(
       newIsPaid 

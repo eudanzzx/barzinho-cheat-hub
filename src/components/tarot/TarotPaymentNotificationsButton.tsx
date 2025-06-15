@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -22,6 +23,17 @@ const TarotPaymentNotificationsButton = () => {
 
   useEffect(() => {
     checkTarotPaymentNotifications();
+    
+    // Listen for payment updates from control components
+    const handlePaymentUpdate = () => {
+      checkTarotPaymentNotifications();
+    };
+    
+    window.addEventListener('tarot-payment-updated', handlePaymentUpdate);
+    
+    return () => {
+      window.removeEventListener('tarot-payment-updated', handlePaymentUpdate);
+    };
   }, []);
 
   const checkTarotPaymentNotifications = () => {
