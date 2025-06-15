@@ -89,6 +89,10 @@ export const handleMarkAsPaid = (
   }
   
   savePlanos(updatedPlanos);
+  
+  // Disparar evento customizado para notificar que houve mudança nos pagamentos do tarot
+  window.dispatchEvent(new Event('tarot-payment-updated'));
+  
   return updatedPlanos;
 };
 
@@ -110,6 +114,10 @@ export const handlePostponePayment = (
   
   savePlanos(updatedPlanos);
   toast.info("Pagamento do tarot adiado por 7 dias");
+  
+  // Disparar evento customizado
+  window.dispatchEvent(new Event('tarot-payment-updated'));
+  
   return updatedPlanos;
 };
 
@@ -121,5 +129,9 @@ export const handleDeleteNotification = (
   const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
   savePlanos(updatedPlanos);
   toast.success("Notificação de pagamento excluída!");
+  
+  // Disparar evento customizado
+  window.dispatchEvent(new Event('tarot-payment-updated'));
+  
   return updatedPlanos;
 };

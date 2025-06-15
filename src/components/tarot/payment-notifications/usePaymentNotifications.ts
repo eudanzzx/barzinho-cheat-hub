@@ -20,10 +20,10 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
-    // Force refresh
+    // Force immediate refresh
     setTimeout(() => {
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 50);
   };
 
   const postponePayment = (notificationId: string) => {
@@ -32,7 +32,7 @@ export const usePaymentNotifications = () => {
     
     setTimeout(() => {
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 50);
   };
 
   const deleteNotification = (notificationId: string) => {
@@ -41,7 +41,7 @@ export const usePaymentNotifications = () => {
     
     setTimeout(() => {
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 50);
   };
 
   useEffect(() => {
@@ -51,13 +51,24 @@ export const usePaymentNotifications = () => {
     const handlePaymentUpdate = () => {
       setTimeout(() => {
         checkTarotPaymentNotifications();
-      }, 200);
+      }, 100);
+    };
+    
+    // Listen for tarot payment updates
+    const handleTarotPaymentUpdate = () => {
+      setTimeout(() => {
+        checkTarotPaymentNotifications();
+      }, 100);
     };
     
     window.addEventListener('tarot-payment-updated', handlePaymentUpdate);
+    window.addEventListener('tarot-payment-updated', handleTarotPaymentUpdate);
+    window.addEventListener('planosUpdated', handlePaymentUpdate);
     
     return () => {
       window.removeEventListener('tarot-payment-updated', handlePaymentUpdate);
+      window.removeEventListener('tarot-payment-updated', handleTarotPaymentUpdate);
+      window.removeEventListener('planosUpdated', handlePaymentUpdate);
     };
   }, []);
 
