@@ -12,6 +12,7 @@ import PaymentSection from "./payment-overview/PaymentSection";
 import { CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
+import TarotPaymentGroup from "@/components/payment-overview/TarotPaymentGroup";
 
 interface PaymentOverviewModalProps {
   children: React.ReactNode;
