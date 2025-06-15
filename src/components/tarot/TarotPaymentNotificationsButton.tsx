@@ -54,7 +54,6 @@ const TarotPaymentNotificationsButton = () => {
                   key={group.clientName}
                   group={group}
                   onMarkAsPaid={markAsPaid}
-                  onPostponePayment={postponePayment}
                   onDeleteNotification={deleteNotification}
                 />
               ))}
@@ -67,3 +66,4 @@ const TarotPaymentNotificationsButton = () => {
 };
 
 export default TarotPaymentNotificationsButton;
+

@@ -40,7 +40,6 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
             key={group.clientName}
             group={group}
             onMarkAsPaid={markAsPaid}
-            onPostponePayment={postponePayment}
             onDeleteNotification={deleteNotification}
           />
         ))}
@@ -50,3 +49,4 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
 };
 
 export default TarotCounterPriorityNotifications;
+
