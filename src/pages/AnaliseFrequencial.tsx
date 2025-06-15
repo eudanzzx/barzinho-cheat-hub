@@ -339,6 +339,16 @@ const AnaliseFrequencial = () => {
       const novoId = Date.now().toString();
       console.log('handleSalvarAnalise - Novo ID gerado:', novoId);
 
+      // --- GARANTIA: os lembretes devem ser salvos na propriedade 'lembretes' ---
+      // E padronizar para sempre usar array [{id, texto, dias}]
+      // (remover possíveis contadores antigos/nome diferente)
+
+      const lembretesPadronizados = lembretes.map(l => ({
+        id: l.id,
+        texto: l.texto,
+        dias: l.dias
+      }));
+
       // Preparar dados da análise no formato correto
       const novaAnalise = {
         id: novoId,
@@ -370,7 +380,7 @@ const AnaliseFrequencial = () => {
           valorSemanal: semanalData.valorSemanal,
           diaVencimento: semanalData.diaVencimento
         } : null,
-        lembretes: [...lembretes],
+        lembretes: lembretesPadronizados, // ⬅️ salva como 'lembretes' (array do formato correto)
         dataCriacao: new Date().toISOString(),
         finalizado: false,
         status: 'ativo' as const,
@@ -381,9 +391,7 @@ const AnaliseFrequencial = () => {
 
       console.log('handleSalvarAnalise - Nova análise criada:', novaAnalise);
 
-      // Usar a função específica para salvar com plano
       saveTarotAnalysisWithPlan(novaAnalise);
-      console.log('handleSalvarAnalise - Análise salva via saveTarotAnalysisWithPlan');
 
       // Criar notificações de plano se ativo
       if (planoAtivo && planoData.meses && planoData.valorMensal && dataInicio) {
