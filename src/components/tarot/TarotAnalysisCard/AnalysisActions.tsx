@@ -63,21 +63,23 @@ const AnalysisActions: React.FC<AnalysisActionsProps> = ({
             <Trash2 className="h-4 w-4" />
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className="bg-white/98 backdrop-blur-md">
+        <AlertDialogContent className="bg-white border border-gray-200 shadow-2xl max-w-md mx-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir a análise de <strong>{analise.nomeCliente}</strong>?
+            <AlertDialogTitle className="text-gray-900 text-lg font-semibold">
+              Confirmar exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 text-sm">
+              Tem certeza que deseja excluir a análise de <strong className="text-gray-900">{analise.nomeCliente}</strong>?
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="hover:bg-slate-100 transition-colors duration-300">
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <AlertDialogCancel className="bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200 transition-colors duration-200">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => onDelete(analise.id)}
-              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-300"
+              className="bg-red-600 hover:bg-red-700 text-white border-0 transition-colors duration-200"
             >
               Excluir
             </AlertDialogAction>
