@@ -108,16 +108,16 @@ const ClientBirthdayAlert: React.FC<ClientBirthdayAlertProps> = ({
   return (
     <Alert className={`mb-4 border-2 relative ${context === 'tarot' ? 'border-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 shadow-lg' : 'border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 shadow-lg'}`}>
       <Cake className={`h-6 w-6 ${context === 'tarot' ? 'text-purple-600' : 'text-amber-600'}`} />
-      <AlertTitle className={`font-bold text-lg pr-10 ${context === 'tarot' ? 'text-purple-800' : 'text-amber-800'}`}>
+      <AlertTitle className={`font-bold text-lg pr-12 ${context === 'tarot' ? 'text-purple-800' : 'text-amber-800'}`}>
         🎂 Aniversário Especial! {age && `${age} anos`} 🎉
       </AlertTitle>
-      <AlertDescription className={`text-base pr-10 ${context === 'tarot' ? 'text-purple-700' : 'text-amber-700'}`}>
+      <AlertDescription className={`text-base pr-12 ${context === 'tarot' ? 'text-purple-700' : 'text-amber-700'}`}>
         {getMessage()}
       </AlertDescription>
       <Button
         variant="ghost"
         size="sm"
-        className={`absolute top-3 right-3 h-8 w-8 p-0 flex items-center justify-center ${context === 'tarot' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-200' : 'text-amber-600 hover:text-amber-800 hover:bg-amber-200'}`}
+        className={`absolute top-2 right-2 h-8 w-8 p-0 flex items-center justify-center ${context === 'tarot' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-200' : 'text-amber-600 hover:text-amber-800 hover:bg-amber-200'}`}
         onClick={handleClose}
       >
         <X className="h-4 w-4" />
