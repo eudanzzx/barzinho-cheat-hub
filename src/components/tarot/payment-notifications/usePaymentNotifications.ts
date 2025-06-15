@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -20,7 +19,7 @@ export const usePaymentNotifications = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Filter for tarot plans - only active ones
+    // Filter for tarot plans - only active (unpaid) ones with analysisId
     const tarotPlanos = allPlanos.filter((plano) => 
       plano.active === true && 
       !!plano.analysisId
@@ -59,17 +58,19 @@ export const usePaymentNotifications = () => {
       plano.type === 'semanal'
     );
 
-    const todayDay = today.getDay();
-    
+    // For weekly plans, show notifications based on due date, not day of week
     tarotWeeklyPlanos.forEach(plano => {
+      const dueDate = new Date(plano.dueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      
       const notificationTiming = plano.notificationTiming || 'on_due_date';
       
       if (notificationTiming === 'on_due_date') {
-        if (todayDay === 5 || todayDay === 6 || todayDay === 0) {
+        // Show notification on or after the due date
+        if (dueDate.getTime() <= today.getTime()) {
           pendingNotifications.push(plano);
         }
       } else if (notificationTiming === 'next_week') {
-        const dueDate = new Date(plano.dueDate);
         const nextWeekDate = new Date(dueDate);
         nextWeekDate.setDate(nextWeekDate.getDate() + 7);
         
