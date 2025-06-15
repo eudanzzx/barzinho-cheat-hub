@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -34,8 +33,13 @@ const DashboardHeader = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-3">
-          {/* Retirado o antigo TarotPriorityNotificationsModal aqui - agora só no menu central */}
-
+          {/* Botão de Próximos Vencimentos - Análises de Tarot para /listagem-tarot */}
+          {isTarotListagem && (
+            <div className="mb-4">
+              {/* Só o novo botão/modal! */}
+              <TarotPriorityNotificationsModal />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Logo height={36} width={36} />
@@ -136,12 +140,8 @@ const DashboardHeader = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  {/* Troca o antigo "Próximos Vencimentos" pelo novo botão/modal apenas na listagem-tarot */}
-                  {isTarotListagem ? (
-                    <TarotPriorityNotificationsModal
-                      triggerButtonClassName="ml-2"
-                    />
-                  ) : (
+                  {/* Remover o antigo botão de PaymentOverviewModal apenas na listagem-tarot */}
+                  {(!isTarotListagem) && (
                     <PaymentOverviewModal context={isTarotPage ? 'tarot' : 'principal'}>
                       <Button 
                         variant="ghost" 
@@ -175,4 +175,3 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
-
