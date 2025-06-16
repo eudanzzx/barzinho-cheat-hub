@@ -15,42 +15,46 @@ export default function TarotTabsFilter(props: Props) {
   const { activeTab, setActiveTab, total, finalizados, emAndamento, atencao } = props;
   
   return (
-    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/70 border border-[#ede9fe] rounded-xl mb-6 gap-1 p-1">
+    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white/70 border border-[#ede9fe] rounded-xl mb-6 gap-1 p-1 h-auto">
       <TabsTrigger
         value="todas"
-        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs sm:text-sm px-2 py-2"
+        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs px-2 py-2 h-auto min-h-[2.5rem]"
         onClick={() => setActiveTab("todas")}
       >
-        <span className="hidden sm:inline">Todas</span>
-        <span className="sm:hidden">Todas</span>
-        <span className="ml-1">({total})</span>
+        <div className="flex flex-col items-center">
+          <span>Todas</span>
+          <span className="text-xs">({total})</span>
+        </div>
       </TabsTrigger>
       <TabsTrigger
         value="finalizadas"
-        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs sm:text-sm px-2 py-2"
+        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs px-2 py-2 h-auto min-h-[2.5rem]"
         onClick={() => setActiveTab("finalizadas")}
       >
-        <span className="hidden sm:inline">Finalizadas</span>
-        <span className="sm:hidden">Finalizadas</span>
-        <span className="ml-1">({finalizados})</span>
+        <div className="flex flex-col items-center">
+          <span>Finalizadas</span>
+          <span className="text-xs">({finalizados})</span>
+        </div>
       </TabsTrigger>
       <TabsTrigger
         value="pendentes"
-        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs sm:text-sm px-2 py-2"
+        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs px-2 py-2 h-auto min-h-[2.5rem]"
         onClick={() => setActiveTab("pendentes")}
       >
-        <span className="hidden sm:inline">Pendentes</span>
-        <span className="sm:hidden">Pendentes</span>
-        <span className="ml-1">({emAndamento})</span>
+        <div className="flex flex-col items-center">
+          <span>Pendentes</span>
+          <span className="text-xs">({emAndamento})</span>
+        </div>
       </TabsTrigger>
       <TabsTrigger
         value="atencao"
-        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs sm:text-sm px-2 py-2"
+        className="data-[state=active]:bg-[#673193] data-[state=active]:text-white transition-all duration-300 hover:bg-[#673193]/10 text-xs px-2 py-2 h-auto min-h-[2.5rem]"
         onClick={() => setActiveTab("atencao")}
       >
-        <span className="hidden sm:inline">Atenção</span>
-        <span className="sm:hidden">Atenção</span>
-        <span className="ml-1">({atencao})</span>
+        <div className="flex flex-col items-center">
+          <span>Atenção</span>
+          <span className="text-xs">({atencao})</span>
+        </div>
       </TabsTrigger>
     </TabsList>
   );

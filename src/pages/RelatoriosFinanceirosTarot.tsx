@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from "@/components/Logo";
@@ -238,82 +237,82 @@ const RelatoriosFinanceirosTarot = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100">
       <DashboardHeader />
 
-      <main className="pt-20 p-4">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="pt-20 p-2 sm:p-4">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="transform hover:scale-110 transition-all duration-300">
-              <Logo height={50} width={50} />
+              <Logo height={40} width={40} className="sm:h-[50px] sm:w-[50px]" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
                 Relatórios Financeiros - Tarot
               </h1>
-              <p className="text-purple-600/80 mt-1">Análise financeira das consultas de Tarot</p>
+              <p className="text-purple-600/80 mt-1 text-sm sm:text-base">Análise financeira das consultas de Tarot</p>
             </div>
           </div>
           
           <Button
             onClick={generateCustomFinancialReport}
-            className="bg-[#673193] hover:bg-[#673193]/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            className="bg-[#673193] hover:bg-[#673193]/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
           >
             <Download className="h-4 w-4 mr-2" />
-            Relatório PDF
+            <span>Relatório PDF</span>
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
           <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
               <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Total Arrecadado</p>
-                  <p className="text-3xl font-bold text-slate-800">R$ {financialData.totalValue.toFixed(2)}</p>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 mb-1">Total Arrecadado</p>
+                  <p className="text-lg sm:text-3xl font-bold text-slate-800 truncate">R$ {financialData.totalValue.toFixed(2)}</p>
                 </div>
-                <div className="rounded-xl p-3 bg-purple-600/10">
-                  <DollarSign className="h-8 w-8 text-purple-600" />
+                <div className="rounded-xl p-2 sm:p-3 bg-purple-600/10 flex-shrink-0">
+                  <DollarSign className="h-5 w-5 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
               <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Total de Análises</p>
-                  <p className="text-3xl font-bold text-slate-800">{financialData.totalAnalyses}</p>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 mb-1">Total de Análises</p>
+                  <p className="text-lg sm:text-3xl font-bold text-slate-800">{financialData.totalAnalyses}</p>
                 </div>
-                <div className="rounded-xl p-3 bg-purple-600/10">
-                  <Calendar className="h-8 w-8 text-purple-600" />
+                <div className="rounded-xl p-2 sm:p-3 bg-purple-600/10 flex-shrink-0">
+                  <Calendar className="h-5 w-5 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
               <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Valor Médio</p>
-                  <p className="text-3xl font-bold text-slate-800">R$ {financialData.averageValue.toFixed(2)}</p>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 mb-1">Valor Médio</p>
+                  <p className="text-lg sm:text-3xl font-bold text-slate-800 truncate">R$ {financialData.averageValue.toFixed(2)}</p>
                 </div>
-                <div className="rounded-xl p-3 bg-purple-600/10">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                <div className="rounded-xl p-2 sm:p-3 bg-purple-600/10 flex-shrink-0">
+                  <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-300">
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
               <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Clientes Únicos</p>
-                  <p className="text-3xl font-bold text-slate-800">{financialData.clientData.length}</p>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 mb-1">Clientes Únicos</p>
+                  <p className="text-lg sm:text-3xl font-bold text-slate-800">{financialData.clientData.length}</p>
                 </div>
-                <div className="rounded-xl p-3 bg-purple-600/10">
-                  <Users className="h-8 w-8 text-purple-600" />
+                <div className="rounded-xl p-2 sm:p-3 bg-purple-600/10 flex-shrink-0">
+                  <Users className="h-5 w-5 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
               </div>
             </CardContent>
@@ -321,112 +320,134 @@ const RelatoriosFinanceirosTarot = () => {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8">
           {/* Monthly Revenue */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-purple-800">Faturamento Mensal</CardTitle>
+          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-purple-800 text-lg sm:text-xl">Faturamento Mensal</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={financialData.monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor']}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#8B5CF6" 
-                    strokeWidth={3}
-                    dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="h-[250px] sm:h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={financialData.monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="month" 
+                      fontSize={10}
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={50}
+                    />
+                    <YAxis fontSize={10} />
+                    <Tooltip 
+                      formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor']}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#8B5CF6" 
+                      strokeWidth={3}
+                      dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 
           {/* Top Clients */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-purple-800">Top 10 Clientes (Valor)</CardTitle>
+          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-purple-800 text-lg sm:text-xl">Top 10 Clientes (Valor)</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={financialData.clientData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    fontSize={10}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor Total']}
-                  />
-                  <Bar dataKey="value" fill="#8B5CF6" />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="h-[250px] sm:h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={financialData.clientData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      fontSize={9}
+                      interval={0}
+                    />
+                    <YAxis fontSize={10} />
+                    <Tooltip 
+                      formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor Total']}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Bar dataKey="value" fill="#8B5CF6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 
           {/* Client Distribution */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-purple-800">Distribuição por Cliente</CardTitle>
+          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-purple-800 text-lg sm:text-xl">Distribuição por Cliente</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={financialData.clientData.slice(0, 5)}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {financialData.clientData.slice(0, 5).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor Total']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="h-[250px] sm:h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={financialData.clientData.slice(0, 5)}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name.substring(0, 8)} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={60}
+                      fill="#8884d8"
+                      dataKey="value"
+                      fontSize={10}
+                    >
+                      {financialData.clientData.slice(0, 5).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [`R$ ${value.toFixed(2)}`, 'Valor Total']}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 
           {/* Analysis Count by Client */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-purple-800">Quantidade de Análises por Cliente</CardTitle>
+          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl overflow-hidden">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-purple-800 text-lg sm:text-xl">Análises por Cliente</CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={financialData.clientData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    fontSize={10}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value: number) => [value, 'Análises']}
-                  />
-                  <Bar dataKey="count" fill="#A78BFA" />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="h-[250px] sm:h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={financialData.clientData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                      fontSize={9}
+                      interval={0}
+                    />
+                    <YAxis fontSize={10} />
+                    <Tooltip 
+                      formatter={(value: number) => [value, 'Análises']}
+                      contentStyle={{ fontSize: '12px' }}
+                    />
+                    <Bar dataKey="count" fill="#A78BFA" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
