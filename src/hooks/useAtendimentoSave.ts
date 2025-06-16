@@ -1,7 +1,6 @@
-
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import useUserDataService from "@/services/userDataService";
+import useUserDataService, { AtendimentoData } from "@/services/userDataService";
 import { createPlanoNotifications, createSemanalNotifications } from "@/utils/notificationCreators";
 
 interface SaveAtendimentoParams {
@@ -37,7 +36,7 @@ export const useAtendimentoSave = () => {
   }: SaveAtendimentoParams) => {
     const existingAtendimentos = getAtendimentos();
     
-    const novoAtendimento = {
+    const novoAtendimento: AtendimentoData = {
       id: Date.now().toString(),
       ...formData,
       statusPagamento: formData.statusPagamento as 'pago' | 'pendente' | 'parcelado',
@@ -60,7 +59,7 @@ export const useAtendimentoSave = () => {
         planoData.meses,
         planoData.valorMensal,
         formData.dataAtendimento,
-        planoData.diaVencimento // Passando o dia de vencimento selecionado
+        planoData.diaVencimento
       );
       
       const existingPlanos = getPlanos() || [];
