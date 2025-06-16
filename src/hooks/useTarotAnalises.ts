@@ -17,24 +17,36 @@ export function useTarotAnalises() {
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
   // Debounce search term para reduzir re-renderizações
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Carrega análises
+  // Carrega análises apenas uma vez
   useEffect(() => {
-    setAnalises(getAllTarotAnalyses());
+    const loadAnalises = () => {
+      try {
+        const data = getAllTarotAnalyses();
+        setAnalises(data);
+      } catch (error) {
+        console.error('Erro ao carregar análises:', error);
+        setAnalises([]);
+      }
+    };
+    
+    loadAnalises();
   }, [getAllTarotAnalyses]);
 
-  // Watch nas análises
+  // Calcular stats apenas quando análises mudam
   useEffect(() => {
-    if (!analises.length) return;
-    checkBirthdaysToday();
-    calculaStatsRecebido();
-  }, [analises]);
+    if (analises.length === 0) {
+      setRecebidoStats(defaultStats);
+      setAniversarianteHoje(null);
+      return;
+    }
 
-  const checkBirthdaysToday = useCallback(() => {
+    // Verificar aniversários
     const today = new Date();
     const todayDay = today.getDate();
     const todayMonth = today.getMonth() + 1;
+    
     const birthdayClient = analises.find((a) => {
       if (!a.dataNascimento) return false;
       try {
@@ -44,15 +56,41 @@ export function useTarotAnalises() {
         return false;
       }
     });
+
     if (birthdayClient) {
       setAniversarianteHoje({
         nome: birthdayClient.nomeCliente,
         dataNascimento: birthdayClient.dataNascimento,
       });
+    } else {
+      setAniversarianteHoje(null);
     }
+
+    // Calcular stats financeiros
+    const now = new Date();
+    let total = 0, semana = 0, mes = 0, ano = 0;
+    
+    analises.forEach((a) => {
+      const preco = parseFloat(a.preco || "150");
+      total += preco;
+      
+      const date = new Date(a.dataInicio || a.dataAtendimento);
+      if (!isNaN(date.getTime())) {
+        const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
+        if (diffDays <= 7) semana += preco;
+        if (
+          date.getMonth() === now.getMonth() &&
+          date.getFullYear() === now.getFullYear()
+        )
+          mes += preco;
+        if (date.getFullYear() === now.getFullYear()) ano += preco;
+      }
+    });
+    
+    setRecebidoStats({ total, semana, mes, ano });
   }, [analises]);
 
-  // Filtros e busca otimizados com useMemo
+  // Filtros otimizados com useMemo
   const filteredAnalises = useMemo(() => {
     if (!debouncedSearchTerm) return analises;
     return analises.filter((a) =>
@@ -74,35 +112,7 @@ export function useTarotAnalises() {
     }
   }, [activeTab, filteredAnalises]);
 
-  // Stats financeiros otimizados
-  const calculaStatsRecebido = useCallback(() => {
-    const now = new Date();
-    let total = 0,
-      semana = 0,
-      mes = 0,
-      ano = 0;
-    
-    analises.forEach((a) => {
-      const date = new Date(a.dataInicio || a.dataAtendimento);
-      const preco = parseFloat(a.preco || "150");
-      total += preco;
-      
-      if (!isNaN(date.getTime())) {
-        const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
-        if (diffDays <= 7) semana += preco;
-        if (
-          date.getMonth() === now.getMonth() &&
-          date.getFullYear() === now.getFullYear()
-        )
-          mes += preco;
-        if (date.getFullYear() === now.getFullYear()) ano += preco;
-      }
-    });
-    
-    setRecebidoStats({ total, semana, mes, ano });
-  }, [analises]);
-
-  const getStatusCounts = useCallback(() => {
+  const getStatusCounts = useMemo(() => {
     const finalizados = analises.filter((a) => a.finalizado).length;
     const emAndamento = analises.filter((a) => !a.finalizado).length;
     const atencao = analises.filter((a) => a.atencaoFlag).length;
@@ -111,20 +121,33 @@ export function useTarotAnalises() {
 
   // Handlers otimizados
   const reloadAnalises = useCallback(() => {
-    setAnalises(getAllTarotAnalyses());
+    try {
+      const data = getAllTarotAnalyses();
+      setAnalises(data);
+    } catch (error) {
+      console.error('Erro ao recarregar análises:', error);
+    }
   }, [getAllTarotAnalyses]);
 
   const handleDelete = useCallback((id: string) => {
-    deleteTarotAnalysis(id);
-    reloadAnalises();
+    try {
+      deleteTarotAnalysis(id);
+      reloadAnalises();
+    } catch (error) {
+      console.error('Erro ao deletar análise:', error);
+    }
   }, [deleteTarotAnalysis, reloadAnalises]);
 
   const handleToggleFinished = useCallback((id: string) => {
-    const updatedAnalises = analises.map((a) =>
-      a.id === id ? { ...a, finalizado: !a.finalizado } : a
-    );
-    saveAllTarotAnalyses(updatedAnalises);
-    setAnalises(updatedAnalises);
+    try {
+      const updatedAnalises = analises.map((a) =>
+        a.id === id ? { ...a, finalizado: !a.finalizado } : a
+      );
+      saveAllTarotAnalyses(updatedAnalises);
+      setAnalises(updatedAnalises);
+    } catch (error) {
+      console.error('Erro ao alterar status:', error);
+    }
   }, [analises, saveAllTarotAnalyses]);
 
   const handlePeriodChange = useCallback((period: "semana" | "mes" | "ano" | "total") => {
@@ -133,7 +156,6 @@ export function useTarotAnalises() {
 
   return {
     analises,
-    setAnalises,
     filteredAnalises,
     searchTerm,
     setSearchTerm,
@@ -145,7 +167,6 @@ export function useTarotAnalises() {
     aniversarianteHoje,
     recebidoStats,
     getStatusCounts,
-    calculaStatsRecebido,
     handleDelete,
     handleToggleFinished,
     reloadAnalises,

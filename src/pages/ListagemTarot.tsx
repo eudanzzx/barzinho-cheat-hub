@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Search } from "lucide-react";
@@ -5,7 +6,6 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
-import TarotSearchInput from "@/components/tarot/TarotSearchInput";
 import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import { Input } from "@/components/ui/input";
@@ -19,12 +19,11 @@ const ListagemTarot = React.memo(() => {
   const { toast } = useToast();
 
   const {
-    analises,
+    tabAnalises,
     searchTerm,
     setSearchTerm,
     activeTab,
     setActiveTab,
-    tabAnalises,
     selectedPeriod,
     handlePeriodChange,
     aniversarianteHoje,
@@ -34,7 +33,11 @@ const ListagemTarot = React.memo(() => {
     handleToggleFinished,
   } = useTarotAnalises();
 
-  const counts = getStatusCounts();
+  const counts = getStatusCounts;
+
+  // Funções calculadoras simplificadas para melhor performance
+  const calculateTimeRemaining = React.useCallback(() => null, []);
+  const formatTimeRemaining = React.useCallback(() => null, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
@@ -57,19 +60,19 @@ const ListagemTarot = React.memo(() => {
                 Análises Frequenciais
               </h1>
               <p className="text-slate-600 mt-1">
-                Gerencie suas análises frequenciais e acompanhe estatísticas
+                Gerencie suas análises frequenciais
               </p>
             </div>
           </div>
 
           <TarotStatsCards
-            totalAnalises={analises.length}
+            totalAnalises={tabAnalises.length}
             totalRecebido={recebidoStats.total}
             totalRecebidoSemana={recebidoStats.semana}
             totalRecebidoMes={recebidoStats.mes}
             totalRecebidoAno={recebidoStats.ano}
             finalizados={counts.finalizados}
-            lembretes={analises.filter((a) => a.lembretes && a.lembretes.length > 0).length}
+            lembretes={0}
             selectedPeriod={selectedPeriod}
             onPeriodChange={handlePeriodChange}
             variant="tarot"
@@ -92,7 +95,7 @@ const ListagemTarot = React.memo(() => {
             <TarotTabsFilter
               activeTab={activeTab}
               setActiveTab={setActiveTab}
-              total={analises.length}
+              total={tabAnalises.length}
               finalizados={counts.finalizados}
               emAndamento={counts.emAndamento}
               atencao={counts.atencao}
@@ -109,7 +112,7 @@ const ListagemTarot = React.memo(() => {
                 <p className="text-gray-500 text-center">
                   {searchTerm
                     ? "Não há análises que correspondam à sua busca."
-                    : "Não há análises frequenciais registradas para este período."}
+                    : "Não há análises frequenciais registradas."}
                 </p>
               </CardContent>
             </Card>
@@ -118,8 +121,8 @@ const ListagemTarot = React.memo(() => {
               <CardContent className="p-4">
                 <TarotAnalysisList
                   analises={tabAnalises}
-                  calculateTimeRemaining={() => null}
-                  formatTimeRemaining={() => null}
+                  calculateTimeRemaining={calculateTimeRemaining}
+                  formatTimeRemaining={formatTimeRemaining}
                   onToggleFinished={handleToggleFinished}
                   onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
                   onDelete={handleDelete}

@@ -14,33 +14,26 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Atualizar a cada minuto
+    }, 300000); // Atualizar a cada 5 minutos para reduzir carga
     return () => clearInterval(interval);
   }, []);
 
   const expiringAnalyses = useMemo(() => {
+    if (!analises.length) return [];
+    
     const now = currentTime;
     const expiring = [];
 
-    console.log('TarotCountdown - Verificando análises:', analises.length);
-
     analises.forEach(analise => {
       const clientName = analise.nomeCliente || analise.clientName;
-      console.log('TarotCountdown - Análise:', clientName, 'Lembretes:', analise.lembretes);
       
       if (analise.lembretes && Array.isArray(analise.lembretes) && analise.lembretes.length > 0) {
         analise.lembretes.forEach((lembrete, index) => {
-          console.log('TarotCountdown - Lembrete:', lembrete);
-          
-          // Verificar se o lembrete tem dataLembrete diretamente
           if (lembrete.dataLembrete && !lembrete.concluido) {
             const lembreteDate = new Date(lembrete.dataLembrete);
             const timeDiff = lembreteDate.getTime() - now.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
             
-            console.log('TarotCountdown - Dias restantes:', daysDiff);
-            
-            // Mostrar se expirando em 3 dias ou menos
             if (daysDiff <= 3 && daysDiff >= 0) {
               expiring.push({
                 nomeCliente: clientName,
@@ -49,17 +42,13 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
                 dataLembrete: lembreteDate
               });
             }
-          }
-          // Verificar se o lembrete tem dias (contador baseado em data de início)
-          else if (lembrete.dias && analise.dataInicio && lembrete.texto) {
+          } else if (lembrete.dias && analise.dataInicio && lembrete.texto) {
             const dataInicio = new Date(analise.dataInicio);
             const dataExpiracao = new Date(dataInicio);
             dataExpiracao.setDate(dataExpiracao.getDate() + parseInt(lembrete.dias));
             
             const timeDiff = dataExpiracao.getTime() - now.getTime();
             const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            
-            console.log('TarotCountdown - Contador - Dias restantes:', daysDiff);
             
             if (daysDiff <= 3 && daysDiff >= 0) {
               expiring.push({
@@ -74,38 +63,37 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
       }
     });
 
-    console.log('TarotCountdown - Lembretes expirando:', expiring);
-    return expiring;
+    return expiring.slice(0, 3); // Limitar a 3 para melhor performance
   }, [analises, currentTime]);
 
-  const formatTimeRemaining = useMemo(() => (days: number) => {
+  const formatTimeRemaining = (days: number) => {
     if (days === 0) return "Hoje";
     if (days === 1) return "1 dia";
     return `${days} dias`;
-  }, []);
+  };
 
   if (expiringAnalyses.length === 0) return null;
 
   return (
-    <div className="mb-6 space-y-4">
+    <div className="mb-6 space-y-3">
       {expiringAnalyses.map((item, index) => (
         <Card 
           key={`${item.nomeCliente}-${index}`}
-          className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-lg hover:shadow-xl transition-shadow duration-200"
+          className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 shadow-md"
         >
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-amber-100 rounded-full">
                   {item.diasRestantes === 0 ? (
-                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    <AlertTriangle className="h-4 w-4 text-amber-600" />
                   ) : (
-                    <Clock className="h-5 w-5 text-amber-600" />
+                    <Clock className="h-4 w-4 text-amber-600" />
                   )}
                 </div>
                 <div>
                   <h3 className="font-semibold text-amber-800">
-                    Lembrete para {item.nomeCliente}
+                    {item.nomeCliente}
                   </h3>
                   <p className="text-amber-700 text-sm">
                     {item.lembreteTexto}
@@ -115,11 +103,7 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
               <div className="text-right">
                 <Badge 
                   variant={item.diasRestantes === 0 ? "destructive" : "secondary"}
-                  className={`${
-                    item.diasRestantes === 0 
-                      ? "bg-red-100 text-red-700 border-red-200" 
-                      : "bg-amber-100 text-amber-700 border-amber-200"
-                  }`}
+                  className="bg-amber-100 text-amber-700"
                 >
                   {formatTimeRemaining(item.diasRestantes)}
                 </Badge>
