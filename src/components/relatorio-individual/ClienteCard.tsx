@@ -25,24 +25,24 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, index, onDownload })
       key={`${cliente.nome}-${index}`} 
       className="bg-white/80 border border-white/30 hover:bg-white/90 hover:shadow-lg transition-all duration-300"
     >
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <h3 className="text-lg font-semibold text-slate-800">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+              <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">
                 {cliente.nome}
               </h3>
               <Badge 
                 variant="secondary"
-                className="bg-blue-100 text-blue-700 border-blue-200"
+                className="bg-blue-100 text-blue-700 border-blue-200 w-fit"
               >
                 {cliente.totalConsultas} consulta{cliente.totalConsultas !== 1 ? 's' : ''}
               </Badge>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-600">
+            <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm text-slate-600">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-blue-600" />
-                <span>
+                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+                <span className="truncate">
                   Última: {cliente.ultimaConsulta 
                     ? new Date(cliente.ultimaConsulta).toLocaleDateString('pt-BR')
                     : 'N/A'
@@ -50,27 +50,27 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, index, onDownload })
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-emerald-600" />
-                <span className="font-medium text-emerald-600">
+                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                <span className="font-medium text-emerald-600 truncate">
                   Total: R$ {cliente.valorTotal.toFixed(2)}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-blue-600" />
-                <span>
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+                <span className="truncate">
                   Média: R$ {(cliente.valorTotal / cliente.totalConsultas).toFixed(2)}
                 </span>
               </div>
             </div>
           </div>
-          <div className="flex gap-2 ml-4">
+          <div className="flex sm:flex-col gap-2 sm:ml-4 w-full sm:w-auto">
             <Button
               size="sm"
               onClick={() => onDownload(cliente)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-4"
             >
-              <Download className="h-4 w-4 mr-2" />
-              Relatório Individual
+              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="truncate">Relatório Individual</span>
             </Button>
           </div>
         </div>
