@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Calendar, Clock, CreditCard, AlertTriangle, Users, Sparkles, ChevronDown, ChevronRight } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
-import PaymentSection from "./payment-overview/PaymentSection";
-import { CheckCircle } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
-import TarotPaymentGroup from "@/components/payment-overview/TarotPaymentGroup";
+import PaymentModalHeader from "./payment-overview/PaymentModalHeader";
+import PaymentModalContent from "./payment-overview/PaymentModalContent";
+import PaymentStats from "./payment-overview/PaymentStats";
 
 interface PaymentOverviewModalProps {
   children: React.ReactNode;
@@ -51,11 +46,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       tarotAnalyses: tarotAnalyses.length
     });
     
-    // Criar mapas para busca mais eficiente
     const atendimentoClientMap = new Map(atendimentos.map(a => [a.nome.toLowerCase().trim(), a.id]));
     const tarotClientMap = new Map();
     
-    // Mapear clientes de tarot considerando ambos os campos de nome
     tarotAnalyses.forEach(a => {
       const clientName = a.nomeCliente || a.clientName;
       if (clientName) {
@@ -119,12 +112,10 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       
       const startDate = new Date(analysis.dataInicio || analysis.dataAtendimento || new Date());
       
-      // Gerar pagamentos para planos mensais
       if (analysis.planoAtivo && analysis.planoData) {
         const totalMonths = parseInt(analysis.planoData.meses);
         const monthlyAmount = parseFloat(analysis.planoData.valorMensal);
         
-        // Usar o dia de vencimento definido no plano ou dia 5 como padrão
         let dueDay = 5;
         if (analysis.planoData && 'diaVencimento' in analysis.planoData && analysis.planoData.diaVencimento) {
           const parsedDay = parseInt(analysis.planoData.diaVencimento as string);
@@ -136,11 +127,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         console.log('PaymentOverviewModal - Gerando plano mensal para cliente:', clientName, 'Total meses:', totalMonths, 'Dia vencimento:', dueDay);
         
         for (let month = 1; month <= totalMonths; month++) {
-          // Calcular o vencimento usando o mesmo dia definido no plano
           const dueDate = new Date(startDate);
           dueDate.setMonth(startDate.getMonth() + month);
           
-          // Ajustar para o dia de vencimento correto
           const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate();
           const actualDueDay = Math.min(dueDay, lastDayOfMonth);
           dueDate.setDate(actualDueDay);
@@ -163,20 +152,17 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         }
       }
       
-      // Gerar pagamentos para planos semanais usando getNextWeekDays
       if (analysis.semanalAtivo && analysis.semanalData) {
         const totalWeeks = parseInt(analysis.semanalData.semanas);
         const weeklyAmount = parseFloat(analysis.semanalData.valorSemanal);
         
-        // Verificar se diaVencimento existe no semanalData
-        let dayOfWeek = 'sexta'; // padrão
+        let dayOfWeek = 'sexta';
         if ('diaVencimento' in analysis.semanalData && analysis.semanalData.diaVencimento) {
           dayOfWeek = analysis.semanalData.diaVencimento as string;
         }
         
         console.log('PaymentOverviewModal - Gerando plano semanal para cliente:', clientName, 'Total semanas:', totalWeeks, 'Dia da semana:', dayOfWeek);
         
-        // Usar getNextWeekDays para obter as datas corretas
         const weekDates = getNextWeekDays(totalWeeks, dayOfWeek, startDate);
         
         weekDates.forEach((dueDate, index) => {
@@ -204,35 +190,11 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     return generatedPayments;
   }, [getTarotAnalyses]);
 
-  // Novo util para normalizar nomes de clientes
   const normalizeClientName = (name: string) => name.toLowerCase().trim();
-
-  // Função para converter nomes dos dias em números
-  const convertDayNameToNumber = (dayName: string): number => {
-    const dayMap: { [key: string]: number } = {
-      'domingo': 0,
-      'segunda': 1,
-      'terca': 2,
-      'quarta': 3,
-      'quinta': 4,
-      'sexta': 5,
-      'sabado': 6,
-      'segunda-feira': 1,
-      'terça-feira': 2,
-      'quarta-feira': 3,
-      'quinta-feira': 4,
-      'sexta-feira': 5,
-      'sábado': 6
-    };
-    
-    const normalizedDayName = dayName.toLowerCase().trim();
-    return dayMap[normalizedDayName] || 1; // segunda-feira como padrão
-  };
 
   const loadUpcomingPayments = useCallback(() => {
     console.log('PaymentOverviewModal - Carregando dados...');
     
-    // Limpar planos órfãos primeiro
     cleanOrphanedPlanos();
     
     const allPlanos = getPlanos();
@@ -245,15 +207,12 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       tarotAnalyses: tarotAnalyses.length
     });
 
-    // Filtrar apenas planos ativos
     const activePlanos = allPlanos.filter(plano => plano.active);
     console.log('PaymentOverviewModal - Planos ativos:', activePlanos.length);
 
-    // Gerar pagamentos dinâmicos para tarot
     const generatedTarotPayments = generateTarotPayments();
     console.log('PaymentOverviewModal - Pagamentos de tarot gerados:', generatedTarotPayments.length);
 
-    // Criar Sets com os nomes dos clientes existentes
     const existingAtendimentoClients = new Set(
       atendimentos.map(a => a.nome.toLowerCase().trim())
     );
@@ -271,7 +230,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       tarot: existingTarotClients.size
     });
 
-    // Separar planos por tipo - apenas planos principais (sem analysisId)
     const principalPlanos = activePlanos.filter(plano => {
       if (!plano.clientName) return false;
       const isPrincipal = !plano.analysisId;
@@ -279,7 +237,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       return isPrincipal && clientExists;
     });
     
-    // Para tarot, usar os pagamentos gerados dinamicamente e mostrar todos os próximos
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -290,7 +247,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       
       console.log(`PaymentOverviewModal - Avaliando pagamento ${payment.clientName}: vencimento em ${payment.dueDate}, diferença: ${daysDiff} dias`);
       
-      // Mostrar pagamentos dos próximos 60 dias e até 7 dias em atraso
       return daysDiff >= -7 && daysDiff <= 60;
     });
 
@@ -299,7 +255,6 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
       tarot: tarotPlanos.length
     });
 
-    // Agrupar e definir estado
     const groupedPrincipal = groupPaymentsByClient(principalPlanos);
     const groupedTarot = groupPaymentsByClient(tarotPlanos);
 
@@ -419,10 +374,8 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     return `${daysUntilDue} ${daysUntilDue === 1 ? 'dia' : 'dias'} restantes`;
   };
 
-  // Novo state: manter quais clientes estão abertos (normalizados)
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
 
-  // Handler para expand/collapse usando nome normalizado
   const toggleExpandClient = useCallback((normalizedClientName: string) => {
     setExpandedClients((prev) => {
       const isExpanding = !prev.includes(normalizedClientName);
@@ -446,30 +399,15 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
   const filteredPayments = getFilteredPayments();
   const totalGroups = filteredPayments.principal.length + filteredPayments.tarot.length;
 
-  const getModalTitle = () => {
-    switch (context) {
-      case 'principal':
-        return 'Próximos Vencimentos - Atendimentos Principais';
-      case 'tarot':
-        return 'Próximos Vencimentos - Análises de Tarot';
-      default:
-        return 'Próximos Vencimentos';
-    }
-  };
-
-  // Hook para pagamentos de tarot (reutiliza lógica/tela do Tarot)
   const {
     groupedPayments: groupedTarotPaymentsState,
     markAsPaid: markAsPaidTarot,
     refresh: refreshTarotPayments,
   } = usePaymentNotifications();
 
-  // Estado para controlar os pagamentos de tarot exibidos na UI (sincroniza ao abrir o modal)
   const [filteredTarotGroups, setFilteredTarotGroups] = useState<GroupedPayment[]>([]);
 
-  // Recarregar pagamentos ao abrir/atualizar modal
   const syncTarotPaymentsToModal = useCallback(() => {
-    // Só se contexto for 'tarot' ou 'all'
     if (context === "tarot" || context === "all") {
       setFilteredTarotGroups(groupedTarotPaymentsState.slice(0, 20));
     }
@@ -477,20 +415,16 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
 
   useEffect(() => {
     syncTarotPaymentsToModal();
-    // eslint-disable-next-line
   }, [groupedTarotPaymentsState, context]);
 
-  // Refletir ação: ao marcar como pago tira da UI instantaneamente!
   const handleMarkAsPaidTarot = useCallback((paymentId: string) => {
     markAsPaidTarot(paymentId);
     setFilteredTarotGroups((prevGroups) =>
       prevGroups
         .map(group => {
-          // atualiza o grupo só se o mostUrgent era o pago
           if (group.mostUrgent.id === paymentId) {
             const updatedPayments = group.additionalPayments.filter(p => p.id !== paymentId);
             if (updatedPayments.length > 0) {
-              // promove o próximo da fila como mostUrgent
               return {
                 ...group,
                 mostUrgent: updatedPayments[0],
@@ -498,11 +432,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
                 totalPayments: updatedPayments.length,
               };
             } else {
-              // remove grupo se não houver pagamentos adicionais
               return null;
             }
           } else {
-            // se não mexeu neste grupo
             return group;
           }
         })
@@ -511,37 +443,9 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
     toast({ title: "Pagamento marcado como pago!" });
   }, [markAsPaidTarot]);
 
-  // Adaptação ao renderizar a seção de tarot, com collapsible group (submenu)
-  function TarotPaymentSection({
-    groupedPayments,
-  }: { groupedPayments: GroupedPayment[] }) {
-    if (groupedPayments.length === 0) {
-      return (
-        <div className="p-4 text-slate-500 text-center">
-          <AlertTriangle className="h-6 w-6 mx-auto mb-3 opacity-40" />
-          Nenhum vencimento de análises de tarot
-        </div>
-      );
-    }
-    return (
-      <div className="space-y-4">
-        {groupedPayments.map((group) => (
-          <TarotPaymentGroup
-            key={group.clientName}
-            clientName={group.clientName}
-            mostUrgent={group.mostUrgent}
-            additionalPayments={group.additionalPayments}
-            onMarkAsPaid={handleMarkAsPaidTarot}
-          />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <Dialog onOpenChange={() => {
       loadUpcomingPayments();
-      // Atualizar lista de tarot do hook
       refreshTarotPayments();
       setTimeout(syncTarotPaymentsToModal, 100);
     }}>
@@ -549,71 +453,24 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         {children}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Calendar className="h-5 w-5 text-blue-600" />
-            {getModalTitle()}
-          </DialogTitle>
-          <DialogDescription>
-            Visualize e gerencie os próximos vencimentos de pagamentos.
-          </DialogDescription>
-        </DialogHeader>
+        <PaymentModalHeader context={context} />
         <div className="space-y-6">
-          {totalGroups === 0 ? (
-            <Card className="border-slate-200">
-              <CardContent className="pt-6">
-                <div className="text-center py-8">
-                  <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-                  <h3 className="text-lg font-medium text-slate-600 mb-2">
-                    Nenhum plano próximo ao vencimento
-                  </h3>
-                  <p className="text-slate-500">
-                    Não há planos ativos com vencimentos próximos.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className={`grid gap-6 ${context === 'all' ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
-              {/* PRINCIPAL (sem alteração) */}
-              {(context === 'principal' || context === 'all') && filteredPayments.principal.length > 0 && (
-                <Card className="border-blue-200 bg-blue-50/30">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-blue-800">Atendimentos Principais</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <PaymentSection
-                      groupedPayments={filteredPayments.principal}
-                      // ... keep existing code (props) the same ...
-                      title=""
-                      icon={<Users className="h-5 w-5 text-blue-600" />}
-                      emptyMessage="Nenhum vencimento de atendimentos principais"
-                      isPrincipal={true}
-                      expandedClients={expandedClients}
-                      toggleExpandClient={toggleExpandClient}
-                      normalizeClientName={normalizeClientName}
-                      getDaysUntilDue={getDaysUntilDue}
-                      getUrgencyLevel={getUrgencyLevel}
-                      getUrgencyColor={getUrgencyColor}
-                      getUrgencyText={getUrgencyText}
-                      formatDate={formatDate}
-                    />
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* TAROT (agora com lista customizada e botão de pagamento com collapsible) */}
-              {(context === 'tarot' || context === 'all') && (filteredTarotGroups.length > 0) && (
-                <Card className="border-purple-200 bg-purple-50/30">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-purple-800">Análises de Tarot</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <TarotPaymentSection groupedPayments={filteredTarotGroups} />
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+          <PaymentStats totalGroups={totalGroups} />
+          {totalGroups > 0 && (
+            <PaymentModalContent
+              context={context}
+              filteredPayments={filteredPayments}
+              filteredTarotGroups={filteredTarotGroups}
+              expandedClients={expandedClients}
+              toggleExpandClient={toggleExpandClient}
+              normalizeClientName={normalizeClientName}
+              getDaysUntilDue={getDaysUntilDue}
+              getUrgencyLevel={getUrgencyLevel}
+              getUrgencyColor={getUrgencyColor}
+              getUrgencyText={getUrgencyText}
+              formatDate={formatDate}
+              handleMarkAsPaidTarot={handleMarkAsPaidTarot}
+            />
           )}
         </div>
       </DialogContent>
