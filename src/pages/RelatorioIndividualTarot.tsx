@@ -12,7 +12,7 @@ import {
 import useUserDataService from "@/services/userDataService";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import Logo from "@/components/Logo";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import IndividualTarotFormGenerator from "@/components/reports/IndividualTarotFormGenerator";
 
 const RelatorioIndividualTarot = () => {
@@ -20,7 +20,6 @@ const RelatorioIndividualTarot = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedClient, setExpandedClient] = useState<string | null>(null);
   const [analises] = useState(getAllTarotAnalyses());
-  const { toast } = useToast();
 
   const clientesUnicos = useMemo(() => {
     const clientesMap = new Map();
@@ -75,10 +74,10 @@ const RelatorioIndividualTarot = () => {
           </div>
           <Button
             onClick={() => toast.success("Funcionalidade em desenvolvimento")}
-            className="bg-[#673193] hover:bg-[#673193]/90 text-white w-full sm:w-auto"
+            className="bg-[#673193] hover:bg-[#673193]/90 text-white w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            <Download className="h-4 w-4 mr-2" />
-            <span className="sm:inline">Baixar PDF Geral</span>
+            <Download className="h-4 w-4" />
+            <span>Baixar PDF Geral</span>
           </Button>
         </div>
 
