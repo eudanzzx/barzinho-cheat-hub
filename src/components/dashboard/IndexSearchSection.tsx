@@ -8,7 +8,7 @@ interface IndexSearchSectionProps {
   onSearchChange: (value: string) => void;
 }
 
-const IndexSearchSection: React.FC<IndexSearchSectionProps> = ({
+const IndexSearchSection: React.FC<IndexSearchSectionProps> = React.memo(({
   searchTerm,
   onSearchChange
 }) => {
@@ -27,6 +27,8 @@ const IndexSearchSection: React.FC<IndexSearchSectionProps> = ({
       </div>
     </div>
   );
-};
+});
+
+IndexSearchSection.displayName = 'IndexSearchSection';
 
 export default IndexSearchSection;

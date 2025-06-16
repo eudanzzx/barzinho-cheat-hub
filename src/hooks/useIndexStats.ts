@@ -30,7 +30,7 @@ export const useIndexStats = (atendimentos: AtendimentoData[]) => {
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const yearEnd = new Date(now.getFullYear(), 11, 31);
 
-    // Função auxiliar para pegar apenas pagamentos "pago" dentro de um período
+    // Função auxiliar para pagar apenas pagamentos "pago" dentro de um período
     const somaPorPeriodo = (inicio: Date, fim: Date) => (
       atendimentos
         .filter(a => {

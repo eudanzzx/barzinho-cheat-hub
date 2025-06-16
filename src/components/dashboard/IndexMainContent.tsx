@@ -12,7 +12,7 @@ interface IndexMainContentProps {
   onDeleteAtendimento: (id: string) => void;
 }
 
-const IndexMainContent: React.FC<IndexMainContentProps> = ({
+const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
   filteredAtendimentos,
   searchTerm,
   onDeleteAtendimento
@@ -53,6 +53,8 @@ const IndexMainContent: React.FC<IndexMainContentProps> = ({
       )}
     </>
   );
-};
+});
+
+IndexMainContent.displayName = 'IndexMainContent';
 
 export default IndexMainContent;
