@@ -49,26 +49,35 @@ const WeeklyPaymentControl: React.FC = () => {
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPaid: boolean) => {
+    // Manter cliente expandido
+    const wasExpanded = expandedClients.has(clientName);
+    
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
     );
     
     savePlanos(updatedPlanos);
-    toast.success(
-      !isCurrentlyPaid 
-        ? `Pagamento de ${clientName} marcado como pago!`
-        : `Pagamento de ${clientName} marcado como pendente!`
-    );
     
-    // Atualizar o estado local imediatamente para feedback visual
+    // Atualizar o estado local imediatamente
     setPlanos(prevPlanos => 
       prevPlanos.map(plano => 
         plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
       )
     );
     
-    // Manter o cliente expandido
+    // Garantir que o cliente permaneça expandido
+    if (wasExpanded) {
+      setExpandedClients(prev => new Set([...prev, clientName]));
+    }
+    
+    toast.success(
+      !isCurrentlyPaid 
+        ? `Pagamento de ${clientName} marcado como pago!`
+        : `Pagamento de ${clientName} marcado como pendente!`
+    );
+    
+    // Disparar evento para atualizar outros componentes
     setTimeout(() => {
       window.dispatchEvent(new Event('planosUpdated'));
     }, 100);

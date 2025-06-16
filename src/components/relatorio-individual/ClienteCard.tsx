@@ -64,15 +64,15 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, index, onDownload })
             </div>
           </div>
           
-          {/* Botão sempre na parte inferior e sempre visível */}
-          <div className="w-full">
+          {/* Botão de download sempre visível e na parte inferior */}
+          <div className="w-full flex-shrink-0">
             <Button
               size="sm"
               onClick={() => onDownload(cliente)}
-              className="bg-blue-600 hover:bg-blue-700 text-white w-full text-xs sm:text-sm h-10 sm:h-9"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full text-xs sm:text-sm h-10 flex items-center justify-center gap-2"
             >
-              <Download className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span>Relatório Individual</span>
+              <Download className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">Relatório Individual</span>
             </Button>
           </div>
         </div>
