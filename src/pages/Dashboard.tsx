@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import useUserDataService from "@/services/userDataService";
 import { Search, FileText, Plus } from "lucide-react";
@@ -13,6 +12,7 @@ import DashboardStats from "@/components/dashboard/DashboardStats";
 import DashboardBirthdayNotifications from "@/components/DashboardBirthdayNotifications";
 import MonthlyPaymentControl from "@/components/dashboard/MonthlyPaymentControl";
 import WeeklyPaymentControl from "@/components/dashboard/WeeklyPaymentControl";
+import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 
 interface AtendimentoData {
   id: string;
@@ -169,6 +169,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader />
+      <AutomaticPaymentNotifications />
       
       <main className="pt-20 px-4 pb-8">
         <div className="container mx-auto max-w-7xl">

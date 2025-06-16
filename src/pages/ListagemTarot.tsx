@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Search } from "lucide-react";
@@ -8,6 +7,7 @@ import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
 import TarotSearchInput from "@/components/tarot/TarotSearchInput";
 import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
+import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +39,7 @@ const ListagemTarot = React.memo(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
+      <AutomaticPaymentNotifications />
 
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         {aniversarianteHoje && (

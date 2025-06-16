@@ -6,6 +6,7 @@ import AtendimentosTable from "@/components/dashboard/AtendimentosTable";
 import AtendimentosCompactTable from "@/components/dashboard/AtendimentosCompactTable";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import PeriodDropdown from "@/components/dashboard/PeriodDropdown";
+import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import { Input } from "@/components/ui/input";
 import { 
   Search, 
@@ -170,6 +171,7 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
+      <AutomaticPaymentNotifications />
 
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         {aniversarianteHoje && (
