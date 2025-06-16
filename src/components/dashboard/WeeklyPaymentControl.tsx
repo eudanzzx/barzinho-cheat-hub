@@ -26,9 +26,11 @@ const WeeklyPaymentControl: React.FC = () => {
     };
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -39,7 +41,6 @@ const WeeklyPaymentControl: React.FC = () => {
     
     const activeWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
       plano.type === 'semanal' && 
-      plano.active && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
@@ -47,21 +48,30 @@ const WeeklyPaymentControl: React.FC = () => {
     setPlanos(activeWeeklyPlanos);
   };
 
-  const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
+  const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPaid: boolean) => {
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
-      plano.id === planoId ? { ...plano, active: !isPaid } : plano
+      plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
     );
     
     savePlanos(updatedPlanos);
     toast.success(
-      isPaid 
+      !isCurrentlyPaid 
         ? `Pagamento de ${clientName} marcado como pago!`
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    window.dispatchEvent(new Event('atendimentosUpdated'));
-    loadPlanos();
+    // Atualizar o estado local imediatamente para feedback visual
+    setPlanos(prevPlanos => 
+      prevPlanos.map(plano => 
+        plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
+      )
+    );
+    
+    // Manter o cliente expandido
+    setTimeout(() => {
+      window.dispatchEvent(new Event('planosUpdated'));
+    }, 100);
   };
 
   const toggleClientExpansion = (clientName: string) => {
@@ -209,7 +219,10 @@ const WeeklyPaymentControl: React.FC = () => {
                                       </div>
                                     </div>
                                     <Button
-                                      onClick={() => handlePaymentToggle(plano.id, clientName, !isPaid)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePaymentToggle(plano.id, clientName, isPaid);
+                                      }}
                                       size="sm"
                                       className={cn(
                                         "transition-all duration-200 ml-4",
@@ -221,12 +234,12 @@ const WeeklyPaymentControl: React.FC = () => {
                                       {isPaid ? (
                                         <>
                                           <X className="h-4 w-4 mr-1" />
-                                          Pendente
+                                          Marcar Pendente
                                         </>
                                       ) : (
                                         <>
                                           <Check className="h-4 w-4 mr-1" />
-                                          Pagar
+                                          Marcar Pago
                                         </>
                                       )}
                                     </Button>

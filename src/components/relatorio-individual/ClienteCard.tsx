@@ -26,7 +26,7 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, index, onDownload })
       className="bg-white/80 border border-white/30 hover:bg-white/90 hover:shadow-lg transition-all duration-300"
     >
       <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div className="flex flex-col gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
               <h3 className="text-base sm:text-lg font-semibold text-slate-800 truncate">
@@ -63,14 +63,16 @@ const ClienteCard: React.FC<ClienteCardProps> = ({ cliente, index, onDownload })
               </div>
             </div>
           </div>
-          <div className="flex sm:flex-col gap-2 sm:ml-4 w-full sm:w-auto">
+          
+          {/* Botão sempre na parte inferior e sempre visível */}
+          <div className="w-full">
             <Button
               size="sm"
               onClick={() => onDownload(cliente)}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none text-xs sm:text-sm px-2 sm:px-4"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full text-xs sm:text-sm h-10 sm:h-9"
             >
-              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-              <span className="truncate">Relatório Individual</span>
+              <Download className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Relatório Individual</span>
             </Button>
           </div>
         </div>
