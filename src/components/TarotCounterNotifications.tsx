@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Clock, BellRing } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
+import CounterHeader from './counter-notifications/CounterHeader';
+import CounterCard from './counter-notifications/CounterCard';
 
 interface TarotCounterNotificationsProps {
   analises: any[];
@@ -86,47 +85,21 @@ const TarotCounterNotifications: React.FC<TarotCounterNotificationsProps> = ({ a
 
   return (
     <div className="mb-6 space-y-3">
-      <div className="flex items-center gap-2 mb-3">
-        <Clock className="h-5 w-5 text-purple-600" />
-        <h3 className="text-lg font-semibold text-purple-800">
-          Contadores Ativos ({notifications.length})
-        </h3>
-      </div>
+      <CounterHeader notificationCount={notifications.length} />
 
       {notifications.map((notification, index) => {
         const urgency = getUrgencyLevel(notification);
+        const cardStyle = getCardStyle(urgency);
+        const timeFormatted = formatTimeRemaining(notification);
         
         return (
-          <Card 
+          <CounterCard
             key={`${notification.nomeCliente}-${index}`}
-            className={`${getCardStyle(urgency)} shadow-md hover:shadow-lg transition-shadow duration-200`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <BellRing className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-purple-800">
-                      {notification.nomeCliente}
-                    </h4>
-                    <p className="text-sm text-purple-700">
-                      {notification.lembreteTexto}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Badge variant="outline" className="bg-purple-100 text-purple-700">
-                    {formatTimeRemaining(notification)}
-                  </Badge>
-                  <p className="text-xs text-purple-600 mt-1">
-                    {notification.dataExpiracao.toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            notification={notification}
+            urgencyLevel={urgency}
+            cardStyle={cardStyle}
+            timeFormatted={timeFormatted}
+          />
         );
       })}
     </div>

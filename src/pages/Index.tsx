@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import useUserDataService from "@/services/userDataService";
-import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardStats from "@/components/dashboard/DashboardStats";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
 import IndexMainContent from "@/components/dashboard/IndexMainContent";
+import IndexStats from "@/components/dashboard/IndexStats";
+import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
 import { useIndexStats } from "@/hooks/useIndexStats";
 import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
@@ -73,13 +73,7 @@ const Index: React.FC = () => {
       <AutomaticPaymentNotifications />
 
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
-        {aniversarianteHoje && (
-          <ClientBirthdayAlert 
-            clientName={aniversarianteHoje.nome}
-            birthDate={aniversarianteHoje.dataNascimento}
-            context="atendimento"
-          />
-        )}
+        <IndexBirthdaySection aniversarianteHoje={aniversarianteHoje} />
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -93,15 +87,10 @@ const Index: React.FC = () => {
             </div>
           </div>
 
-          <DashboardStats 
-            totalAtendimentos={calculateStats.totalAtendimentos}
-            atendimentosSemana={calculateStats.atendimentosSemana}
-            totalRecebido={calculateStats.totalRecebido}
-            totalRecebidoSemana={calculateStats.totalRecebidoSemana}
-            totalRecebidoMes={calculateStats.totalRecebidoMes}
-            totalRecebidoAno={calculateStats.totalRecebidoAno}
-            selectedPeriod={periodoVisualizacao}
-            onPeriodChange={setPeriodoVisualizacao}
+          <IndexStats 
+            calculateStats={calculateStats}
+            periodoVisualizacao={periodoVisualizacao}
+            setPeriodoVisualizacao={setPeriodoVisualizacao}
           />
 
           <IndexSearchSection 

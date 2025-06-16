@@ -1,4 +1,3 @@
-
 import { Plano } from "@/types/payment";
 
 interface AtendimentoData {
