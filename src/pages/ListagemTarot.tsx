@@ -1,22 +1,17 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Search } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
-import TarotAnalysisList from "@/components/tarot/TarotAnalysisList";
-import TarotTabsFilter from "@/components/tarot/TarotTabsFilter";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
-import { Input } from "@/components/ui/input";
+import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
+import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
+import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
-import { Tabs } from "@/components/ui/tabs";
 
 const ListagemTarot = React.memo(() => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const {
     tabAnalises,
@@ -35,10 +30,6 @@ const ListagemTarot = React.memo(() => {
 
   const counts = getStatusCounts;
 
-  // Funções calculadoras simplificadas para melhor performance
-  const calculateTimeRemaining = React.useCallback(() => null, []);
-  const formatTimeRemaining = React.useCallback(() => null, []);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
@@ -54,16 +45,7 @@ const ListagemTarot = React.memo(() => {
         )}
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                Análises Frequenciais
-              </h1>
-              <p className="text-slate-600 mt-1">
-                Gerencie suas análises frequenciais
-              </p>
-            </div>
-          </div>
+          <TarotListingHeader />
 
           <TarotStatsCards
             totalAnalises={tabAnalises.length}
@@ -78,58 +60,21 @@ const ListagemTarot = React.memo(() => {
             variant="tarot"
           />
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div />
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar por nome..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full sm:w-64 bg-white/90 backdrop-blur-sm border border-white/30 shadow-lg"
-              />
-            </div>
-          </div>
+          <TarotListingSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TarotTabsFilter
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              total={tabAnalises.length}
-              finalizados={counts.finalizados}
-              emAndamento={counts.emAndamento}
-              atencao={counts.atencao}
-            />
-          </Tabs>
-
-          {tabAnalises.length === 0 ? (
-            <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <FileText className="h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-600 mb-2">
-                  Nenhuma análise encontrada
-                </h3>
-                <p className="text-gray-500 text-center">
-                  {searchTerm
-                    ? "Não há análises que correspondam à sua busca."
-                    : "Não há análises frequenciais registradas."}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-              <CardContent className="p-4">
-                <TarotAnalysisList
-                  analises={tabAnalises}
-                  calculateTimeRemaining={calculateTimeRemaining}
-                  formatTimeRemaining={formatTimeRemaining}
-                  onToggleFinished={handleToggleFinished}
-                  onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
-                  onDelete={handleDelete}
-                />
-              </CardContent>
-            </Card>
-          )}
+          <TarotListingContent
+            tabAnalises={tabAnalises}
+            searchTerm={searchTerm}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            counts={counts}
+            onToggleFinished={handleToggleFinished}
+            onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
+            onDelete={handleDelete}
+          />
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, AlertTriangle } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import { ClientPaymentGroup } from "@/components/tarot/payment-notifications/ClientPaymentGroup";
@@ -10,14 +10,10 @@ interface TarotCounterPriorityNotificationsProps {
   analises: any[];
 }
 
-const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificationsProps> = ({
+const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificationsProps> = memo(({
   analises,
 }) => {
-  console.log('TarotCounterPriorityNotifications - Verificando contadores para:', analises.length, 'análises');
-
-  const { groupedPayments, markAsPaid, postponePayment, deleteNotification } = usePaymentNotifications();
-
-  console.log('TarotCounterPriorityNotifications - Grupos de pagamento:', groupedPayments.length);
+  const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
 
   if (groupedPayments.length === 0) {
     return null;
@@ -46,7 +42,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
       </CardContent>
     </Card>
   );
-};
+});
+
+TarotCounterPriorityNotifications.displayName = 'TarotCounterPriorityNotifications';
 
 export default TarotCounterPriorityNotifications;
-

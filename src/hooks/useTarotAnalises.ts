@@ -17,7 +17,7 @@ export function useTarotAnalises() {
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
   // Debounce search term para reduzir re-renderizações
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Carrega análises apenas uma vez
   useEffect(() => {
@@ -34,7 +34,7 @@ export function useTarotAnalises() {
     loadAnalises();
   }, [getAllTarotAnalyses]);
 
-  // Calcular stats apenas quando análises mudam
+  // Calcular stats apenas quando análises mudam - otimizado
   useEffect(() => {
     if (analises.length === 0) {
       setRecebidoStats(defaultStats);
@@ -42,39 +42,37 @@ export function useTarotAnalises() {
       return;
     }
 
-    // Verificar aniversários
+    // Verificar aniversários de forma otimizada
     const today = new Date();
     const todayDay = today.getDate();
     const todayMonth = today.getMonth() + 1;
     
-    const birthdayClient = analises.find((a) => {
-      if (!a.dataNascimento) return false;
-      try {
-        const [year, month, day] = a.dataNascimento.split("-").map(Number);
-        return day === todayDay && month === todayMonth;
-      } catch {
-        return false;
-      }
-    });
-
-    if (birthdayClient) {
-      setAniversarianteHoje({
-        nome: birthdayClient.nomeCliente,
-        dataNascimento: birthdayClient.dataNascimento,
-      });
-    } else {
-      setAniversarianteHoje(null);
-    }
-
-    // Calcular stats financeiros
-    const now = new Date();
+    let birthdayClient = null;
     let total = 0, semana = 0, mes = 0, ano = 0;
+    const now = new Date();
     
-    analises.forEach((a) => {
-      const preco = parseFloat(a.preco || "150");
+    // Uma única iteração para todas as verificações
+    for (const analise of analises) {
+      // Verificar aniversário apenas se ainda não encontrou
+      if (!birthdayClient && analise.dataNascimento) {
+        try {
+          const [year, month, day] = analise.dataNascimento.split("-").map(Number);
+          if (day === todayDay && month === todayMonth) {
+            birthdayClient = {
+              nome: analise.nomeCliente,
+              dataNascimento: analise.dataNascimento,
+            };
+          }
+        } catch {
+          // Ignorar erro de parsing
+        }
+      }
+      
+      // Calcular stats financeiros
+      const preco = parseFloat(analise.preco || "150");
       total += preco;
       
-      const date = new Date(a.dataInicio || a.dataAtendimento);
+      const date = new Date(analise.dataInicio || analise.dataAtendimento);
       if (!isNaN(date.getTime())) {
         const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
         if (diffDays <= 7) semana += preco;
@@ -85,16 +83,18 @@ export function useTarotAnalises() {
           mes += preco;
         if (date.getFullYear() === now.getFullYear()) ano += preco;
       }
-    });
-    
+    }
+
+    setAniversarianteHoje(birthdayClient);
     setRecebidoStats({ total, semana, mes, ano });
   }, [analises]);
 
   // Filtros otimizados com useMemo
   const filteredAnalises = useMemo(() => {
     if (!debouncedSearchTerm) return analises;
+    const term = debouncedSearchTerm.toLowerCase();
     return analises.filter((a) =>
-      a.nomeCliente?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      a.nomeCliente?.toLowerCase().includes(term)
     );
   }, [debouncedSearchTerm, analises]);
 

@@ -14,7 +14,7 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-    }, 300000); // Atualizar a cada 5 minutos para reduzir carga
+    }, 600000); // Atualizar a cada 10 minutos para reduzir carga
     return () => clearInterval(interval);
   }, []);
 
@@ -24,11 +24,13 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
     const now = currentTime;
     const expiring = [];
 
-    analises.forEach(analise => {
+    // Otimizar iteração limitando verificações
+    for (let i = 0; i < Math.min(analises.length, 20); i++) {
+      const analise = analises[i];
       const clientName = analise.nomeCliente || analise.clientName;
       
       if (analise.lembretes && Array.isArray(analise.lembretes) && analise.lembretes.length > 0) {
-        analise.lembretes.forEach((lembrete, index) => {
+        for (const lembrete of analise.lembretes.slice(0, 3)) { // Limitar lembretes por análise
           if (lembrete.dataLembrete && !lembrete.concluido) {
             const lembreteDate = new Date(lembrete.dataLembrete);
             const timeDiff = lembreteDate.getTime() - now.getTime();
@@ -59,18 +61,18 @@ const TarotCountdown: React.FC<TarotCountdownProps> = memo(({ analises }) => {
               });
             }
           }
-        });
+        }
       }
-    });
+    }
 
     return expiring.slice(0, 3); // Limitar a 3 para melhor performance
   }, [analises, currentTime]);
 
-  const formatTimeRemaining = (days: number) => {
+  const formatTimeRemaining = useCallback((days: number) => {
     if (days === 0) return "Hoje";
     if (days === 1) return "1 dia";
     return `${days} dias`;
-  };
+  }, []);
 
   if (expiringAnalyses.length === 0) return null;
 

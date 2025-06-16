@@ -1,10 +1,12 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle, Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
+import TarotPaymentCard from "./TarotPaymentCard";
+import TarotPaymentActions from "./TarotPaymentActions";
 
 interface TarotPaymentGroupProps {
   clientName: string;
@@ -38,24 +40,6 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
     setIsPaid(true);
     onMarkAsPaid(mostUrgent.id);
   }
-
-  function getUrgencyText(daysUntilDue: number) {
-    if (daysUntilDue < 0)
-      return `${Math.abs(daysUntilDue)} dia${Math.abs(daysUntilDue) === 1 ? "" : "s"} em atraso`;
-    if (daysUntilDue === 0) return "Vence hoje";
-    if (daysUntilDue === 1) return "Vence amanhã";
-    return `${daysUntilDue} dias restantes`;
-  }
-
-  const getDaysUntilDue = (dueDate: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const due = new Date(dueDate);
-    due.setHours(0, 0, 0, 0);
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
 
   return (
     <div className={`rounded-lg border p-4 shadow-sm mb-2 ${
@@ -93,106 +77,26 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
                 </Button>
               </CollapsibleTrigger>
             )}
-            {!isPaid && (
-              <Button
-                className="ml-1 px-3 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold text-sm flex gap-1 items-center shadow-md transition"
-                title="Marcar como pago"
-                type="button"
-                onClick={handlePagoClick}
-              >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Pago
-              </Button>
-            )}
-            {isPaid && (
-              <Badge className="bg-green-500 text-white px-3 py-1">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Pago
-              </Badge>
-            )}
+            <TarotPaymentActions 
+              isPaid={isPaid}
+              onMarkAsPaid={handlePagoClick}
+            />
           </div>
         </div>
-        <div className={`rounded-xl border shadow-sm p-4 flex flex-col gap-2 relative mb-1 ${
-          isPaid 
-            ? 'border-green-200 bg-green-50' 
-            : 'border-[#ceb8fa] bg-[#f6f0ff]'
-        }`}>
-          <div className="flex justify-between items-center mb-1">
-            <Badge
-              variant="outline"
-              className={`border-transparent font-semibold px-3 py-1 text-xs ${
-                isPaid 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-white/60 text-[#8e46dd]'
-              }`}
-              style={{ boxShadow: "none" }}
-            >
-              {mostUrgent.type === "plano" ? "Mensal" : "Semanal"}
-            </Badge>
-            <span className="text-lg font-bold text-green-600">
-              R$ {mostUrgent.amount.toFixed(2)}
-            </span>
-          </div>
-          <div className={`flex items-center gap-2 text-sm font-medium ${
-            isPaid ? 'text-green-700' : 'text-[#8e46dd]'
-          }`}>
-            <Calendar className="h-4 w-4" />
-            <span>
-              {(() => {
-                const date = new Date(mostUrgent.dueDate);
-                return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}`;
-              })()}
-            </span>
-          </div>
-          {!isPaid && (
-            <div className="text-sm font-medium text-[#9156e0]">
-              {getUrgencyText(getDaysUntilDue(mostUrgent.dueDate))}
-            </div>
-          )}
-          {isPaid && (
-            <div className="text-sm font-medium text-green-600">
-              Pagamento confirmado
-            </div>
-          )}
-        </div>
+        
+        <TarotPaymentCard 
+          payment={mostUrgent}
+          isPaid={isPaid}
+          isMainCard={true}
+        />
+        
         {hasAdditionalPayments && (
           <CollapsibleContent className="pl-2 pt-1 space-y-1" forceMount>
             {uniqueAdditionalPayments.map((payment) => (
-              <div
+              <TarotPaymentCard 
                 key={payment.id}
-                className="rounded-xl border border-[#ceb8fa] bg-white shadow-sm p-3 flex flex-col gap-2 relative"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <Badge
-                    variant="outline"
-                    className="border-transparent bg-purple-100 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
-                    style={{ boxShadow: "none" }}
-                  >
-                    {payment.type === "plano" ? "Mensal" : "Semanal"}
-                  </Badge>
-                  <span className="text-base font-bold text-green-600">
-                    R$ {payment.amount.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-[#8e46dd] font-medium">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {(() => {
-                      const date = new Date(payment.dueDate);
-                      return `${date.toLocaleDateString("pt-BR")} às ${date.toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}`;
-                    })()}
-                  </span>
-                </div>
-                <div className="text-xs font-medium text-[#9156e0]">
-                  {getUrgencyText(getDaysUntilDue(payment.dueDate))}
-                </div>
-              </div>
+                payment={payment}
+              />
             ))}
           </CollapsibleContent>
         )}
