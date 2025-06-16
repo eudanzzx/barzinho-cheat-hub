@@ -35,8 +35,7 @@ const TarotPaymentGroup: React.FC<TarotPaymentGroupProps> = ({
     setIsOpen(open);
   }
 
-  function handlePagoClick(e: React.MouseEvent) {
-    e.stopPropagation();
+  function handlePagoClick() {
     setIsPaid(true);
     onMarkAsPaid(mostUrgent.id);
   }
