@@ -1,539 +1,468 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Download, DollarSign, TrendingUp, Users, Activity, Sparkles } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Search, Download, DollarSign, TrendingUp, Users, Calendar, ChevronDown, ChevronUp, FileText } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import useUserDataService from "@/services/userDataService";
-import { jsPDF } from 'jspdf';
-import { format, subMonths } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { toast } from 'sonner';
-
-interface Atendimento {
-  id: string;
-  nome: string;
-  dataAtendimento: string;
-  tipoServico: string;
-  valor: string;
-  statusPagamento?: 'pago' | 'pendente' | 'parcelado';
-}
+import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const RelatoriosFinanceiros = () => {
   const { getAtendimentos } = useUserDataService();
-  const [atendimentos] = useState<Atendimento[]>(
-    getAtendimentos().filter((atendimento: Atendimento) => 
-      atendimento.tipoServico !== "tarot-frequencial"
-    )
-  );
-  const [periodoVisualizacao, setPeriodoVisualizacao] = useState("6meses");
+  const isMobile = useIsMobile();
+  const [atendimentos, setAtendimentos] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [expandedSections, setExpandedSections] = useState({
+    overview: !isMobile,
+    charts: !isMobile,
+    details: !isMobile
+  });
 
-  const stats = useMemo(() => {
-    const hoje = new Date();
-    const receitaTotal = atendimentos.reduce((sum, atendimento) => sum + parseFloat(atendimento.valor), 0);
-    
-    const receitaMesAtual = atendimentos
-      .filter(atendimento => {
-        const data = new Date(atendimento.dataAtendimento);
-        return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
-      })
-      .reduce((sum, atendimento) => sum + parseFloat(atendimento.valor), 0);
-
-    const atendimentosPagos = atendimentos.filter(a => a.statusPagamento === 'pago').length;
-    const atendimentosPendentes = atendimentos.filter(a => a.statusPagamento === 'pendente').length;
-    const ticketMedio = receitaTotal / atendimentos.length || 0;
-
-    return {
-      receitaTotal,
-      receitaMesAtual,
-      atendimentosPagos,
-      atendimentosPendentes,
-      ticketMedio,
-      totalAtendimentos: atendimentos.length
-    };
-  }, [atendimentos]);
-
-  const dadosReceita = useMemo(() => {
-    const dadosPorMes: { [key: string]: number } = {};
-    const mesesParaMostrar = periodoVisualizacao === "6meses" ? 6 : 12;
-
-    for (let i = mesesParaMostrar - 1; i >= 0; i--) {
-      const data = subMonths(new Date(), i);
-      const chave = format(data, 'MMM/yy', { locale: ptBR });
-      dadosPorMes[chave] = 0;
-    }
-
-    atendimentos.forEach(atendimento => {
-      const data = new Date(atendimento.dataAtendimento);
-      const chave = format(data, 'MMM/yy', { locale: ptBR });
-      
-      if (dadosPorMes.hasOwnProperty(chave)) {
-        dadosPorMes[chave] += parseFloat(atendimento.valor);
-      }
-    });
-
-    return Object.entries(dadosPorMes).map(([mes, receita]) => ({
-      mes,
-      receita: receita
-    }));
-  }, [atendimentos, periodoVisualizacao]);
-
-  const dadosPagamentos = useMemo(() => {
-    const pagos = atendimentos.filter(a => a.statusPagamento === 'pago').length;
-    const pendentes = atendimentos.filter(a => a.statusPagamento === 'pendente').length;
-    const parcelados = atendimentos.filter(a => a.statusPagamento === 'parcelado').length;
-
-    return [
-      { name: 'Pagos', value: pagos, color: '#22C55E' },
-      { name: 'Pendentes', value: pendentes, color: '#EF4444' },
-      { name: 'Parcelados', value: parcelados, color: '#F59E0B' },
-    ];
-  }, [atendimentos]);
-
-  const dadosServicos = useMemo(() => {
-    const servicosPorTipo: { [key: string]: { count: number; receita: number } } = {};
-
-    atendimentos.forEach(atendimento => {
-      const tipo = atendimento.tipoServico;
-      if (!servicosPorTipo[tipo]) {
-        servicosPorTipo[tipo] = { count: 0, receita: 0 };
-      }
-      servicosPorTipo[tipo].count += 1;
-      servicosPorTipo[tipo].receita += parseFloat(atendimento.valor);
-    });
-
-    return Object.entries(servicosPorTipo).map(([tipo, dados]) => ({
-      servico: tipo,
-      quantidade: dados.count,
-      receita: dados.receita
-    }));
-  }, [atendimentos]);
-
-  const gerarRelatorioFinanceiro = useCallback(() => {
-    try {
-      const doc = new jsPDF();
-      
-      // Configurações de cores
-      const primaryColor = [30, 64, 175];
-      const secondaryColor = [59, 130, 246];
-      const textColor = [30, 30, 30];
-      const lightGray = [248, 250, 252];
-      const darkGray = [71, 85, 105];
-      
-      // Background gradient effect
-      doc.setFillColor(30, 64, 175);
-      doc.rect(0, 0, 210, 40, 'F');
-      
-      // Header principal
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(28);
-      doc.setFont(undefined, 'bold');
-      doc.text('RELATÓRIO FINANCEIRO', 105, 20, { align: 'center' });
-      
-      doc.setFontSize(16);
-      doc.setFont(undefined, 'normal');
-      doc.text('Atendimentos Gerais - Análise Completa', 105, 30, { align: 'center' });
-      
-      // Data e período
-      doc.setFontSize(10);
-      doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} | Período: ${periodoVisualizacao}`, 15, 50);
-      
-      // Cálculos financeiros
-      const receitaTotal = atendimentos.reduce((sum, atendimento) => sum + parseFloat(atendimento.valor), 0);
-      const atendimentosPagos = atendimentos.filter(a => a.statusPagamento === 'pago').length;
-      const atendimentosPendentes = atendimentos.filter(a => a.statusPagamento === 'pendente').length;
-      const ticketMedio = receitaTotal / atendimentos.length || 0;
-      const clientesUnicos = new Set(atendimentos.map(a => a.nome)).size;
-      
-      // Receita do mês atual
-      const hoje = new Date();
-      const receitaMesAtual = atendimentos
-        .filter(atendimento => {
-          const data = new Date(atendimento.dataAtendimento);
-          return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
-        })
-        .reduce((sum, atendimento) => sum + parseFloat(atendimento.valor), 0);
-      
-      // Grid de métricas principais (2x3)
-      let yPos = 65;
-      const boxWidth = 60;
-      const boxHeight = 30;
-      const spacing = 5;
-      
-      // Primeira linha
-      // Receita Total
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(15, yPos, boxWidth, boxHeight, 'F');
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.setLineWidth(0.8);
-      doc.rect(15, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('RECEITA TOTAL', 45, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(`R$ ${receitaTotal.toFixed(2)}`, 45, yPos + 20, { align: 'center' });
-      
-      // Receita Mês Atual
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(80, yPos, boxWidth, boxHeight, 'F');
-      doc.rect(80, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('RECEITA MÊS ATUAL', 110, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(`R$ ${receitaMesAtual.toFixed(2)}`, 110, yPos + 20, { align: 'center' });
-      
-      // Ticket Médio
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(145, yPos, boxWidth, boxHeight, 'F');
-      doc.rect(145, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('TICKET MÉDIO', 175, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(`R$ ${ticketMedio.toFixed(2)}`, 175, yPos + 20, { align: 'center' });
-      
-      yPos += boxHeight + spacing;
-      
-      // Segunda linha
-      // Total Atendimentos
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(15, yPos, boxWidth, boxHeight, 'F');
-      doc.rect(15, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('TOTAL ATENDIMENTOS', 45, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(atendimentos.length.toString(), 45, yPos + 20, { align: 'center' });
-      
-      // Pagos
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(80, yPos, boxWidth, boxHeight, 'F');
-      doc.rect(80, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('PAGAMENTOS PAGOS', 110, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(34, 197, 94); // Green
-      doc.text(atendimentosPagos.toString(), 110, yPos + 20, { align: 'center' });
-      
-      // Clientes Únicos
-      doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-      doc.rect(145, yPos, boxWidth, boxHeight, 'F');
-      doc.rect(145, yPos, boxWidth, boxHeight, 'S');
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('CLIENTES ÚNICOS', 175, yPos + 8, { align: 'center' });
-      doc.setFontSize(16);
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(clientesUnicos.toString(), 175, yPos + 20, { align: 'center' });
-      
-      yPos += 45;
-      
-      // Top 10 Clientes por Valor
-      doc.setFontSize(14);
-      doc.setFont(undefined, 'bold');
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text('TOP 10 CLIENTES POR VALOR', 15, yPos);
-      
-      yPos += 8;
-      
-      // Agrupa clientes por valor
-      const clientesValor = atendimentos.reduce((acc, atendimento) => {
-        const cliente = atendimento.nome;
-        const valor = parseFloat(atendimento.valor);
-        if (!acc[cliente]) {
-          acc[cliente] = { nome: cliente, valor: 0, quantidade: 0 };
-        }
-        acc[cliente].valor += valor;
-        acc[cliente].quantidade += 1;
-        return acc;
-      }, {} as Record<string, { nome: string; valor: number; quantidade: number }>);
-      
-      const topClientes = Object.values(clientesValor)
-        .sort((a, b) => b.valor - a.valor)
-        .slice(0, 10);
-      
-      // Header da tabela
-      doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.rect(15, yPos, 180, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(9);
-      doc.setFont(undefined, 'bold');
-      doc.text('CLIENTE', 20, yPos + 5);
-      doc.text('QTD', 120, yPos + 5);
-      doc.text('VALOR TOTAL', 155, yPos + 5);
-      
-      yPos += 8;
-      
-      // Linhas da tabela
-      topClientes.forEach((cliente, index) => {
-        if (yPos > 250) return; // Limite da página
-        
-        const rowColor = index % 2 === 0 ? [255, 255, 255] : lightGray;
-        doc.setFillColor(rowColor[0], rowColor[1], rowColor[2]);
-        doc.rect(15, yPos, 180, 7, 'F');
-        
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-        doc.setFontSize(8);
-        doc.setFont(undefined, 'normal');
-        doc.text(cliente.nome.substring(0, 30), 20, yPos + 4);
-        doc.text(cliente.quantidade.toString(), 120, yPos + 4);
-        doc.text(`R$ ${cliente.valor.toFixed(2)}`, 155, yPos + 4);
-        
-        yPos += 7;
-      });
-      
-      // Faturamento mensal (mini gráfico)
-      if (yPos < 240) {
-        yPos += 10;
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.text('EVOLUÇÃO MENSAL', 15, yPos);
-        
-        yPos += 8;
-        
-        const dadosMensais = dadosReceita.slice(-6); // Últimos 6 meses
-        const maxValor = Math.max(...dadosMensais.map(d => d.receita));
-        
-        dadosMensais.forEach((mes, index) => {
-          if (yPos > 270) return;
-          
-          const barWidth = maxValor > 0 ? (mes.receita / maxValor) * 100 : 0;
-          
-          // Barra
-          doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-          doc.rect(15, yPos, barWidth, 4, 'F');
-          
-          // Texto
-          doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-          doc.setFontSize(8);
-          doc.text(`${mes.mes}: R$ ${mes.receita.toFixed(2)}`, 125, yPos + 3);
-          
-          yPos += 8;
-        });
-      }
-      
-      // Footer decorativo
-      doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.setLineWidth(2);
-      doc.line(15, 285, 195, 285);
-      
-      doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      doc.setFontSize(8);
-      doc.text('Libertá - Sistema de Gestão | Relatório Financeiro Personalizado', 105, 292, { align: 'center' });
-      
-      // Salvar
-      const fileName = `Relatorio_Financeiro_Geral_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
-      doc.save(fileName);
-      
-      toast.success('Relatório financeiro personalizado gerado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      toast.error('Erro ao gerar relatório financeiro');
-    }
-  }, [atendimentos, periodoVisualizacao, dadosReceita]);
-
-  const chartConfig = useMemo(() => ({
-    receita: {
-      label: "Receita",
-      color: "#1E40AF",
-    },
-    quantidade: {
-      label: "Quantidade",
-      color: "#3B82F6",
-    },
-  }), []);
-
-  const handlePeriodoChange = useCallback((value: string | undefined) => {
-    if (value) setPeriodoVisualizacao(value);
+  useEffect(() => {
+    loadAtendimentos();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-sky-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-300/20 to-sky-300/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
+  const loadAtendimentos = () => {
+    const data = getAtendimentos();
+    setAtendimentos(data);
+  };
 
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const downloadPDF = () => {
+    toast.success("Gerando relatório PDF...");
+    // Aqui você implementaria a geração do PDF
+  };
+
+  const filteredAtendimentos = useMemo(() => {
+    return atendimentos.filter(atendimento => {
+      const matchesSearch = atendimento.nome?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+      const atendimentoDate = new Date(atendimento.dataAtendimento);
+      const matchesYear = atendimentoDate.getFullYear().toString() === selectedYear;
+      const matchesMonth = selectedMonth === '' || (atendimentoDate.getMonth() + 1).toString() === selectedMonth;
+      
+      return matchesSearch && matchesYear && matchesMonth;
+    });
+  }, [atendimentos, searchTerm, selectedYear, selectedMonth]);
+
+  const stats = useMemo(() => {
+    const totalReceitas = filteredAtendimentos
+      .filter(a => a.statusPagamento === 'pago')
+      .reduce((acc, curr) => acc + parseFloat(curr.valor || "0"), 0);
+
+    const totalPendente = filteredAtendimentos
+      .filter(a => a.statusPagamento === 'pendente')
+      .reduce((acc, curr) => acc + parseFloat(curr.valor || "0"), 0);
+
+    const totalParcelado = filteredAtendimentos
+      .filter(a => a.statusPagamento === 'parcelado')
+      .reduce((acc, curr) => acc + parseFloat(curr.valor || "0"), 0);
+
+    const totalClientes = new Set(filteredAtendimentos.map(a => a.nome)).size;
+
+    return {
+      totalReceitas,
+      totalPendente,
+      totalParcelado,
+      totalClientes,
+      totalAtendimentos: filteredAtendimentos.length
+    };
+  }, [filteredAtendimentos]);
+
+  const chartData = useMemo(() => {
+    const monthlyData = {};
+    
+    filteredAtendimentos.forEach(atendimento => {
+      const date = new Date(atendimento.dataAtendimento);
+      const monthKey = `${date.getMonth() + 1}/${date.getFullYear()}`;
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { month: monthKey, pago: 0, pendente: 0, parcelado: 0 };
+      }
+      
+      const valor = parseFloat(atendimento.valor || "0");
+      monthlyData[monthKey][atendimento.statusPagamento] += valor;
+    });
+
+    return Object.values(monthlyData).sort((a, b) => {
+      const [monthA, yearA] = a.month.split('/');
+      const [monthB, yearB] = b.month.split('/');
+      return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);
+    });
+  }, [filteredAtendimentos]);
+
+  const serviceData = useMemo(() => {
+    const services = {};
+    
+    filteredAtendimentos.forEach(atendimento => {
+      const service = atendimento.tipoServico || 'Não especificado';
+      if (!services[service]) {
+        services[service] = { name: service, value: 0, count: 0 };
+      }
+      services[service].value += parseFloat(atendimento.valor || "0");
+      services[service].count += 1;
+    });
+
+    return Object.values(services);
+  }, [filteredAtendimentos]);
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+  const years = Array.from(new Set(atendimentos.map(a => new Date(a.dataAtendimento).getFullYear())))
+    .sort((a, b) => b - a);
+
+  const months = [
+    { value: '1', label: 'Janeiro' },
+    { value: '2', label: 'Fevereiro' },
+    { value: '3', label: 'Março' },
+    { value: '4', label: 'Abril' },
+    { value: '5', label: 'Maio' },
+    { value: '6', label: 'Junho' },
+    { value: '7', label: 'Julho' },
+    { value: '8', label: 'Agosto' },
+    { value: '9', label: 'Setembro' },
+    { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' },
+    { value: '12', label: 'Dezembro' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <DashboardHeader />
       
-      <main className="container mx-auto py-24 px-4 relative z-10">
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="transform hover:scale-110 transition-all duration-300 hover:rotate-12">
-              <DollarSign className="h-12 w-12 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-blue-800 bg-gradient-to-r from-blue-800 to-blue-600 bg-clip-text text-transparent">
+      <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4 max-w-7xl">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Relatórios Financeiros
               </h1>
-              <p className="text-blue-600 mt-1 opacity-80">Análise completa das finanças</p>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Análise detalhada das receitas e pagamentos
+              </p>
             </div>
+            <Button
+              onClick={downloadPDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
+            >
+              <Download className="h-4 w-4" />
+              <span>Baixar PDF</span>
+            </Button>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <ToggleGroup 
-              type="single" 
-              value={periodoVisualizacao} 
-              onValueChange={handlePeriodoChange}
-              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/30"
-            >
-              <ToggleGroupItem value="6meses" className="data-[state=on]:bg-blue-600 data-[state=on]:text-white">
-                6 Meses
-              </ToggleGroupItem>
-              <ToggleGroupItem value="12meses" className="data-[state=on]:bg-blue-600 data-[state=on]:text-white">
-                12 Meses
-              </ToggleGroupItem>
-            </ToggleGroup>
+
+          {/* Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar cliente..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
             
-            <Button 
-              onClick={gerarRelatorioFinanceiro}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecionar ano" />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map(year => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os meses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos os meses</SelectItem>
+                {months.map(month => (
+                  <SelectItem key={month.value} value={month.value}>
+                    {month.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedMonth('');
+                setSelectedYear(new Date().getFullYear().toString());
+              }}
+              className="w-full"
             >
-              <Download className="h-4 w-4 mr-2" />
-              Relatório PDF
+              Limpar Filtros
             </Button>
           </div>
         </div>
 
-        {/* Cards de Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard 
-            title="Receita Total" 
-            value={`R$ ${stats.receitaTotal.toFixed(2)}`} 
-            icon={<DollarSign className="h-8 w-8 text-blue-600" />} 
-          />
-          <StatCard 
-            title="Receita Mês Atual" 
-            value={`R$ ${stats.receitaMesAtual.toFixed(2)}`}
-            icon={<Calendar className="h-8 w-8 text-blue-600" />} 
-          />
-          <StatCard 
-            title="Ticket Médio"
-            value={`R$ ${stats.ticketMedio.toFixed(2)}`} 
-            icon={<TrendingUp className="h-8 w-8 text-blue-600" />} 
-          />
-          <StatCard 
-            title="Pagos/Pendentes" 
-            value={`${stats.atendimentosPagos}/${stats.atendimentosPendentes}`} 
-            icon={<Activity className="h-8 w-8 text-blue-600" />} 
-          />
-        </div>
+        {/* Stats Overview */}
+        <Collapsible 
+          open={expandedSections.overview} 
+          onOpenChange={() => toggleSection('overview')}
+        >
+          <CollapsibleTrigger asChild>
+            <Card className="mb-6 cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    Resumo Financeiro
+                  </CardTitle>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${expandedSections.overview ? 'rotate-180' : ''}`} />
+                </div>
+              </CardHeader>
+            </Card>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
+              <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-xs sm:text-sm">Total Recebido</p>
+                      <p className="text-lg sm:text-2xl font-bold">R$ {stats.totalReceitas.toFixed(2)}</p>
+                    </div>
+                    <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-green-100" />
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Gráficos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Gráfico de Receita Mensal */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-blue-800">Receita Mensal</CardTitle>
-              <CardDescription>Evolução da receita ao longo do tempo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={dadosReceita}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="mes" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line type="monotone" dataKey="receita" stroke="#1E40AF" strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+              <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-yellow-100 text-xs sm:text-sm">Pendente</p>
+                      <p className="text-lg sm:text-2xl font-bold">R$ {stats.totalPendente.toFixed(2)}</p>
+                    </div>
+                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-100" />
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Gráfico de Status de Pagamento */}
-          <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl">
-            <CardHeader>
-              <CardTitle className="text-blue-800">Status dos Pagamentos</CardTitle>
-              <CardDescription>Distribuição dos status de pagamento</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={dadosPagamentos}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}`}
-                    >
-                      {dadosPagamentos.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+              <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-100 text-xs sm:text-sm">Parcelado</p>
+                      <p className="text-lg sm:text-2xl font-bold">R$ {stats.totalParcelado.toFixed(2)}</p>
+                    </div>
+                    <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-orange-100" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-xs sm:text-sm">Clientes</p>
+                      <p className="text-lg sm:text-2xl font-bold">{stats.totalClientes}</p>
+                    </div>
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-100" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-xs sm:text-sm">Atendimentos</p>
+                      <p className="text-lg sm:text-2xl font-bold">{stats.totalAtendimentos}</p>
+                    </div>
+                    <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-100" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Charts Section */}
+        <Collapsible 
+          open={expandedSections.charts} 
+          onOpenChange={() => toggleSection('charts')}
+        >
+          <CollapsibleTrigger asChild>
+            <Card className="mb-6 cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                    Análise Gráfica
+                  </CardTitle>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${expandedSections.charts ? 'rotate-180' : ''}`} />
+                </div>
+              </CardHeader>
+            </Card>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Bar Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg">Receitas por Mês</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 sm:h-80 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="month" 
+                          fontSize={isMobile ? 10 : 12}
+                          angle={isMobile ? -45 : 0}
+                          textAnchor={isMobile ? 'end' : 'middle'}
+                          height={isMobile ? 60 : 30}
+                        />
+                        <YAxis fontSize={isMobile ? 10 : 12} />
+                        <Tooltip formatter={(value) => [`R$ ${Number(value).toFixed(2)}`, '']} />
+                        <Legend fontSize={isMobile ? 10 : 12} />
+                        <Bar dataKey="pago" fill="#10B981" name="Pago" />
+                        <Bar dataKey="pendente" fill="#F59E0B" name="Pendente" />
+                        <Bar dataKey="parcelado" fill="#F97316" name="Parcelado" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pie Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-lg">Receita por Serviço</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64 sm:h-80 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={serviceData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={isMobile ? false : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={isMobile ? 60 : 80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {serviceData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`R$ ${Number(value).toFixed(2)}`, 'Receita']} />
+                        <Legend fontSize={isMobile ? 10 : 12} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Details Table */}
+        <Collapsible 
+          open={expandedSections.details} 
+          onOpenChange={() => toggleSection('details')}
+        >
+          <CollapsibleTrigger asChild>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <FileText className="h-5 w-5 text-gray-600" />
+                    Detalhes dos Atendimentos
+                  </CardTitle>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${expandedSections.details ? 'rotate-180' : ''}`} />
+                </div>
+              </CardHeader>
+            </Card>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-700">Cliente</th>
+                        <th className="text-left p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-700">Serviço</th>
+                        <th className="text-left p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-700">Data</th>
+                        <th className="text-left p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-700">Valor</th>
+                        <th className="text-left p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-700">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredAtendimentos.map((atendimento, index) => (
+                        <tr key={atendimento.id || index} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3 sm:p-4 text-xs sm:text-sm">{atendimento.nome}</td>
+                          <td className="p-3 sm:p-4 text-xs sm:text-sm">{atendimento.tipoServico}</td>
+                          <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                            {new Date(atendimento.dataAtendimento).toLocaleDateString('pt-BR')}
+                          </td>
+                          <td className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-green-600">
+                            R$ {parseFloat(atendimento.valor || "0").toFixed(2)}
+                          </td>
+                          <td className="p-3 sm:p-4">
+                            <Badge 
+                              variant={atendimento.statusPagamento === 'pago' ? 'default' : 'secondary'}
+                              className={`text-xs ${
+                                atendimento.statusPagamento === 'pago' 
+                                  ? 'bg-green-100 text-green-800 border-green-200' 
+                                  : atendimento.statusPagamento === 'pendente'
+                                  ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                  : 'bg-orange-100 text-orange-800 border-orange-200'
+                              }`}
+                            >
+                              {atendimento.statusPagamento}
+                            </Badge>
+                          </td>
+                        </tr>
                       ))}
-                    </Pie>
-                    <ChartTooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Gráfico de Receita por Serviço */}
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-blue-800">Receita por Tipo de Serviço</CardTitle>
-            <CardDescription>Performance financeira por categoria de serviço</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="h-[400px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dadosServicos}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="servico" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="receita" fill="#1E40AF" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+                    </tbody>
+                  </table>
+                </div>
+                
+                {filteredAtendimentos.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                    <p className="text-lg">Nenhum atendimento encontrado</p>
+                    <p className="text-sm mt-2">Ajuste os filtros para ver os resultados</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
       </main>
     </div>
   );
 };
-
-const StatCard = ({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) => (
-  <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-all duration-500 group hover:bg-white hover:-translate-y-2 hover:scale-105">
-    <CardContent className="pt-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-sm font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">{title}</p>
-          <p className="text-3xl font-bold text-slate-800 group-hover:text-blue-700 transition-colors duration-300">{value}</p>
-        </div>
-        <div className="rounded-xl p-3 bg-blue-600/10 group-hover:bg-blue-600/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
-          {icon}
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 export default RelatoriosFinanceiros;
