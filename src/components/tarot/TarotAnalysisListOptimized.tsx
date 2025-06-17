@@ -17,17 +17,17 @@ const TarotAnalysisListOptimized = memo(
     onDelete: (id: string) => void;
   }) => {
     const [showAll, setShowAll] = useState(false);
-    const ITEMS_PER_PAGE = 20;
+    const ITEMS_PER_PAGE = 15; // Reduzir ainda mais para melhor performance
     
-    // Otimizar renderização limitando itens visíveis
+    // Super otimizar renderização limitando itens visíveis
     const visibleAnalises = useMemo(() => {
       if (showAll) {
-        return analises;
+        return analises.slice(0, 50); // Limitar máximo mesmo quando "mostrar todos"
       }
       return analises.slice(0, ITEMS_PER_PAGE);
     }, [analises, showAll]);
     
-    // Funções otimizadas com useCallback para evitar re-renders desnecessários
+    // Funções super otimizadas com useCallback
     const handleToggleFinished = useCallback((id: string) => {
       onToggleFinished(id);
     }, [onToggleFinished]);
@@ -45,7 +45,7 @@ const TarotAnalysisListOptimized = memo(
     }, []);
     
     const hasMoreItems = analises.length > ITEMS_PER_PAGE;
-    const hiddenCount = analises.length - ITEMS_PER_PAGE;
+    const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 35); // Limitar contagem
     
     return (
       <div className="space-y-3">
@@ -65,7 +65,7 @@ const TarotAnalysisListOptimized = memo(
           <div className="flex flex-col items-center gap-3 py-4">
             <div className="text-center text-slate-500 text-sm bg-white/50 rounded-lg p-3 w-full">
               {showAll ? (
-                <p>Mostrando todas as {analises.length} análises</p>
+                <p>Mostrando {visibleAnalises.length} análises</p>
               ) : (
                 <p>
                   Mostrando {visibleAnalises.length} de {analises.length} análises

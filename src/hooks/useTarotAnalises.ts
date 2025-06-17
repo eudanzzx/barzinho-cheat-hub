@@ -16,8 +16,8 @@ export function useTarotAnalises() {
   const [aniversarianteHoje, setAniversarianteHoje] = useState<any>(null);
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
-  // Debounce search term para reduzir re-renderizações
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  // Aumentar debounce para reduzir re-renderizações
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Carrega análises apenas uma vez
   useEffect(() => {
@@ -34,7 +34,7 @@ export function useTarotAnalises() {
     loadAnalises();
   }, [getAllTarotAnalyses]);
 
-  // Calcular stats apenas quando análises mudam - otimizado
+  // Calcular stats apenas quando análises mudam - super otimizado
   useEffect(() => {
     if (analises.length === 0) {
       setRecebidoStats(defaultStats);
@@ -42,7 +42,6 @@ export function useTarotAnalises() {
       return;
     }
 
-    // Verificar aniversários de forma otimizada
     const today = new Date();
     const todayDay = today.getDate();
     const todayMonth = today.getMonth() + 1;
@@ -51,7 +50,7 @@ export function useTarotAnalises() {
     let total = 0, semana = 0, mes = 0, ano = 0;
     const now = new Date();
     
-    // Uma única iteração para todas as verificações
+    // Otimização: uma única iteração para tudo
     for (const analise of analises) {
       // Verificar aniversário apenas se ainda não encontrou
       if (!birthdayClient && analise.dataNascimento) {
@@ -72,16 +71,20 @@ export function useTarotAnalises() {
       const preco = parseFloat(analise.preco || "150");
       total += preco;
       
-      const date = new Date(analise.dataInicio || analise.dataAtendimento);
-      if (!isNaN(date.getTime())) {
-        const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
-        if (diffDays <= 7) semana += preco;
-        if (
-          date.getMonth() === now.getMonth() &&
-          date.getFullYear() === now.getFullYear()
-        )
-          mes += preco;
-        if (date.getFullYear() === now.getFullYear()) ano += preco;
+      try {
+        const date = new Date(analise.dataInicio || analise.dataAtendimento);
+        if (!isNaN(date.getTime())) {
+          const diffDays = (now.getTime() - date.getTime()) / (1000 * 3600 * 24);
+          if (diffDays <= 7) semana += preco;
+          if (
+            date.getMonth() === now.getMonth() &&
+            date.getFullYear() === now.getFullYear()
+          )
+            mes += preco;
+          if (date.getFullYear() === now.getFullYear()) ano += preco;
+        }
+      } catch {
+        // Ignorar erro de data
       }
     }
 
@@ -89,7 +92,7 @@ export function useTarotAnalises() {
     setRecebidoStats({ total, semana, mes, ano });
   }, [analises]);
 
-  // Filtros otimizados com useMemo
+  // Filtros super otimizados com useMemo
   const filteredAnalises = useMemo(() => {
     if (!debouncedSearchTerm) return analises;
     const term = debouncedSearchTerm.toLowerCase();
@@ -98,7 +101,7 @@ export function useTarotAnalises() {
     );
   }, [debouncedSearchTerm, analises]);
 
-  // Tabs otimizadas com useMemo
+  // Tabs super otimizadas com useMemo
   const tabAnalises = useMemo(() => {
     switch (activeTab) {
       case "finalizadas":
@@ -119,7 +122,7 @@ export function useTarotAnalises() {
     return { finalizados, emAndamento, atencao };
   }, [analises]);
 
-  // Handlers otimizados
+  // Handlers super otimizados com useCallback
   const reloadAnalises = useCallback(() => {
     try {
       const data = getAllTarotAnalyses();
