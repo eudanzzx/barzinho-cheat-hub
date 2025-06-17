@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { jsPDF } from 'jspdf';
 
 const RelatoriosFinanceiros = () => {
   const { getAtendimentos } = useUserDataService();
@@ -43,8 +43,76 @@ const RelatoriosFinanceiros = () => {
   };
 
   const downloadPDF = () => {
-    toast.success("Gerando relatório PDF...");
-    // Aqui você implementaria a geração do PDF
+    try {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setFont(undefined, 'bold');
+      doc.text('RELATÓRIO FINANCEIRO', 105, 30, { align: 'center' });
+      
+      // Date
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')}`, 20, 50);
+      
+      // Stats
+      let yPos = 70;
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('RESUMO FINANCEIRO', 20, yPos);
+      
+      yPos += 20;
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Total Recebido: R$ ${stats.totalReceitas.toFixed(2)}`, 20, yPos);
+      yPos += 10;
+      doc.text(`Total Pendente: R$ ${stats.totalPendente.toFixed(2)}`, 20, yPos);
+      yPos += 10;
+      doc.text(`Total Parcelado: R$ ${stats.totalParcelado.toFixed(2)}`, 20, yPos);
+      yPos += 10;
+      doc.text(`Total de Clientes: ${stats.totalClientes}`, 20, yPos);
+      yPos += 10;
+      doc.text(`Total de Atendimentos: ${stats.totalAtendimentos}`, 20, yPos);
+      
+      // Atendimentos table
+      yPos += 30;
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('DETALHES DOS ATENDIMENTOS', 20, yPos);
+      
+      yPos += 20;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text('Cliente', 20, yPos);
+      doc.text('Serviço', 60, yPos);
+      doc.text('Data', 120, yPos);
+      doc.text('Valor', 150, yPos);
+      doc.text('Status', 180, yPos);
+      
+      yPos += 10;
+      doc.setFont(undefined, 'normal');
+      
+      filteredAtendimentos.slice(0, 20).forEach((atendimento) => {
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 30;
+        }
+        
+        doc.text(atendimento.nome?.substring(0, 15) || '', 20, yPos);
+        doc.text(atendimento.tipoServico?.substring(0, 15) || '', 60, yPos);
+        doc.text(new Date(atendimento.dataAtendimento).toLocaleDateString('pt-BR'), 120, yPos);
+        doc.text(`R$ ${parseFloat(atendimento.valor || "0").toFixed(2)}`, 150, yPos);
+        doc.text(atendimento.statusPagamento || '', 180, yPos);
+        yPos += 8;
+      });
+      
+      doc.save(`Relatorio_Financeiro_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.error("Erro ao gerar relatório PDF");
+    }
   };
 
   const filteredAtendimentos = useMemo(() => {
@@ -83,7 +151,7 @@ const RelatoriosFinanceiros = () => {
   }, [filteredAtendimentos]);
 
   const chartData = useMemo(() => {
-    const monthlyData = {};
+    const monthlyData: { [key: string]: { month: string; pago: number; pendente: number; parcelado: number } } = {};
     
     filteredAtendimentos.forEach(atendimento => {
       const date = new Date(atendimento.dataAtendimento);
@@ -98,9 +166,9 @@ const RelatoriosFinanceiros = () => {
     });
 
     return Object.values(monthlyData).sort((a, b) => {
-      const [monthA, yearA] = a.month.split('/');
-      const [monthB, yearB] = b.month.split('/');
-      return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);
+      const [monthA, yearA] = a.month.split('/').map(Number);
+      const [monthB, yearB] = b.month.split('/').map(Number);
+      return new Date(yearA, monthA - 1).getTime() - new Date(yearB, monthB - 1).getTime();
     });
   }, [filteredAtendimentos]);
 
