@@ -9,9 +9,11 @@ import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MonthlyPaymentControl: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(!isMobile);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
@@ -48,6 +50,8 @@ const MonthlyPaymentControl: React.FC = () => {
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
+    const wasExpanded = expandedClients.has(clientName);
+    
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isPaid } : plano
@@ -59,6 +63,18 @@ const MonthlyPaymentControl: React.FC = () => {
         ? `Pagamento de ${clientName} marcado como pago!`
         : `Pagamento de ${clientName} marcado como pendente!`
     );
+    
+    // No mobile, fechar a expansão do cliente quando marcar como pago
+    if (isMobile && isPaid) {
+      setExpandedClients(prev => {
+        const newExpanded = new Set(prev);
+        newExpanded.delete(clientName);
+        return newExpanded;
+      });
+    } else if (wasExpanded) {
+      // Manter expandido se estava expandido antes
+      setExpandedClients(prev => new Set([...prev, clientName]));
+    }
     
     window.dispatchEvent(new Event('atendimentosUpdated'));
     loadPlanos();
@@ -180,24 +196,24 @@ const MonthlyPaymentControl: React.FC = () => {
                                       : "border-l-[#0553C7] bg-white"
                                   )}
                                 >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-3 mb-2">
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex flex-wrap items-center gap-2 mb-2">
                                         <Badge className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20">
                                           {plano.month}º Mês
                                         </Badge>
                                         {isOverdue && !isPaid && (
-                                          <Badge variant="destructive">
+                                          <Badge variant="destructive" className="text-xs">
                                             {daysOverdue} {daysOverdue === 1 ? 'dia' : 'dias'} atrasado
                                           </Badge>
                                         )}
                                         {isPaid && (
-                                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                                          <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
                                             ✓ Pago
                                           </Badge>
                                         )}
                                       </div>
-                                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
                                         <div>
                                           <span className="font-medium text-green-600">Valor:</span>
                                           <span className="ml-1 font-bold">R$ {plano.amount.toFixed(2)}</span>
@@ -209,10 +225,13 @@ const MonthlyPaymentControl: React.FC = () => {
                                       </div>
                                     </div>
                                     <Button
-                                      onClick={() => handlePaymentToggle(plano.id, clientName, !isPaid)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePaymentToggle(plano.id, clientName, !isPaid);
+                                      }}
                                       size="sm"
                                       className={cn(
-                                        "transition-all duration-200 ml-4",
+                                        "transition-all duration-200 w-full sm:w-auto",
                                         isPaid
                                           ? "bg-orange-500 hover:bg-orange-600 text-white"
                                           : "bg-green-600 hover:bg-green-700 text-white"
@@ -221,12 +240,14 @@ const MonthlyPaymentControl: React.FC = () => {
                                       {isPaid ? (
                                         <>
                                           <X className="h-4 w-4 mr-1" />
-                                          Pendente
+                                          <span className="hidden sm:inline">Marcar Pendente</span>
+                                          <span className="sm:hidden">Pendente</span>
                                         </>
                                       ) : (
                                         <>
                                           <Check className="h-4 w-4 mr-1" />
-                                          Pagar
+                                          <span className="hidden sm:inline">Marcar Pago</span>
+                                          <span className="sm:hidden">Pagar</span>
                                         </>
                                       )}
                                     </Button>
