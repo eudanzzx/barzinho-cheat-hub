@@ -50,8 +50,6 @@ const MonthlyPaymentControl: React.FC = () => {
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
-    const wasExpanded = expandedClients.has(clientName);
-    
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isPaid } : plano
@@ -63,18 +61,6 @@ const MonthlyPaymentControl: React.FC = () => {
         ? `Pagamento de ${clientName} marcado como pago!`
         : `Pagamento de ${clientName} marcado como pendente!`
     );
-    
-    // No mobile, fechar a expansão do cliente quando marcar como pago
-    if (isMobile && isPaid) {
-      setExpandedClients(prev => {
-        const newExpanded = new Set(prev);
-        newExpanded.delete(clientName);
-        return newExpanded;
-      });
-    } else if (wasExpanded) {
-      // Manter expandido se estava expandido antes
-      setExpandedClients(prev => new Set([...prev, clientName]));
-    }
     
     window.dispatchEvent(new Event('atendimentosUpdated'));
     loadPlanos();
