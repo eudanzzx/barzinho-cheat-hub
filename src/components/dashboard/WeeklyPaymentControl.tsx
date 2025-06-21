@@ -54,31 +54,26 @@ const WeeklyPaymentControl: React.FC = () => {
     
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
-      plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
+      plano.id === planoId ? { ...plano, active: !isCurrentlyPaid } : plano
     );
     
     savePlanos(updatedPlanos);
     
     setPlanos(prevPlanos => 
       prevPlanos.map(plano => 
-        plano.id === planoId ? { ...plano, active: isCurrentlyPaid } : plano
+        plano.id === planoId ? { ...plano, active: !isCurrentlyPaid } : plano
       )
     );
     
-    if (isMobile && !isCurrentlyPaid) {
-      setExpandedClients(prev => {
-        const newExpanded = new Set(prev);
-        newExpanded.delete(clientName);
-        return newExpanded;
-      });
-    } else if (wasExpanded) {
+    // Manter cliente expandido após pagamento
+    if (wasExpanded) {
       setExpandedClients(prev => new Set([...prev, clientName]));
     }
     
     toast.success(
-      !isCurrentlyPaid 
-        ? `Pagamento de ${clientName} marcado como pago!`
-        : `Pagamento de ${clientName} marcado como pendente!`
+      isCurrentlyPaid 
+        ? `Pagamento de ${clientName} marcado como pendente!`
+        : `Pagamento de ${clientName} marcado como pago!`
     );
     
     setTimeout(() => {
