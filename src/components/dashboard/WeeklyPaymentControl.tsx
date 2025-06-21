@@ -12,7 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const WeeklyPaymentControl: React.FC = () => {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
+  const [isOpen, setIsOpen] = useState(false); // Sempre fechado por padrão
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
