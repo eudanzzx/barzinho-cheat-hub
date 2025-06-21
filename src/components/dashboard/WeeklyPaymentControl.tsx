@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,11 +47,14 @@ const WeeklyPaymentControl: React.FC = () => {
       existingClientNames.has(plano.clientName)
     );
 
+    console.log('WeeklyPaymentControl - Planos carregados:', activeWeeklyPlanos);
     setPlanos(activeWeeklyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPaid: boolean) => {
     const wasExpanded = expandedClients.has(clientName);
+    
+    console.log('WeeklyPaymentControl - Toggling payment:', { planoId, clientName, isCurrentlyPaid });
     
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
@@ -59,6 +63,7 @@ const WeeklyPaymentControl: React.FC = () => {
     
     savePlanos(updatedPlanos);
     
+    // Atualizar estado local imediatamente
     setPlanos(prevPlanos => 
       prevPlanos.map(plano => 
         plano.id === planoId ? { ...plano, active: !isCurrentlyPaid } : plano
@@ -110,6 +115,12 @@ const WeeklyPaymentControl: React.FC = () => {
     acc[plano.clientName].push(plano);
     return acc;
   }, {} as Record<string, PlanoSemanal[]>);
+
+  console.log('WeeklyPaymentControl - Renderizando:', { 
+    isOpen, 
+    planosCount: planos.length, 
+    groupedCount: Object.keys(groupedPlanos).length 
+  });
 
   return (
     <div className="payment-controls-container payment-control-visible mb-6 w-full block">
@@ -182,7 +193,13 @@ const WeeklyPaymentControl: React.FC = () => {
                             {clientPlanos.map((plano) => {
                               const daysOverdue = getDaysOverdue(plano.dueDate);
                               const isOverdue = daysOverdue > 0;
-                              const isPaid = !plano.active;
+                              const isPaid = !plano.active; // active = false significa pago
+                              
+                              console.log('WeeklyPaymentControl - Plano render:', { 
+                                id: plano.id, 
+                                active: plano.active, 
+                                isPaid 
+                              });
                               
                               return (
                                 <div 
