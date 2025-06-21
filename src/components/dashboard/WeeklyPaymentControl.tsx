@@ -18,12 +18,15 @@ const WeeklyPaymentControl: React.FC = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
 
+  console.log('WeeklyPaymentControl - Estado inicial:', { isOpen, isMobile });
+
   useEffect(() => {
     loadPlanos();
   }, []);
 
   useEffect(() => {
     const handlePlanosUpdated = () => {
+      console.log('WeeklyPaymentControl - Evento recebido, recarregando...');
       loadPlanos();
     };
 
@@ -37,30 +40,48 @@ const WeeklyPaymentControl: React.FC = () => {
   }, []);
 
   const loadPlanos = () => {
+    console.log('WeeklyPaymentControl - Carregando planos...');
     const allPlanos = getPlanos();
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
+    // Filtrar apenas planos semanais ATIVOS (active = true significa não pago)
     const activeWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
       plano.type === 'semanal' && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
-    console.log('WeeklyPaymentControl - Planos carregados:', activeWeeklyPlanos);
+    console.log('WeeklyPaymentControl - Planos filtrados:', {
+      total: allPlanos.length,
+      semanais: activeWeeklyPlanos.length,
+      activeWeeklyPlanos: activeWeeklyPlanos.map(p => ({
+        id: p.id,
+        client: p.clientName,
+        active: p.active,
+        week: p.week
+      }))
+    });
+    
     setPlanos(activeWeeklyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPaid: boolean) => {
     const wasExpanded = expandedClients.has(clientName);
     
-    console.log('WeeklyPaymentControl - Toggling payment:', { planoId, clientName, isCurrentlyPaid });
+    console.log('WeeklyPaymentControl - Toggling payment:', { 
+      planoId, 
+      clientName, 
+      isCurrentlyPaid,
+      wasExpanded
+    });
     
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isCurrentlyPaid } : plano
     );
     
+    console.log('WeeklyPaymentControl - Salvando planos atualizados...');
     savePlanos(updatedPlanos);
     
     // Atualizar estado local imediatamente
@@ -75,24 +96,25 @@ const WeeklyPaymentControl: React.FC = () => {
       setExpandedClients(prev => new Set([...prev, clientName]));
     }
     
-    toast.success(
-      isCurrentlyPaid 
-        ? `Pagamento de ${clientName} marcado como pendente!`
-        : `Pagamento de ${clientName} marcado como pago!`
-    );
+    const newStatus = isCurrentlyPaid ? 'pendente' : 'pago';
+    toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
+    // Forçar atualização
     setTimeout(() => {
+      console.log('WeeklyPaymentControl - Disparando evento de atualização...');
       window.dispatchEvent(new Event('planosUpdated'));
     }, 100);
   };
 
   const toggleClientExpansion = (clientName: string) => {
+    console.log('WeeklyPaymentControl - Toggling client expansion:', clientName);
     const newExpanded = new Set(expandedClients);
     if (newExpanded.has(clientName)) {
       newExpanded.delete(clientName);
     } else {
       newExpanded.add(clientName);
     }
+    console.log('WeeklyPaymentControl - New expanded clients:', Array.from(newExpanded));
     setExpandedClients(newExpanded);
   };
 
@@ -119,7 +141,8 @@ const WeeklyPaymentControl: React.FC = () => {
   console.log('WeeklyPaymentControl - Renderizando:', { 
     isOpen, 
     planosCount: planos.length, 
-    groupedCount: Object.keys(groupedPlanos).length 
+    groupedCount: Object.keys(groupedPlanos).length,
+    expandedClients: Array.from(expandedClients)
   });
 
   return (
@@ -195,10 +218,12 @@ const WeeklyPaymentControl: React.FC = () => {
                               const isOverdue = daysOverdue > 0;
                               const isPaid = !plano.active; // active = false significa pago
                               
-                              console.log('WeeklyPaymentControl - Plano render:', { 
+                              console.log('WeeklyPaymentControl - Renderizando plano:', { 
                                 id: plano.id, 
+                                client: plano.clientName,
                                 active: plano.active, 
-                                isPaid 
+                                isPaid,
+                                week: plano.week
                               });
                               
                               return (
@@ -244,6 +269,11 @@ const WeeklyPaymentControl: React.FC = () => {
                                     <Button
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        console.log('WeeklyPaymentControl - Botão clicado:', { 
+                                          planoId: plano.id, 
+                                          clientName, 
+                                          isPaid 
+                                        });
                                         handlePaymentToggle(plano.id, clientName, isPaid);
                                       }}
                                       size="sm"
