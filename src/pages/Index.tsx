@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import useUserDataService from "@/services/userDataService";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
-import WeeklyPaymentControl from "@/components/dashboard/WeeklyPaymentControl";
 import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
 import IndexMainContent from "@/components/dashboard/IndexMainContent";
 import IndexStats from "@/components/dashboard/IndexStats";
@@ -75,8 +73,6 @@ const Index: React.FC = () => {
 
       <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4">
         <IndexBirthdaySection aniversarianteHoje={aniversarianteHoje} />
-
-        <WeeklyPaymentControl />
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

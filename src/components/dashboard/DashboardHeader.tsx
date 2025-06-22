@@ -18,6 +18,8 @@ import { usePaymentNotifications } from "@/components/tarot/payment-notification
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
 import useUserDataService from "@/services/userDataService";
 import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
+import HeaderWeeklyPayments from "./HeaderWeeklyPayments";
+import HeaderMonthlyPayments from "./HeaderMonthlyPayments";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
@@ -55,6 +57,14 @@ const DashboardHeader = () => {
             
             {/* Botões de ação - responsivo */}
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+              {/* Botões de pagamento - apenas na página principal */}
+              {isDashboardPage && !isMobile && (
+                <div className="flex items-center gap-2">
+                  <HeaderWeeklyPayments />
+                  <HeaderMonthlyPayments />
+                </div>
+              )}
+
               {/* Botões específicos do tarot */}
               {isTarotListagem && (
                 <div className="flex items-center gap-1">
