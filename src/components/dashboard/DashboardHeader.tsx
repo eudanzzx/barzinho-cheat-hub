@@ -58,8 +58,8 @@ const DashboardHeader = () => {
             {/* Botões de ação - responsivo */}
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               {/* Botões de pagamento - apenas na página principal */}
-              {isDashboardPage && !isMobile && (
-                <div className="flex items-center gap-2">
+              {isDashboardPage && (
+                <div className="flex items-center gap-1 sm:gap-2">
                   <HeaderWeeklyPayments />
                   <HeaderMonthlyPayments />
                 </div>

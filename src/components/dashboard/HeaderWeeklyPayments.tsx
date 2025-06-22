@@ -41,12 +41,13 @@ const HeaderWeeklyPayments: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
+    // Filtrar apenas planos semanais ativos, criados pelo usuário e de clientes existentes
     const pendingWeeklyPlanos = allPlanos
       .filter((plano): plano is PlanoSemanal => {
         return plano.type === 'semanal' && 
                plano.active === true && 
                existingClientNames.has(plano.clientName) &&
-               !plano.analysisId;
+               !plano.analysisId; // Excluir planos de análises de tarot
       })
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
     
@@ -99,20 +100,20 @@ const HeaderWeeklyPayments: React.FC = () => {
           variant="outline"
           size="sm"
           className={cn(
-            "flex items-center gap-2 border-blue-200 hover:bg-blue-50",
+            "flex items-center gap-1 sm:gap-2 border-blue-200 hover:bg-blue-50 text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9",
             isOverdue && "border-red-200 bg-red-50 hover:bg-red-100"
           )}
         >
-          <Calendar className="h-4 w-4" />
+          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
           <div className="flex flex-col items-start">
             <span className="text-xs font-medium">Semanal</span>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-gray-600 hidden sm:block">
               {priorityPlano.clientName}
             </span>
           </div>
           <Badge 
             variant={isOverdue ? "destructive" : "secondary"}
-            className="text-xs"
+            className="text-xs h-4 w-4 flex items-center justify-center p-0 min-w-[16px]"
           >
             {pendingPlanos.length}
           </Badge>
@@ -120,15 +121,15 @@ const HeaderWeeklyPayments: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-80 bg-white border shadow-lg z-[60]">
+      <DropdownMenuContent align="end" className="w-72 sm:w-80 bg-white border shadow-lg z-[60]">
         {/* Pagamento Prioritário */}
         <div className={cn(
           "p-3 border-b",
           isOverdue ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-200"
         )}>
           <div className="flex items-center justify-between mb-2">
-            <div>
-              <p className="font-medium text-sm">{priorityPlano.clientName}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{priorityPlano.clientName}</p>
               <p className="text-xs text-gray-600">
                 {priorityPlano.week}ª Semana - R$ {priorityPlano.amount.toFixed(2)}
               </p>
@@ -139,7 +140,7 @@ const HeaderWeeklyPayments: React.FC = () => {
             <Button
               onClick={() => handlePaymentToggle(priorityPlano.id, priorityPlano.clientName)}
               size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 h-7 ml-2 flex-shrink-0"
             >
               <Check className="h-3 w-3 mr-1" />
               Pagar
@@ -162,8 +163,8 @@ const HeaderWeeklyPayments: React.FC = () => {
               return (
                 <DropdownMenuItem key={plano.id} className="p-0">
                   <div className="w-full p-3 flex items-center justify-between hover:bg-gray-50">
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{plano.clientName}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{plano.clientName}</p>
                       <p className="text-xs text-gray-600">
                         {plano.week}ª Semana - R$ {plano.amount.toFixed(2)}
                       </p>
@@ -183,7 +184,7 @@ const HeaderWeeklyPayments: React.FC = () => {
                       }}
                       size="sm"
                       variant="outline"
-                      className="ml-2"
+                      className="ml-2 text-xs px-2 py-1 h-7 flex-shrink-0"
                     >
                       <Check className="h-3 w-3" />
                     </Button>
