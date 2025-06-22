@@ -13,33 +13,39 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const WeeklyPaymentControl: React.FC = () => {
   const isMobile = useIsMobile();
-  // SEMPRE iniciar fechado, independente de ser mobile ou não
+  // SEMPRE iniciar fechado - valor fixo false
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
 
-  console.log('WeeklyPaymentControl - Estado inicial:', { 
-    isOpen, 
+  console.log('WeeklyPaymentControl - Render:', { 
+    isOpen,
     isMobile,
-    shouldStartClosed: true 
+    planosCount: planos.length
   });
 
   useEffect(() => {
+    console.log('WeeklyPaymentControl - useEffect inicial');
     loadPlanos();
   }, []);
 
   useEffect(() => {
     const handlePlanosUpdated = () => {
-      console.log('WeeklyPaymentControl - Evento recebido, recarregando...');
+      console.log('WeeklyPaymentControl - Evento planosUpdated recebido');
       loadPlanos();
     };
 
-    window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    const handleAtendimentosUpdated = () => {
+      console.log('WeeklyPaymentControl - Evento atendimentosUpdated recebido');
+      loadPlanos();
+    };
+
+    window.addEventListener('atendimentosUpdated', handleAtendimentosUpdated);
     window.addEventListener('planosUpdated', handlePlanosUpdated);
     
     return () => {
-      window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('atendimentosUpdated', handleAtendimentosUpdated);
       window.removeEventListener('planosUpdated', handlePlanosUpdated);
     };
   }, []);
@@ -50,18 +56,34 @@ const WeeklyPaymentControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Filtrar apenas planos semanais ATIVOS (active = true significa não pago)
-    const activeWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
-      plano.type === 'semanal' && 
-      plano.active &&
-      !plano.analysisId &&
-      existingClientNames.has(plano.clientName)
-    );
+    console.log('WeeklyPaymentControl - Todos os planos:', allPlanos.length);
+    console.log('WeeklyPaymentControl - Clientes existentes:', Array.from(existingClientNames));
+    
+    // Filtrar APENAS planos semanais PENDENTES (active = true significa pendente)
+    const pendingWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
+      const isWeekly = plano.type === 'semanal';
+      const isPending = plano.active === true; // Explicitamente true = pendente
+      const hasClient = existingClientNames.has(plano.clientName);
+      const noAnalysisId = !plano.analysisId;
+      
+      console.log(`WeeklyPaymentControl - Plano ${plano.id}:`, {
+        client: plano.clientName,
+        type: plano.type,
+        active: plano.active,
+        isWeekly,
+        isPending,
+        hasClient,
+        noAnalysisId,
+        shouldInclude: isWeekly && isPending && hasClient && noAnalysisId
+      });
+      
+      return isWeekly && isPending && hasClient && noAnalysisId;
+    });
 
-    console.log('WeeklyPaymentControl - Planos filtrados:', {
+    console.log('WeeklyPaymentControl - Planos pendentes filtrados:', {
       total: allPlanos.length,
-      semanais: activeWeeklyPlanos.length,
-      activeWeeklyPlanos: activeWeeklyPlanos.map(p => ({
+      filtrados: pendingWeeklyPlanos.length,
+      planos: pendingWeeklyPlanos.map(p => ({
         id: p.id,
         client: p.clientName,
         active: p.active,
@@ -69,45 +91,51 @@ const WeeklyPaymentControl: React.FC = () => {
       }))
     });
     
-    setPlanos(activeWeeklyPlanos);
+    setPlanos(pendingWeeklyPlanos);
   };
 
-  const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyActive: boolean) => {
-    console.log('WeeklyPaymentControl - Toggling payment:', { 
+  const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPending: boolean) => {
+    console.log('WeeklyPaymentControl - Toggle payment:', { 
       planoId, 
       clientName, 
-      isCurrentlyActive,
-      action: isCurrentlyActive ? 'marcar como pago' : 'marcar como pendente'
+      isCurrentlyPending,
+      newStatus: isCurrentlyPending ? 'pago' : 'pendente'
     });
     
     const allPlanos = getPlanos();
-    const updatedPlanos = allPlanos.map(plano => 
-      plano.id === planoId ? { ...plano, active: !isCurrentlyActive } : plano
-    );
+    const updatedPlanos = allPlanos.map(plano => {
+      if (plano.id === planoId) {
+        const newActive = !isCurrentlyPending; // Inverter o status
+        console.log(`WeeklyPaymentControl - Atualizando plano ${planoId}:`, {
+          oldActive: plano.active,
+          newActive
+        });
+        return { ...plano, active: newActive };
+      }
+      return plano;
+    });
     
-    console.log('WeeklyPaymentControl - Salvando planos atualizados...');
     savePlanos(updatedPlanos);
     
-    const newStatus = isCurrentlyActive ? 'pago' : 'pendente';
+    const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
-    // Recarregar os dados para atualizar a visualização
+    // Recarregar dados imediatamente
+    console.log('WeeklyPaymentControl - Recarregando após toggle...');
     setTimeout(() => {
-      console.log('WeeklyPaymentControl - Recarregando após pagamento...');
       loadPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
-    }, 100);
+    }, 50);
   };
 
   const toggleClientExpansion = (clientName: string) => {
-    console.log('WeeklyPaymentControl - Toggling client expansion:', clientName);
+    console.log('WeeklyPaymentControl - Toggle expansion:', clientName);
     const newExpanded = new Set(expandedClients);
     if (newExpanded.has(clientName)) {
       newExpanded.delete(clientName);
     } else {
       newExpanded.add(clientName);
     }
-    console.log('WeeklyPaymentControl - New expanded clients:', Array.from(newExpanded));
     setExpandedClients(newExpanded);
   };
 
@@ -131,17 +159,22 @@ const WeeklyPaymentControl: React.FC = () => {
     return acc;
   }, {} as Record<string, PlanoSemanal[]>);
 
-  console.log('WeeklyPaymentControl - Renderizando:', { 
+  const clientsWithPendingPayments = Object.keys(groupedPlanos);
+
+  console.log('WeeklyPaymentControl - Estado final render:', { 
     isOpen, 
-    planosCount: planos.length, 
-    groupedCount: Object.keys(groupedPlanos).length,
-    expandedClients: Array.from(expandedClients)
+    totalPlanos: planos.length,
+    clientsCount: clientsWithPendingPayments.length,
+    clients: clientsWithPendingPayments
   });
 
   return (
     <div className="payment-controls-container payment-control-visible mb-6 w-full block">
       <Card className="payment-control-section border-[#0553C7]/20 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg w-full">
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Collapsible open={isOpen} onOpenChange={(open) => {
+          console.log('WeeklyPaymentControl - Collapsible mudando para:', open);
+          setIsOpen(open);
+        }}>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-[#0553C7]/10 transition-colors pb-3 border-b border-[#0553C7]/10">
               <div className="flex items-center justify-between">
@@ -152,7 +185,7 @@ const WeeklyPaymentControl: React.FC = () => {
                   <div>
                     <h3 className="text-xl font-bold">Controle de Pagamentos Semanais</h3>
                     <p className="text-sm text-[#0553C7]/70 font-normal">
-                      {Object.keys(groupedPlanos).length} cliente(s) com pagamentos pendentes
+                      {clientsWithPendingPayments.length} cliente(s) com pagamentos pendentes
                     </p>
                   </div>
                 </CardTitle>
@@ -174,7 +207,7 @@ const WeeklyPaymentControl: React.FC = () => {
           
           <CollapsibleContent>
             <CardContent className="pt-4 px-6 pb-6">
-              {Object.keys(groupedPlanos).length === 0 ? (
+              {clientsWithPendingPayments.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <Calendar className="h-16 w-16 mx-auto mb-4 opacity-30" />
                   <p className="text-lg">Nenhum pagamento semanal pendente</p>
@@ -209,13 +242,12 @@ const WeeklyPaymentControl: React.FC = () => {
                             {clientPlanos.map((plano) => {
                               const daysOverdue = getDaysOverdue(plano.dueDate);
                               const isOverdue = daysOverdue > 0;
-                              const isPendingPayment = plano.active; // active = true significa pendente
+                              const isPending = plano.active; // true = pendente
                               
-                              console.log('WeeklyPaymentControl - Renderizando plano:', { 
-                                id: plano.id, 
+                              console.log(`WeeklyPaymentControl - Renderizando plano ${plano.id}:`, { 
                                 client: plano.clientName,
-                                active: plano.active, 
-                                isPendingPayment,
+                                active: plano.active,
+                                isPending,
                                 week: plano.week
                               });
                               
@@ -258,12 +290,12 @@ const WeeklyPaymentControl: React.FC = () => {
                                     <Button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        console.log('WeeklyPaymentControl - Botão clicado:', { 
+                                        console.log('WeeklyPaymentControl - Clique no botão:', { 
                                           planoId: plano.id, 
                                           clientName, 
-                                          isPendingPayment 
+                                          isPending 
                                         });
-                                        handlePaymentToggle(plano.id, clientName, isPendingPayment);
+                                        handlePaymentToggle(plano.id, clientName, isPending);
                                       }}
                                       size="sm"
                                       className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 w-full sm:w-auto"
