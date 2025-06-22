@@ -9,11 +9,9 @@ import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const WeeklyPaymentControl: React.FC = () => {
-  const isMobile = useIsMobile();
-  // SEMPRE iniciar fechado - valor fixo false
+  // SEMPRE iniciar fechado - valor fixo false independente do dispositivo
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
@@ -21,7 +19,6 @@ const WeeklyPaymentControl: React.FC = () => {
 
   console.log('WeeklyPaymentControl - Render:', { 
     isOpen,
-    isMobile,
     planosCount: planos.length
   });
 
@@ -62,7 +59,7 @@ const WeeklyPaymentControl: React.FC = () => {
     // Filtrar APENAS planos semanais PENDENTES (active = true significa pendente)
     const pendingWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
-      const isPending = plano.active === true; // Explicitamente true = pendente
+      const isPending = plano.active === true; // true = pendente, false = pago
       const hasClient = existingClientNames.has(plano.clientName);
       const noAnalysisId = !plano.analysisId;
       
@@ -105,7 +102,7 @@ const WeeklyPaymentControl: React.FC = () => {
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => {
       if (plano.id === planoId) {
-        const newActive = !isCurrentlyPending; // Inverter o status
+        const newActive = !isCurrentlyPending; // Inverter o status: true->false (pago), false->true (pendente)
         console.log(`WeeklyPaymentControl - Atualizando plano ${planoId}:`, {
           oldActive: plano.active,
           newActive
@@ -120,12 +117,12 @@ const WeeklyPaymentControl: React.FC = () => {
     const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
-    // Recarregar dados imediatamente
+    // Recarregar dados imediatamente para atualizar a interface
     console.log('WeeklyPaymentControl - Recarregando após toggle...');
     setTimeout(() => {
       loadPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
-    }, 50);
+    }, 100);
   };
 
   const toggleClientExpansion = (clientName: string) => {
@@ -242,7 +239,7 @@ const WeeklyPaymentControl: React.FC = () => {
                             {clientPlanos.map((plano) => {
                               const daysOverdue = getDaysOverdue(plano.dueDate);
                               const isOverdue = daysOverdue > 0;
-                              const isPending = plano.active; // true = pendente
+                              const isPending = plano.active; // true = pendente, false = pago
                               
                               console.log(`WeeklyPaymentControl - Renderizando plano ${plano.id}:`, { 
                                 client: plano.clientName,
