@@ -21,13 +21,13 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
 
   if (filteredAtendimentos.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <AlertTriangle className="h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
+      <Card className="mx-2 sm:mx-0">
+        <CardContent className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
+          <AlertTriangle className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mb-4" />
+          <h3 className="text-base sm:text-lg font-medium text-gray-600 mb-2">
             Nenhum atendimento encontrado
           </h3>
-          <p className="text-gray-500 text-center">
+          <p className="text-sm sm:text-base text-gray-500 max-w-md">
             {searchTerm 
               ? "Não há atendimentos que correspondam à sua busca."
               : "Não há atendimentos registrados para este período."
@@ -39,7 +39,7 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
   }
 
   return (
-    <>
+    <div className="px-2 sm:px-0">
       {isMobile ? (
         <AtendimentosCompactTable 
           atendimentos={filteredAtendimentos}
@@ -51,7 +51,7 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
           onDeleteAtendimento={onDeleteAtendimento}
         />
       )}
-    </>
+    </div>
   );
 });
 

@@ -7,21 +7,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, BarChart3, Home, ChevronDown, Users, Menu, Calendar, Bell, Sparkles } from "lucide-react";
+import { Plus, Home, ChevronDown, Users, Menu, Bell, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import PaymentOverviewModal from "@/components/PaymentOverviewModal";
-import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
 import useUserDataService from "@/services/userDataService";
 import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
 import MainPriorityPaymentsModal from "./MainPriorityPaymentsModal";
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 
 const DashboardHeader = () => {
   const [openTratamentoContadores, setOpenTratamentoContadores] = useState(false);
@@ -109,10 +104,6 @@ const DashboardHeader = () => {
                         <Users className="h-4 w-4 mr-2" />
                         Relatórios Individuais
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Relatórios Financeiros
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button 
@@ -151,29 +142,15 @@ const DashboardHeader = () => {
                     </Button>
                   )}
                   
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-gray-600 hover:text-gray-800"
-                      >
-                        <BarChart3 className="h-4 w-4 mr-1" />
-                        Relatórios
-                        <ChevronDown className="h-3 w-3 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-white border shadow-lg z-[60]">
-                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}>
-                        <Users className="h-4 w-4 mr-2" />
-                        Relatórios Individuais
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(isTarotPage ? '/relatorios-frequenciais-tarot' : '/relatorios-financeiros')}>
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Relatórios Financeiros
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-gray-600 hover:text-gray-800"
+                    onClick={() => navigate(isTarotPage ? '/relatorio-individual-tarot' : '/relatorio-individual')}
+                  >
+                    <Users className="h-4 w-4 mr-1" />
+                    Relatórios
+                  </Button>
                   
                   <Button 
                     className={`text-white h-9 px-4 text-sm ${

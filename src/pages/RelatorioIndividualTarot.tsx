@@ -51,7 +51,7 @@ const RelatorioIndividualTarot = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100">
       <DashboardHeader />
       
-      <main className="container mx-auto py-24 px-4">
+      <main className="container mx-auto py-20 sm:py-24 px-2 sm:px-4 max-w-7xl">
         <TarotReportHeader />
 
         <TarotReportStats 
