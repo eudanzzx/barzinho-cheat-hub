@@ -19,7 +19,7 @@ const RelatoriosFinanceiros = () => {
   const [atendimentos, setAtendimentos] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('all');
   const [expandedSections, setExpandedSections] = useState({
     overview: !isMobile,
     charts: !isMobile,
@@ -120,7 +120,7 @@ const RelatoriosFinanceiros = () => {
       const matchesSearch = atendimento.nome?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
       const atendimentoDate = new Date(atendimento.dataAtendimento);
       const matchesYear = atendimentoDate.getFullYear().toString() === selectedYear;
-      const matchesMonth = selectedMonth === '' || (atendimentoDate.getMonth() + 1).toString() === selectedMonth;
+      const matchesMonth = selectedMonth === 'all' || (atendimentoDate.getMonth() + 1).toString() === selectedMonth;
       
       return matchesSearch && matchesYear && matchesMonth;
     });
@@ -262,7 +262,7 @@ const RelatoriosFinanceiros = () => {
                 <SelectValue placeholder="Todos os meses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os meses</SelectItem>
+                <SelectItem value="all">Todos os meses</SelectItem>
                 {months.map(month => (
                   <SelectItem key={month.value} value={month.value}>
                     {month.label}
@@ -275,7 +275,7 @@ const RelatoriosFinanceiros = () => {
               variant="outline"
               onClick={() => {
                 setSearchTerm('');
-                setSelectedMonth('');
+                setSelectedMonth('all');
                 setSelectedYear(new Date().getFullYear().toString());
               }}
               className="w-full"
