@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,8 +18,6 @@ import { usePaymentNotifications } from "@/components/tarot/payment-notification
 import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal";
 import useUserDataService from "@/services/userDataService";
 import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
-import HeaderWeeklyPayments from "./HeaderWeeklyPayments";
-import HeaderMonthlyPayments from "./HeaderMonthlyPayments";
 import MainPriorityPaymentsModal from "./MainPriorityPaymentsModal";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -58,13 +57,9 @@ const DashboardHeader = () => {
             
             {/* Botões de ação - responsivo */}
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-              {/* Botões de pagamento - apenas na página principal */}
+              {/* Botão de próximos vencimentos - apenas na página principal */}
               {isDashboardPage && (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <HeaderWeeklyPayments />
-                  <HeaderMonthlyPayments />
-                  <MainPriorityPaymentsModal atendimentos={atendimentos} />
-                </div>
+                <MainPriorityPaymentsModal atendimentos={atendimentos} />
               )}
 
               {/* Botões específicos do tarot */}
