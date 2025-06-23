@@ -72,23 +72,21 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     return (
       <div className="p-4 text-slate-500 text-center">
         <Bell className="h-6 w-6 mx-auto mb-3 opacity-40" />
-        Nenhum vencimento de atendimentos pendente
+        <p className="text-sm">Nenhum vencimento de atendimentos pendente</p>
       </div>
     );
   }
 
   return (
-    <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-blue-800">
-          <Bell className="h-5 w-5" />
-          Próximos Vencimentos - Atendimentos
-          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-            {groupedPayments.length} {groupedPayments.length === 1 ? 'cliente' : 'clientes'}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 text-blue-800 mb-4">
+        <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+        <span className="font-medium text-sm sm:text-base">Próximos Vencimentos</span>
+        <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
+          {groupedPayments.length} {groupedPayments.length === 1 ? 'cliente' : 'clientes'}
+        </Badge>
+      </div>
+      <div className="space-y-3">
         {groupedPayments.map((group) => (
           <MainClientPaymentGroup
             key={group.clientName}
@@ -97,8 +95,8 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
             onDeleteNotification={deleteNotification}
           />
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 });
 

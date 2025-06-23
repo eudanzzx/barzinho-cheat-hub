@@ -26,27 +26,27 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
   const hasAdditionalPayments = group.additionalPayments.length > 0;
 
   return (
-    <div className="rounded-lg border border-blue-200 bg-blue-50/30 p-4 shadow-sm">
+    <div className="rounded-lg border border-blue-200 bg-blue-50/30 p-2 sm:p-4 shadow-sm">
       <Collapsible open={isOpen} onOpenChange={handleCollapsibleChange}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">{group.clientName}</span>
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="font-semibold text-slate-800 text-sm sm:text-base truncate">{group.clientName}</span>
             {hasAdditionalPayments && (
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
-                +{group.additionalPayments.length} vencimento{group.additionalPayments.length !== 1 ? "s" : ""}
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs flex-shrink-0">
+                +{group.additionalPayments.length}
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {hasAdditionalPayments && (
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 p-0"
+                  className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                   aria-label={isOpen ? "Esconder adicionais" : "Ver adicionais"}
                 >
-                  {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  {isOpen ? <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" /> : <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />}
                 </Button>
               </CollapsibleTrigger>
             )}
@@ -54,17 +54,17 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
               onClick={() => onDeleteNotification(group.mostUrgent.id)}
               size="sm"
               variant="outline"
-              className="ml-1 px-2 h-7 text-xs hover:bg-red-50 hover:border-red-300 text-red-600"
+              className="px-1 sm:px-2 h-6 sm:h-7 text-xs hover:bg-red-50 hover:border-red-300 text-red-600"
             >
               <Trash2 className="h-3 w-3" />
             </Button>
             <Button
               onClick={() => onMarkAsPaid(group.mostUrgent.id)}
               size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 h-7 flex-shrink-0"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 h-6 sm:h-7 flex-shrink-0"
             >
               <Check className="h-3 w-3 mr-1" />
-              Pago
+              <span className="hidden sm:inline">Pago</span>
             </Button>
           </div>
         </div>
@@ -74,14 +74,14 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
         {hasAdditionalPayments && (
           <CollapsibleContent className="space-y-2 mt-2">
             {group.additionalPayments.map((payment: any) => (
-              <div key={payment.id} className="ml-4">
+              <div key={payment.id} className="ml-2 sm:ml-4">
                 <MainPaymentCard payment={payment} isAdditional={true} />
-                <div className="flex justify-end gap-2 mt-2">
+                <div className="flex justify-end gap-1 sm:gap-2 mt-2">
                   <Button
                     onClick={() => onDeleteNotification(payment.id)}
                     size="sm"
                     variant="outline"
-                    className="px-2 h-6 text-xs hover:bg-red-50 hover:border-red-300 text-red-600"
+                    className="px-1 sm:px-2 h-5 sm:h-6 text-xs hover:bg-red-50 hover:border-red-300 text-red-600"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -89,7 +89,7 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
                     onClick={() => onMarkAsPaid(payment.id)}
                     size="sm"
                     variant="outline"
-                    className="px-2 h-6 text-xs hover:bg-green-50 hover:border-green-300"
+                    className="px-1 sm:px-2 h-5 sm:h-6 text-xs hover:bg-green-50 hover:border-green-300"
                   >
                     <Check className="h-3 w-3" />
                   </Button>
