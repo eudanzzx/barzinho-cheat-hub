@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,6 +19,7 @@ import useUserDataService from "@/services/userDataService";
 import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
 import HeaderWeeklyPayments from "./HeaderWeeklyPayments";
 import HeaderMonthlyPayments from "./HeaderMonthlyPayments";
+import MainPriorityPaymentsModal from "./MainPriorityPaymentsModal";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
@@ -36,8 +36,9 @@ const DashboardHeader = () => {
   const { groupedPayments } = usePaymentNotifications();
   const totalClients = groupedPayments.length;
 
-  const { getAllTarotAnalyses } = useUserDataService();
+  const { getAllTarotAnalyses, getAtendimentos } = useUserDataService();
   const analisesTarot = isTarotListagem ? getAllTarotAnalyses() : [];
+  const atendimentos = isDashboardPage ? getAtendimentos() : [];
 
   return (
     <>
@@ -62,6 +63,7 @@ const DashboardHeader = () => {
                 <div className="flex items-center gap-1 sm:gap-2">
                   <HeaderWeeklyPayments />
                   <HeaderMonthlyPayments />
+                  <MainPriorityPaymentsModal atendimentos={atendimentos} />
                 </div>
               )}
 
