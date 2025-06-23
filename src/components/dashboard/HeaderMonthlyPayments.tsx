@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 const HeaderMonthlyPayments: React.FC = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
-  const [pendingPlanos, setPendingPlanos] = useState<PlanoMensal[]>([]);
+  const [groupedPlanos, setGroupedPlanos] = useState<{[key: string]: PlanoMensal[]}>({});
 
   useEffect(() => {
     loadPendingPlanos();
@@ -47,11 +47,20 @@ const HeaderMonthlyPayments: React.FC = () => {
         return plano.type === 'plano' && 
                plano.active === true && 
                existingClientNames.has(plano.clientName) &&
-               !plano.analysisId; // Excluir planos de análises de tarot
+               !plano.analysisId;
       })
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
     
-    setPendingPlanos(pendingMonthlyPlanos);
+    // Agrupar por cliente e manter apenas o mais próximo do vencimento
+    const grouped = pendingMonthlyPlanos.reduce((acc, plano) => {
+      if (!acc[plano.clientName]) {
+        acc[plano.clientName] = [];
+      }
+      acc[plano.clientName].push(plano);
+      return acc;
+    }, {} as {[key: string]: PlanoMensal[]});
+    
+    setGroupedPlanos(grouped);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string) => {
@@ -84,14 +93,20 @@ const HeaderMonthlyPayments: React.FC = () => {
     return diffDays;
   };
 
-  if (pendingPlanos.length === 0) {
+  const clientNames = Object.keys(groupedPlanos);
+  if (clientNames.length === 0) {
     return null;
   }
 
-  const priorityPlano = pendingPlanos[0];
-  const otherPlanos = pendingPlanos.slice(1);
+  // Encontrar o pagamento mais prioritário entre todos os clientes
+  const allPriorityPlanos = clientNames.map(clientName => groupedPlanos[clientName][0]);
+  const priorityPlano = allPriorityPlanos.sort((a, b) => 
+    new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+  )[0];
+
   const daysOverdue = getDaysOverdue(priorityPlano.dueDate);
   const isOverdue = daysOverdue > 0;
+  const totalPendingPayments = allPriorityPlanos.length;
 
   return (
     <DropdownMenu>
@@ -107,7 +122,7 @@ const HeaderMonthlyPayments: React.FC = () => {
           <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
           <div className="flex flex-col items-start">
             <span className="text-xs font-medium">Mensal</span>
-            <span className="text-xs text-gray-600 hidden sm:block">
+            <span className="text-xs text-gray-600 hidden sm:block truncate max-w-[80px]">
               {priorityPlano.clientName}
             </span>
           </div>
@@ -115,7 +130,7 @@ const HeaderMonthlyPayments: React.FC = () => {
             variant={isOverdue ? "destructive" : "secondary"}
             className="text-xs h-4 w-4 flex items-center justify-center p-0 min-w-[16px]"
           >
-            {pendingPlanos.length}
+            {totalPendingPayments}
           </Badge>
           <ChevronDown className="h-3 w-3" />
         </Button>
@@ -127,15 +142,22 @@ const HeaderMonthlyPayments: React.FC = () => {
           "p-3 border-b",
           isOverdue ? "bg-red-50 border-red-200" : "bg-purple-50 border-purple-200"
         )}>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{priorityPlano.clientName}</p>
+              <p className="font-semibold text-sm text-gray-900 truncate">
+                {priorityPlano.clientName}
+              </p>
               <p className="text-xs text-gray-600">
-                {priorityPlano.month}º Mês - R$ {priorityPlano.amount.toFixed(2)}
+                {priorityPlano.month}º Mês • R$ {priorityPlano.amount.toFixed(2)}
               </p>
               <p className="text-xs text-gray-500">
-                Vence em: {formatDate(priorityPlano.dueDate)}
+                Vence: {formatDate(priorityPlano.dueDate)}
               </p>
+              {isOverdue && (
+                <Badge variant="destructive" className="text-xs mt-1">
+                  {daysOverdue} {daysOverdue === 1 ? 'dia' : 'dias'} atrasado
+                </Badge>
+              )}
             </div>
             <Button
               onClick={() => handlePaymentToggle(priorityPlano.id, priorityPlano.clientName)}
@@ -146,52 +168,55 @@ const HeaderMonthlyPayments: React.FC = () => {
               Pagar
             </Button>
           </div>
-          {isOverdue && (
-            <Badge variant="destructive" className="text-xs">
-              {daysOverdue} {daysOverdue === 1 ? 'dia' : 'dias'} atrasado
-            </Badge>
-          )}
         </div>
 
-        {/* Outros Pagamentos */}
-        {otherPlanos.length > 0 && (
+        {/* Outros Clientes */}
+        {clientNames.length > 1 && (
           <div className="max-h-60 overflow-y-auto">
-            {otherPlanos.map((plano) => {
-              const planoDaysOverdue = getDaysOverdue(plano.dueDate);
-              const planoIsOverdue = planoDaysOverdue > 0;
-              
-              return (
-                <DropdownMenuItem key={plano.id} className="p-0">
-                  <div className="w-full p-3 flex items-center justify-between hover:bg-gray-50">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{plano.clientName}</p>
-                      <p className="text-xs text-gray-600">
-                        {plano.month}º Mês - R$ {plano.amount.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(plano.dueDate)}
-                      </p>
-                      {planoIsOverdue && (
-                        <Badge variant="destructive" className="text-xs mt-1">
-                          {planoDaysOverdue} {planoDaysOverdue === 1 ? 'dia' : 'dias'} atrasado
-                        </Badge>
-                      )}
+            <div className="p-2 bg-gray-50 border-b">
+              <p className="text-xs font-medium text-gray-700">Outros pagamentos mensais</p>
+            </div>
+            {clientNames
+              .filter(clientName => clientName !== priorityPlano.clientName)
+              .map((clientName) => {
+                const clientPlano = groupedPlanos[clientName][0];
+                const clientDaysOverdue = getDaysOverdue(clientPlano.dueDate);
+                const clientIsOverdue = clientDaysOverdue > 0;
+                
+                return (
+                  <DropdownMenuItem key={clientPlano.id} className="p-0">
+                    <div className="w-full p-3 flex items-start justify-between hover:bg-gray-50">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-gray-900 truncate">
+                          {clientPlano.clientName}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {clientPlano.month}º Mês • R$ {clientPlano.amount.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatDate(clientPlano.dueDate)}
+                        </p>
+                        {clientIsOverdue && (
+                          <Badge variant="destructive" className="text-xs mt-1">
+                            {clientDaysOverdue} {clientDaysOverdue === 1 ? 'dia' : 'dias'} atrasado
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePaymentToggle(clientPlano.id, clientPlano.clientName);
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="ml-2 text-xs px-2 py-1 h-7 flex-shrink-0 hover:bg-green-50 hover:border-green-300"
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
                     </div>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePaymentToggle(plano.id, plano.clientName);
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="ml-2 text-xs px-2 py-1 h-7 flex-shrink-0"
-                    >
-                      <Check className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </DropdownMenuItem>
-              );
-            })}
+                  </DropdownMenuItem>
+                );
+              })}
           </div>
         )}
       </DropdownMenuContent>
