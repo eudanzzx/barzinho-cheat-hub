@@ -11,6 +11,7 @@ import { PlanoSemanal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const WeeklyPaymentControl: React.FC = () => {
+  // SEMPRE iniciar fechado
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
@@ -43,16 +44,16 @@ const WeeklyPaymentControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    const pendingWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
+    // Mostrar TODOS os planos semanais de clientes existentes (pagos e pendentes)
+    const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
-      const isPending = plano.active === true;
       const hasClient = existingClientNames.has(plano.clientName);
       const noAnalysisId = !plano.analysisId;
       
-      return isWeekly && isPending && hasClient && noAnalysisId;
+      return isWeekly && hasClient && noAnalysisId;
     });
     
-    setPlanos(pendingWeeklyPlanos);
+    setPlanos(weeklyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPending: boolean) => {
@@ -106,7 +107,8 @@ const WeeklyPaymentControl: React.FC = () => {
     return acc;
   }, {} as Record<string, PlanoSemanal[]>);
 
-  const clientsWithPendingPayments = Object.keys(groupedPlanos);
+  const clientsWithPlanos = Object.keys(groupedPlanos);
+  const pendingPlanos = planos.filter(p => p.active === true);
 
   return (
     <Card className="border-[#0553C7]/20 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg w-full mb-6">
@@ -121,7 +123,7 @@ const WeeklyPaymentControl: React.FC = () => {
                 <div>
                   <h3 className="text-xl font-bold">Controle de Pagamentos Semanais</h3>
                   <p className="text-sm text-[#0553C7]/70 font-normal">
-                    {clientsWithPendingPayments.length} cliente(s) com pagamentos pendentes
+                    {pendingPlanos.length} pagamento(s) pendente(s)
                   </p>
                 </div>
               </CardTitle>
@@ -143,11 +145,11 @@ const WeeklyPaymentControl: React.FC = () => {
         
         <CollapsibleContent>
           <CardContent className="pt-4 px-6 pb-6">
-            {clientsWithPendingPayments.length === 0 ? (
+            {clientsWithPlanos.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <Calendar className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                <p className="text-lg">Nenhum pagamento semanal pendente</p>
-                <p className="text-sm mt-2">Os pagamentos pendentes aparecerão aqui quando houver planos semanais ativos</p>
+                <p className="text-lg">Nenhum pagamento semanal encontrado</p>
+                <p className="text-sm mt-2">Os pagamentos semanais aparecerão aqui quando houver planos ativos</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -159,8 +161,11 @@ const WeeklyPaymentControl: React.FC = () => {
                     >
                       <div className="flex items-center gap-3">
                         <h4 className="font-semibold text-[#0553C7] text-lg">{clientName}</h4>
+                        <Badge className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20">
+                          {clientPlanos.length} plano(s)
+                        </Badge>
                         <Badge className="bg-red-100 text-red-800 border-red-200">
-                          {clientPlanos.length} pendente(s)
+                          {clientPlanos.filter(p => p.active).length} pendente(s)
                         </Badge>
                       </div>
                       <Button variant="ghost" size="sm" className="p-1">
@@ -185,9 +190,11 @@ const WeeklyPaymentControl: React.FC = () => {
                                 key={plano.id} 
                                 className={cn(
                                   "border-l-4 p-4 rounded-lg transition-all duration-200",
-                                  isOverdue
-                                    ? "border-l-red-500 bg-red-50"
-                                    : "border-l-[#0553C7] bg-white"
+                                  isPending
+                                    ? isOverdue
+                                      ? "border-l-red-500 bg-red-50"
+                                      : "border-l-[#0553C7] bg-white"
+                                    : "border-l-green-500 bg-green-50"
                                 )}
                               >
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -196,14 +203,20 @@ const WeeklyPaymentControl: React.FC = () => {
                                       <Badge className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20">
                                         {plano.week}ª Semana
                                       </Badge>
-                                      {isOverdue && (
+                                      {isOverdue && isPending && (
                                         <Badge variant="destructive" className="text-xs">
                                           {daysOverdue} {daysOverdue === 1 ? 'dia' : 'dias'} atrasado
                                         </Badge>
                                       )}
-                                      <Badge variant="destructive" className="text-xs">
-                                        Pendente
-                                      </Badge>
+                                      {isPending ? (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Pendente
+                                        </Badge>
+                                      ) : (
+                                        <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                                          ✓ Pago
+                                        </Badge>
+                                      )}
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
                                       <div>
@@ -222,11 +235,26 @@ const WeeklyPaymentControl: React.FC = () => {
                                       handlePaymentToggle(plano.id, clientName, isPending);
                                     }}
                                     size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white transition-all duration-200 w-full sm:w-auto"
+                                    className={cn(
+                                      "transition-all duration-200 w-full sm:w-auto",
+                                      isPending
+                                        ? "bg-green-600 hover:bg-green-700 text-white"
+                                        : "bg-orange-500 hover:bg-orange-600 text-white"
+                                    )}
                                   >
-                                    <Check className="h-4 w-4 mr-1" />
-                                    <span className="hidden sm:inline">Marcar como Pago</span>
-                                    <span className="sm:hidden">Pagar</span>
+                                    {isPending ? (
+                                      <>
+                                        <Check className="h-4 w-4 mr-1" />
+                                        <span className="hidden sm:inline">Marcar como Pago</span>
+                                        <span className="sm:hidden">Pagar</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <X className="h-4 w-4 mr-1" />
+                                        <span className="hidden sm:inline">Marcar Pendente</span>
+                                        <span className="sm:hidden">Pendente</span>
+                                      </>
+                                    )}
                                   </Button>
                                 </div>
                               </div>

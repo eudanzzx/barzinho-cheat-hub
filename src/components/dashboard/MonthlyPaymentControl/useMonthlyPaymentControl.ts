@@ -5,7 +5,7 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
 
 export const useMonthlyPaymentControl = () => {
-  // SEMPRE iniciar fechado independente do dispositivo
+  // SEMPRE iniciar fechado
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
@@ -34,14 +34,14 @@ export const useMonthlyPaymentControl = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    const activeMonthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
+    // Mostrar TODOS os planos mensais de clientes existentes (pagos e pendentes)
+    const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
-      plano.active && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
-    setPlanos(activeMonthlyPlanos);
+    setPlanos(monthlyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
