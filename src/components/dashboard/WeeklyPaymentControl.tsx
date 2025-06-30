@@ -16,24 +16,16 @@ const WeeklyPaymentControl: React.FC = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
 
-  console.log('WeeklyPaymentControl - Render:', { 
-    isOpen,
-    planosCount: planos.length
-  });
-
   useEffect(() => {
-    console.log('WeeklyPaymentControl - useEffect inicial');
     loadPlanos();
   }, []);
 
   useEffect(() => {
     const handlePlanosUpdated = () => {
-      console.log('WeeklyPaymentControl - Evento planosUpdated recebido');
       loadPlanos();
     };
 
     const handleAtendimentosUpdated = () => {
-      console.log('WeeklyPaymentControl - Evento atendimentosUpdated recebido');
       loadPlanos();
     };
 
@@ -47,65 +39,27 @@ const WeeklyPaymentControl: React.FC = () => {
   }, []);
 
   const loadPlanos = () => {
-    console.log('WeeklyPaymentControl - Carregando planos...');
     const allPlanos = getPlanos();
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    console.log('WeeklyPaymentControl - Todos os planos:', allPlanos.length);
-    console.log('WeeklyPaymentControl - Clientes existentes:', Array.from(existingClientNames));
-    
-    // Filtrar APENAS planos semanais PENDENTES (active = true significa pendente)
     const pendingWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
-      const isPending = plano.active === true; // true = pendente, false = pago
+      const isPending = plano.active === true;
       const hasClient = existingClientNames.has(plano.clientName);
       const noAnalysisId = !plano.analysisId;
       
-      console.log(`WeeklyPaymentControl - Plano ${plano.id}:`, {
-        client: plano.clientName,
-        type: plano.type,
-        active: plano.active,
-        isWeekly,
-        isPending,
-        hasClient,
-        noAnalysisId,
-        shouldInclude: isWeekly && isPending && hasClient && noAnalysisId
-      });
-      
       return isWeekly && isPending && hasClient && noAnalysisId;
-    });
-
-    console.log('WeeklyPaymentControl - Planos pendentes filtrados:', {
-      total: allPlanos.length,
-      filtrados: pendingWeeklyPlanos.length,
-      planos: pendingWeeklyPlanos.map(p => ({
-        id: p.id,
-        client: p.clientName,
-        active: p.active,
-        week: p.week
-      }))
     });
     
     setPlanos(pendingWeeklyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPending: boolean) => {
-    console.log('WeeklyPaymentControl - Toggle payment:', { 
-      planoId, 
-      clientName, 
-      isCurrentlyPending,
-      newStatus: isCurrentlyPending ? 'pago' : 'pendente'
-    });
-    
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => {
       if (plano.id === planoId) {
-        const newActive = !isCurrentlyPending; // Inverter o status: true->false (pago), false->true (pendente)
-        console.log(`WeeklyPaymentControl - Atualizando plano ${planoId}:`, {
-          oldActive: plano.active,
-          newActive
-        });
+        const newActive = !isCurrentlyPending;
         return { ...plano, active: newActive };
       }
       return plano;
@@ -116,8 +70,6 @@ const WeeklyPaymentControl: React.FC = () => {
     const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
-    // Recarregar dados imediatamente para atualizar a interface
-    console.log('WeeklyPaymentControl - Recarregando após toggle...');
     setTimeout(() => {
       loadPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
@@ -125,7 +77,6 @@ const WeeklyPaymentControl: React.FC = () => {
   };
 
   const toggleClientExpansion = (clientName: string) => {
-    console.log('WeeklyPaymentControl - Toggle expansion:', clientName);
     const newExpanded = new Set(expandedClients);
     if (newExpanded.has(clientName)) {
       newExpanded.delete(clientName);
@@ -156,13 +107,6 @@ const WeeklyPaymentControl: React.FC = () => {
   }, {} as Record<string, PlanoSemanal[]>);
 
   const clientsWithPendingPayments = Object.keys(groupedPlanos);
-
-  console.log('WeeklyPaymentControl - Estado final render:', { 
-    isOpen, 
-    totalPlanos: planos.length,
-    clientsCount: clientsWithPendingPayments.length,
-    clients: clientsWithPendingPayments
-  });
 
   return (
     <Card className="border-[#0553C7]/20 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg w-full mb-6">
@@ -234,14 +178,7 @@ const WeeklyPaymentControl: React.FC = () => {
                           {clientPlanos.map((plano) => {
                             const daysOverdue = getDaysOverdue(plano.dueDate);
                             const isOverdue = daysOverdue > 0;
-                            const isPending = plano.active; // true = pendente, false = pago
-                            
-                            console.log(`WeeklyPaymentControl - Renderizando plano ${plano.id}:`, { 
-                              client: plano.clientName,
-                              active: plano.active,
-                              isPending,
-                              week: plano.week
-                            });
+                            const isPending = plano.active;
                             
                             return (
                               <div 
@@ -282,11 +219,6 @@ const WeeklyPaymentControl: React.FC = () => {
                                   <Button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      console.log('WeeklyPaymentControl - Clique no botão:', { 
-                                        planoId: plano.id, 
-                                        clientName, 
-                                        isPending 
-                                      });
                                       handlePaymentToggle(plano.id, clientName, isPending);
                                     }}
                                     size="sm"
