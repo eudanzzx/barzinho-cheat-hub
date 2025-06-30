@@ -11,7 +11,7 @@ import { PlanoSemanal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const WeeklyPaymentControl: React.FC = () => {
-  // SEMPRE iniciar fechado - valor fixo false independente do dispositivo
+  // SEMPRE iniciar fechado independente do dispositivo
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();

@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export const useMonthlyPaymentControl = () => {
-  const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
+  // SEMPRE iniciar fechado independente do dispositivo
+  const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
@@ -22,9 +21,11 @@ export const useMonthlyPaymentControl = () => {
     };
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -56,7 +57,11 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    window.dispatchEvent(new Event('atendimentosUpdated'));
+    setTimeout(() => {
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('planosUpdated'));
+    }, 100);
+    
     loadPlanos();
   };
 
