@@ -168,10 +168,7 @@ const WeeklyPaymentControl: React.FC = () => {
   return (
     <div className="payment-controls-container payment-control-visible mb-6 w-full block">
       <Card className="payment-control-section border-[#0553C7]/20 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg w-full">
-        <Collapsible open={isOpen} onOpenChange={(open) => {
-          console.log('WeeklyPaymentControl - Collapsible mudando para:', open);
-          setIsOpen(open);
-        }}>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-[#0553C7]/10 transition-colors pb-3 border-b border-[#0553C7]/10">
               <div className="flex items-center justify-between">
