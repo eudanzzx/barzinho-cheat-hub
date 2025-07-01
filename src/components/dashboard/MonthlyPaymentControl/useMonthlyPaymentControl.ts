@@ -5,24 +5,10 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
 
 export const useMonthlyPaymentControl = () => {
-  // SEMPRE iniciar fechado - forçar false
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
-
-  // Forçar fechado ao montar o componente - aplicar múltiplas vezes
-  useEffect(() => {
-    setIsOpen(false);
-  }, []);
-
-  // Garantir que sempre inicie fechado
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsOpen(false);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     loadPlanos();
@@ -47,7 +33,6 @@ export const useMonthlyPaymentControl = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Mostrar TODOS os planos mensais de clientes existentes (pagos e pendentes)
     const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
       !plano.analysisId &&
@@ -70,7 +55,6 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    // Recarregar sem fechar os expandidos
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
@@ -89,7 +73,6 @@ export const useMonthlyPaymentControl = () => {
     setExpandedClients(newExpanded);
   };
 
-  // Agrupar planos por cliente
   const groupedPlanos = planos.reduce((acc, plano) => {
     if (!acc[plano.clientName]) {
       acc[plano.clientName] = [];

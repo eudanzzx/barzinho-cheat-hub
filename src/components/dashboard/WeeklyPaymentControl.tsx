@@ -8,19 +8,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const WeeklyPaymentControl: React.FC = () => {
-  // SEMPRE iniciar fechado - forçar false
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
-
-  // Forçar fechado ao montar o componente
-  useEffect(() => {
-    setIsOpen(false);
-  }, []);
 
   useEffect(() => {
     loadPlanos();
@@ -49,7 +42,6 @@ const WeeklyPaymentControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Mostrar TODOS os planos semanais de clientes existentes (pagos e pendentes)
     const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
       const hasClient = existingClientNames.has(plano.clientName);
@@ -76,7 +68,6 @@ const WeeklyPaymentControl: React.FC = () => {
     const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
-    // Recarregar sem fechar os expandidos
     setTimeout(() => {
       loadPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
@@ -117,16 +108,16 @@ const WeeklyPaymentControl: React.FC = () => {
   const pendingPlanos = planos.filter(p => p.active === true);
 
   return (
-    <Card 
-      className={cn(
-        "cursor-pointer transition-all duration-300 border-2 w-full mb-6",
-        isOpen 
-          ? "border-[#0553C7]/40 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg" 
-          : "border-[#0553C7]/20 bg-white hover:border-[#0553C7]/30 hover:shadow-md"
-      )}
-      onClick={() => setIsOpen(!isOpen)}
-    >
-      <CardHeader className="pb-3 border-b border-[#0553C7]/10">
+    <Card className={cn(
+      "transition-all duration-300 border-2 w-full mb-6",
+      isOpen 
+        ? "border-[#0553C7]/40 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg" 
+        : "border-[#0553C7]/20 bg-white hover:border-[#0553C7]/30 hover:shadow-md"
+    )}>
+      <CardHeader 
+        className="pb-3 border-b border-[#0553C7]/10 cursor-pointer hover:bg-[#0553C7]/5 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-[#0553C7]">
             <div className="p-2 rounded-full bg-[#0553C7]/10">
