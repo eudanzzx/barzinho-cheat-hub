@@ -5,11 +5,16 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
 
 export const useMonthlyPaymentControl = () => {
-  // SEMPRE iniciar fechado
+  // SEMPRE iniciar fechado - forçar false
   const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
+
+  // Forçar fechado ao montar o componente
+  useEffect(() => {
+    setIsOpen(false);
+  }, []);
 
   useEffect(() => {
     loadPlanos();
@@ -57,6 +62,7 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
+    // Recarregar sem fechar os expandidos
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
