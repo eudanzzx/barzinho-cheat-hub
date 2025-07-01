@@ -8,14 +8,16 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const WeeklyPaymentButton: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
 
-  console.log("WeeklyPaymentButton - Componente renderizado", { isOpen });
+  console.log("WeeklyPaymentButton - Componente renderizado", { isOpen, isMobile });
 
   useEffect(() => {
     loadPlanos();
@@ -66,7 +68,6 @@ const WeeklyPaymentButton: React.FC = () => {
     savePlanos(updatedPlanos);
     toast.success(`Pagamento de ${clientName} marcado como pago!`);
     
-    // Dispatch event to update other components
     window.dispatchEvent(new Event('atendimentosUpdated'));
     loadPlanos();
   };
@@ -84,16 +85,16 @@ const WeeklyPaymentButton: React.FC = () => {
   };
 
   return (
-    <Card 
-      className={cn(
-        "cursor-pointer transition-all duration-300 border-2",
-        isOpen 
-          ? "border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 shadow-lg" 
-          : "border-emerald-200 bg-white hover:border-emerald-300 hover:shadow-md"
-      )}
-      onClick={() => setIsOpen(!isOpen)}
-    >
-      <CardHeader className="pb-3">
+    <Card className={cn(
+      "transition-all duration-300 border-2",
+      isOpen 
+        ? "border-emerald-400 bg-gradient-to-br from-emerald-50 to-green-50 shadow-lg" 
+        : "border-emerald-200 bg-white hover:border-emerald-300 hover:shadow-md"
+    )}>
+      <CardHeader 
+        className="pb-3 cursor-pointer hover:bg-emerald-50 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-emerald-700">
             <div className="p-2 rounded-full bg-emerald-100">
