@@ -17,7 +17,7 @@ const WeeklyPaymentButton: React.FC = () => {
   
   const [planos, setPlanos] = useState<PlanoSemanal[]>([]);
 
-  console.log("WeeklyPaymentButton - Componente renderizado", { isOpen, isMobile });
+  console.log("WeeklyPaymentButton - Estado atual:", { isOpen, isMobile, planosCount: planos.length });
 
   useEffect(() => {
     loadPlanos();
@@ -58,6 +58,11 @@ const WeeklyPaymentButton: React.FC = () => {
     setPlanos(activeWeeklyPlanos);
   };
 
+  const handleToggleOpen = () => {
+    console.log("WeeklyPaymentButton - Alternando estado:", { atual: isOpen, novo: !isOpen });
+    setIsOpen(!isOpen);
+  };
+
   const markAsPaid = (planoId: string, clientName: string) => {
     console.log("WeeklyPaymentButton - Marcando como pago:", { planoId, clientName });
     const allPlanos = getPlanos();
@@ -84,6 +89,9 @@ const WeeklyPaymentButton: React.FC = () => {
     return diffDays;
   };
 
+  // Renderização condicional baseada no estado
+  console.log("WeeklyPaymentButton - Renderizando com isOpen:", isOpen);
+
   return (
     <Card className={cn(
       "transition-all duration-300 border-2",
@@ -93,7 +101,7 @@ const WeeklyPaymentButton: React.FC = () => {
     )}>
       <CardHeader 
         className="pb-3 cursor-pointer hover:bg-emerald-50 transition-colors"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleOpen}
       >
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-emerald-700">
