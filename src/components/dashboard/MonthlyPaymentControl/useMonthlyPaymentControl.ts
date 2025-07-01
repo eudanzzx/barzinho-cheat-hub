@@ -11,9 +11,17 @@ export const useMonthlyPaymentControl = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
 
-  // Forçar fechado ao montar o componente
+  // Forçar fechado ao montar o componente - aplicar múltiplas vezes
   useEffect(() => {
     setIsOpen(false);
+  }, []);
+
+  // Garantir que sempre inicie fechado
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
