@@ -18,6 +18,12 @@ const MonthlyPaymentControl: React.FC = () => {
     toggleClientExpansion
   } = useMonthlyPaymentControl();
 
+  console.log("MonthlyPaymentControl - Estado atual:", { 
+    isOpen, 
+    clientCount: Object.keys(groupedPlanos).length,
+    totalPlanos: planos.length 
+  });
+
   return (
     <Card className="border-[#0553C7]/20 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg w-full mb-6">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>

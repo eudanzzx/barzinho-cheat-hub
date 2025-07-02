@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,16 @@ import { PlanoMensal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const MonthlyPaymentExpandedControl: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Começa fechado
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
+
+  console.log("MonthlyPaymentExpandedControl - Estado atual:", { 
+    isOpen, 
+    clientCount: Object.keys(groupedPlanos).length,
+    totalPlanos: planos.length 
+  });
 
   useEffect(() => {
     loadPlanos();
