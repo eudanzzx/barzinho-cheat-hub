@@ -15,12 +15,6 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
 
-  console.log("MonthlyPaymentExpandedControl - Estado atual:", { 
-    isOpen, 
-    clientCount: Object.keys(groupedPlanos).length,
-    totalPlanos: planos.length 
-  });
-
   useEffect(() => {
     loadPlanos();
   }, []);
@@ -99,6 +93,12 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
     acc[plano.clientName].push(plano);
     return acc;
   }, {} as Record<string, PlanoMensal[]>);
+
+  console.log("MonthlyPaymentExpandedControl - Estado atual:", { 
+    isOpen, 
+    clientCount: Object.keys(groupedPlanos).length,
+    totalPlanos: planos.length 
+  });
 
   return (
     <div className="payment-controls-container payment-control-visible mb-6 w-full block">
