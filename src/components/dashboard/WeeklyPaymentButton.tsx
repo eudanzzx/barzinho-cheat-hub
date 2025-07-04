@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Check, ChevronDown } from "lucide-react";
+import { Calendar, Check, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -30,32 +30,42 @@ const WeeklyPaymentButton: React.FC = () => {
     };
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
   const loadPlanos = () => {
-    console.log("WeeklyPaymentButton - Carregando planos...");
+    console.log("WeeklyPaymentButton - Carregando TODOS os planos semanais...");
     const allPlanos = getPlanos();
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    const activeWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
+    // TODOS OS PLANOS SEMANAIS - PAGOS E PENDENTES
+    const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
       plano.type === 'semanal' && 
-      plano.active && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
     console.log("WeeklyPaymentButton - Planos carregados:", { 
       total: allPlanos.length, 
-      semanais: activeWeeklyPlanos.length,
-      activeWeeklyPlanos 
+      semanais: weeklyPlanos.length,
+      detalhes: weeklyPlanos.map(p => ({ 
+        id: p.id, 
+        client: p.clientName, 
+        active: p.active,
+        isPaid: !p.active,
+        week: p.week 
+      }))
     });
 
-    setPlanos(activeWeeklyPlanos);
+    setPlanos(weeklyPlanos);
   };
 
   const handleToggleOpen = () => {
@@ -63,18 +73,33 @@ const WeeklyPaymentButton: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const markAsPaid = (planoId: string, clientName: string) => {
-    console.log("WeeklyPaymentButton - Marcando como pago:", { planoId, clientName });
+  const handlePaymentToggle = (planoId: string, clientName: string) => {
+    console.log("WeeklyPaymentButton - Toggle pagamento:", { planoId, clientName });
     const allPlanos = getPlanos();
+    const planoAtual = allPlanos.find(p => p.id === planoId);
+    
+    if (!planoAtual) return;
+    
+    const novoStatus = !planoAtual.active;
+    
     const updatedPlanos = allPlanos.map(plano => 
-      plano.id === planoId ? { ...plano, active: false } : plano
+      plano.id === planoId ? { ...plano, active: novoStatus } : plano
     );
     
     savePlanos(updatedPlanos);
-    toast.success(`Pagamento de ${clientName} marcado como pago!`);
+    toast.success(
+      novoStatus 
+        ? `Pagamento de ${clientName} marcado como pendente!`
+        : `Pagamento de ${clientName} marcado como pago!`
+    );
     
-    window.dispatchEvent(new Event('atendimentosUpdated'));
-    loadPlanos();
+    // Atualização imediata
+    setTimeout(() => {
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
+      loadPlanos();
+    }, 100);
   };
 
   const formatDate = (dateString: string) => {
@@ -89,8 +114,7 @@ const WeeklyPaymentButton: React.FC = () => {
     return diffDays;
   };
 
-  // Renderização condicional baseada no estado
-  console.log("WeeklyPaymentButton - Renderizando com isOpen:", isOpen);
+  const pendingPlanos = planos.filter(p => p.active);
 
   return (
     <Card className={cn(
@@ -111,7 +135,7 @@ const WeeklyPaymentButton: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold">Pagamentos Semanais</h3>
               <p className="text-sm text-emerald-600 font-normal">
-                {planos.length} pagamento(s) pendente(s)
+                {planos.length} total | {pendingPlanos.length} pendente(s)
               </p>
             </div>
           </CardTitle>
@@ -136,19 +160,22 @@ const WeeklyPaymentButton: React.FC = () => {
             {planos.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Calendar className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                <p>Nenhum pagamento semanal pendente</p>
+                <p>Nenhum pagamento semanal encontrado</p>
               </div>
             ) : (
               planos.map((plano) => {
                 const daysOverdue = getDaysOverdue(plano.dueDate);
                 const isOverdue = daysOverdue > 0;
+                const isPaid = !plano.active;
                 
                 return (
                   <Card 
                     key={plano.id} 
                     className={cn(
                       "transition-all duration-200 border-l-4",
-                      isOverdue
+                      isPaid
+                        ? "border-l-green-500 bg-green-50"
+                        : isOverdue
                         ? "border-l-red-500 bg-red-50"
                         : "border-l-emerald-400 bg-gradient-to-r from-white to-emerald-50/30 hover:shadow-md"
                     )}
@@ -160,12 +187,21 @@ const WeeklyPaymentButton: React.FC = () => {
                             <h3 className="font-semibold text-gray-900 text-lg">
                               {plano.clientName}
                             </h3>
-                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+                            <Badge className={cn(
+                              isPaid 
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-emerald-100 text-emerald-800 border-emerald-200"
+                            )}>
                               {plano.week}ª Semana
                             </Badge>
-                            {isOverdue && (
+                            {isOverdue && !isPaid && (
                               <Badge variant="destructive">
                                 {daysOverdue} {daysOverdue === 1 ? 'dia' : 'dias'} atrasado
+                              </Badge>
+                            )}
+                            {isPaid && (
+                              <Badge className="bg-green-100 text-green-800 border-green-200">
+                                ✓ Pago
                               </Badge>
                             )}
                           </div>
@@ -181,11 +217,25 @@ const WeeklyPaymentButton: React.FC = () => {
                           </div>
                         </div>
                         <Button
-                          onClick={() => markAsPaid(plano.id, plano.clientName)}
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 ml-4"
+                          onClick={() => handlePaymentToggle(plano.id, plano.clientName)}
+                          className={cn(
+                            "transition-all duration-300 ml-4",
+                            isPaid
+                              ? "bg-orange-500 hover:bg-orange-600 text-white"
+                              : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl"
+                          )}
                         >
-                          <Check className="h-4 w-4 mr-2" />
-                          Marcar como Pago
+                          {isPaid ? (
+                            <>
+                              <X className="h-4 w-4 mr-2" />
+                              Marcar Pendente
+                            </>
+                          ) : (
+                            <>
+                              <Check className="h-4 w-4 mr-2" />
+                              Marcar como Pago
+                            </>
+                          )}
                         </Button>
                       </div>
                     </CardContent>
