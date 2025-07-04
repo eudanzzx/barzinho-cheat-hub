@@ -63,10 +63,11 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    // Recarregar os dados
+    // Recarregar os dados e disparar eventos para sincronizar com HeaderMonthlyPayments
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated')); // Novo evento para sincronização
       loadPlanos();
     }, 100);
   };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +28,12 @@ const HeaderMonthlyPayments: React.FC = () => {
 
     window.addEventListener('planosUpdated', handlePlanosUpdated);
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated); // Sincronização com MonthlyPaymentControl
     
     return () => {
       window.removeEventListener('planosUpdated', handlePlanosUpdated);
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -78,6 +79,7 @@ const HeaderMonthlyPayments: React.FC = () => {
     setTimeout(() => {
       loadPendingPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated')); // Notificar MonthlyPaymentControl
     }, 100);
   };
 
