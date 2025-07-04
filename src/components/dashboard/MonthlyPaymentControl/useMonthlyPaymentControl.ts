@@ -3,12 +3,21 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const useMonthlyPaymentControl = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(!isMobile); // Fechado no mobile, aberto no desktop
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
+
+  console.log("useMonthlyPaymentControl - Mobile:", isMobile, "isOpen:", isOpen);
+
+  useEffect(() => {
+    // Atualizar estado quando isMobile mudar
+    setIsOpen(!isMobile);
+  }, [isMobile]);
 
   useEffect(() => {
     loadPlanos();
@@ -88,6 +97,7 @@ export const useMonthlyPaymentControl = () => {
     planos,
     groupedPlanos,
     handlePaymentToggle,
-    toggleClientExpansion
+    toggleClientExpansion,
+    isMobile
   };
 };

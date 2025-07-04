@@ -15,11 +15,13 @@ const MonthlyPaymentControl: React.FC = () => {
     planos,
     groupedPlanos,
     handlePaymentToggle,
-    toggleClientExpansion
+    toggleClientExpansion,
+    isMobile
   } = useMonthlyPaymentControl();
 
   console.log("MonthlyPaymentControl - Estado atual:", { 
     isOpen, 
+    isMobile,
     clientCount: Object.keys(groupedPlanos).length,
     totalPlanos: planos.length 
   });

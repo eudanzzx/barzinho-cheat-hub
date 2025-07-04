@@ -8,12 +8,19 @@ import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal } from "@/types/payment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const MonthlyPaymentExpandedControl: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false); // Começa fechado
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(!isMobile); // Fechado no mobile, aberto no desktop
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
+
+  // Atualizar estado quando isMobile mudar
+  useEffect(() => {
+    setIsOpen(!isMobile);
+  }, [isMobile]);
 
   useEffect(() => {
     loadPlanos();
@@ -96,6 +103,7 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
 
   console.log("MonthlyPaymentExpandedControl - Estado atual:", { 
     isOpen, 
+    isMobile,
     clientCount: Object.keys(groupedPlanos).length,
     totalPlanos: planos.length 
   });
@@ -114,7 +122,7 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
                   <div>
                     <h3 className="text-xl font-bold">Controle de Pagamentos Mensais</h3>
                     <p className="text-sm text-purple-600 font-normal">
-                      {Object.keys(groupedPlanos).length} cliente(s) ativo(s)
+                      {Object.keys(groupedPlanos).length} cliente(s) ativo(s) - {isMobile ? 'Mobile' : 'Desktop'}
                     </p>
                   </div>
                 </CardTitle>
