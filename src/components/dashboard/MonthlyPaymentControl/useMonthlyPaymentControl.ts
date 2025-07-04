@@ -7,17 +7,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export const useMonthlyPaymentControl = () => {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(false); // Sempre começar fechado
+  const [isOpen, setIsOpen] = useState(false); // SEMPRE fechado inicialmente
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
 
-  console.log("useMonthlyPaymentControl - Mobile:", isMobile, "isOpen:", isOpen);
-
-  // Inicializar fechado sempre, especialmente no mobile
-  useEffect(() => {
-    setIsOpen(false);
-  }, [isMobile]);
+  console.log("useMonthlyPaymentControl - Mobile:", isMobile, "isOpen:", isOpen, "planos:", planos.length);
 
   useEffect(() => {
     loadPlanos();
@@ -42,17 +37,20 @@ export const useMonthlyPaymentControl = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Mostrar TODOS os planos mensais (pagos e pendentes) para que não sumam ao pagar
+    // Mostrar TODOS os planos mensais (pagos E pendentes) para que não sumam ao pagar
     const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
+    console.log("useMonthlyPaymentControl - Planos carregados:", monthlyPlanos.length);
     setPlanos(monthlyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
+    console.log("useMonthlyPaymentControl - Toggle pagamento:", { planoId, clientName, isPaid });
+    
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isPaid } : plano
@@ -65,12 +63,12 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
+    // Recarregar os dados
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
+      loadPlanos();
     }, 100);
-    
-    loadPlanos();
   };
 
   const toggleClientExpansion = (clientName: string) => {
