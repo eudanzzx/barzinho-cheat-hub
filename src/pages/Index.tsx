@@ -7,7 +7,6 @@ import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
 import IndexMainContent from "@/components/dashboard/IndexMainContent";
 import IndexStats from "@/components/dashboard/IndexStats";
 import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
-import MonthlyPaymentControl from "@/components/dashboard/MonthlyPaymentControl";
 import { useIndexStats } from "@/hooks/useIndexStats";
 import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
@@ -93,9 +92,6 @@ const Index: React.FC = () => {
             periodoVisualizacao={periodoVisualizacao}
             setPeriodoVisualizacao={setPeriodoVisualizacao}
           />
-
-          {/* Controle de Pagamentos Mensais */}
-          <MonthlyPaymentControl />
 
           <IndexSearchSection 
             searchTerm={searchTerm}

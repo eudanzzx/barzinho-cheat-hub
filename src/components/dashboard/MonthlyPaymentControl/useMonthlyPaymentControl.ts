@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export const useMonthlyPaymentControl = () => {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(false); // SEMPRE fechado inicialmente
+  const [isOpen, setIsOpen] = useState(false);
   const [expandedClients, setExpandedClients] = useState<Set<string>>(new Set());
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [planos, setPlanos] = useState<PlanoMensal[]>([]);
@@ -63,11 +63,11 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    // Recarregar os dados e disparar eventos para sincronizar com HeaderMonthlyPayments
+    // Recarregar os dados e disparar eventos para sincronização
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
-      window.dispatchEvent(new Event('monthlyPaymentsUpdated')); // Novo evento para sincronização
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
       loadPlanos();
     }, 100);
   };

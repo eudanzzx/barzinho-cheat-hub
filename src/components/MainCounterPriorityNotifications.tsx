@@ -46,7 +46,8 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => {
       if (plano.id === paymentId) {
-        return { ...plano, active: false };
+        // Toggle entre pago (active: false) e pendente (active: true) 
+        return { ...plano, active: !plano.active };
       }
       return plano;
     });
