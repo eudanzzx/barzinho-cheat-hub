@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -24,10 +25,12 @@ export const useMonthlyPaymentControl = () => {
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
     window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
       window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -36,25 +39,29 @@ export const useMonthlyPaymentControl = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Mostrar TODOS os planos mensais (pagos E pendentes) - removido filtro .active
+    // TODOS OS PLANOS MENSAIS - SEM FILTRO POR STATUS (active/inactive)
     const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
-    console.log("useMonthlyPaymentControl - Planos carregados:", monthlyPlanos.length);
-    console.log("useMonthlyPaymentControl - Planos detalhados:", monthlyPlanos.map(p => ({ 
+    console.log("useMonthlyPaymentControl - Carregando TODOS os planos mensais:");
+    console.log("useMonthlyPaymentControl - Total encontrado:", monthlyPlanos.length);
+    console.log("useMonthlyPaymentControl - Detalhes:", monthlyPlanos.map(p => ({ 
       id: p.id, 
       client: p.clientName, 
-      active: p.active, 
-      month: p.month 
+      active: p.active,
+      isPaid: !p.active,
+      month: p.month,
+      amount: p.amount 
     })));
+    
     setPlanos(monthlyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
-    console.log("useMonthlyPaymentControl - Toggle pagamento:", { planoId, clientName, isPaid });
+    console.log("useMonthlyPaymentControl - Toggle:", { planoId, clientName, isPaid, newStatus: !isPaid });
     
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
@@ -68,7 +75,7 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pago!`
     );
     
-    // Recarregar os dados e disparar eventos para sincronização
+    // Forçar atualização imediata
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));
