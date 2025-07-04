@@ -36,7 +36,7 @@ export const useMonthlyPaymentControl = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // Mostrar TODOS os planos mensais (pagos E pendentes) para que não sumam ao pagar
+    // Mostrar TODOS os planos mensais (pagos E pendentes) - removido filtro .active
     const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
       !plano.analysisId &&
@@ -44,6 +44,12 @@ export const useMonthlyPaymentControl = () => {
     );
 
     console.log("useMonthlyPaymentControl - Planos carregados:", monthlyPlanos.length);
+    console.log("useMonthlyPaymentControl - Planos detalhados:", monthlyPlanos.map(p => ({ 
+      id: p.id, 
+      client: p.clientName, 
+      active: p.active, 
+      month: p.month 
+    })));
     setPlanos(monthlyPlanos);
   };
 
