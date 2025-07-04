@@ -26,14 +26,14 @@ const PaymentItem: React.FC<PaymentItemProps> = ({ plano, onPaymentToggle }) => 
 
   const daysOverdue = getDaysOverdue(plano.dueDate);
   const isOverdue = daysOverdue > 0;
-  const isPaid = !plano.active;
+  const isPaid = !plano.active; // active = false significa que foi pago
 
   return (
     <div 
       className={cn(
         "border-l-4 p-4 rounded-lg transition-all duration-200",
         isPaid 
-          ? "border-l-green-500 bg-green-50"
+          ? "border-l-green-500 bg-green-50" // Verde quando pago
           : isOverdue
           ? "border-l-red-500 bg-red-50"
           : "border-l-[#0553C7] bg-white"
@@ -42,7 +42,11 @@ const PaymentItem: React.FC<PaymentItemProps> = ({ plano, onPaymentToggle }) => 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <Badge className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20">
+            <Badge className={cn(
+              isPaid 
+                ? "bg-green-100 text-green-800 border-green-200"
+                : "bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20"
+            )}>
               {plano.month}º Mês
             </Badge>
             {isOverdue && !isPaid && (

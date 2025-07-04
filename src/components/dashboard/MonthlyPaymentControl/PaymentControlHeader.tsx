@@ -26,7 +26,7 @@ const PaymentControlHeader: React.FC<PaymentControlHeaderProps> = ({
           <div>
             <h3 className="text-xl font-bold">Controle de Pagamentos Mensais</h3>
             <p className="text-sm text-[#0553C7]/70 font-normal">
-              {clientCount} cliente(s) ativo(s)
+              {clientCount} cliente(s) - Clique para {isOpen ? 'fechar' : 'abrir'}
             </p>
           </div>
         </CardTitle>
