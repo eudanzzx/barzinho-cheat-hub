@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -59,8 +58,8 @@ export const useMonthlyPaymentControl = () => {
     savePlanos(updatedPlanos);
     toast.success(
       isPaid 
-        ? `Pagamento de ${clientName} marcado como pago!`
-        : `Pagamento de ${clientName} marcado como pendente!`
+        ? `Pagamento de ${clientName} marcado como pendente!`
+        : `Pagamento de ${clientName} marcado como pago!`
     );
     
     // Recarregar os dados e disparar eventos para sincronização
