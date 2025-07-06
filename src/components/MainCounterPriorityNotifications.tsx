@@ -46,16 +46,19 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => {
       if (plano.id === paymentId) {
-        // Toggle entre pago (active: false) e pendente (active: true) 
-        return { ...plano, active: !plano.active };
+        // Marcar como pago (active: false) - isso fará ele sair da lista de próximos vencimentos
+        return { ...plano, active: false };
       }
       return plano;
     });
     
     savePlanos(updatedPlanos);
     
+    // Recarregar a lista imediatamente para mostrar o próximo vencimento
     setTimeout(() => {
       window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
     }, 100);
   };
 

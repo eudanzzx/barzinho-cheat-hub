@@ -4,8 +4,8 @@ import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 export const filterTarotPlans = (allPlanos: (PlanoMensal | PlanoSemanal)[]) => {
   console.log('filterTarotPlans - Total de planos recebidos:', allPlanos.length);
 
-  // 1. Filtrar só planos com analysisId (de tarot) - TODOS (pagos e pendentes)
-  const tarotPlans = allPlanos.filter(plano => plano.analysisId);
+  // 1. Para próximos vencimentos, filtrar só planos com analysisId (de tarot) e ATIVOS (pendentes)
+  const tarotPlans = allPlanos.filter(plano => plano.analysisId && plano.active);
 
   // 2. Ordernar por data de vencimento ascendente (mais próximo primeiro)
   const sorted = tarotPlans.sort((a, b) =>
@@ -13,7 +13,7 @@ export const filterTarotPlans = (allPlanos: (PlanoMensal | PlanoSemanal)[]) => {
   );
 
   // (Opcional: poderia fazer filtros extras, mas pedido é mostrar TODOS)
-  console.log('filterTarotPlans - Todos vencimentos:', sorted.length);
+  console.log('filterTarotPlans - Próximos vencimentos pendentes:', sorted.length);
 
   return sorted;
 };
