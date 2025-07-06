@@ -4,10 +4,9 @@ import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 export const filterMainPlans = (allPlanos: (PlanoMensal | PlanoSemanal)[], existingClientNames: Set<string>) => {
   console.log('filterMainPlans - Total de planos recebidos:', allPlanos.length);
 
-  // 1. Filtrar apenas planos sem analysisId (não são do tarot), ativos e de clientes existentes
+  // 1. Filtrar apenas planos sem analysisId (não são do tarot) e de clientes existentes - TODOS (pagos e pendentes)
   const mainPlans = allPlanos.filter(plano => 
     !plano.analysisId && 
-    plano.active && 
     existingClientNames.has(plano.clientName)
   );
 
