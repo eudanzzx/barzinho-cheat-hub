@@ -32,9 +32,13 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
     };
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -43,14 +47,14 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    const activeMonthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
+    // CARREGAR TODOS OS PLANOS MENSAIS - PAGOS E PENDENTES
+    const monthlyPlanos = allPlanos.filter((plano): plano is PlanoMensal => 
       plano.type === 'plano' && 
-      plano.active && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
-    setPlanos(activeMonthlyPlanos);
+    setPlanos(monthlyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
@@ -66,8 +70,13 @@ const MonthlyPaymentExpandedControl: React.FC = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    window.dispatchEvent(new Event('atendimentosUpdated'));
-    loadPlanos();
+    // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
+    setTimeout(() => {
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
+      loadPlanos();
+    }, 100);
   };
 
   const toggleClientExpansion = (clientName: string) => {

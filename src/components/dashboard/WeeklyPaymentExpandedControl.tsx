@@ -26,9 +26,13 @@ const WeeklyPaymentExpandedControl: React.FC = () => {
     };
 
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -37,14 +41,14 @@ const WeeklyPaymentExpandedControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    const activeWeeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
+    // CARREGAR TODOS OS PLANOS SEMANAIS - PAGOS E PENDENTES
+    const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => 
       plano.type === 'semanal' && 
-      plano.active && 
       !plano.analysisId &&
       existingClientNames.has(plano.clientName)
     );
 
-    setPlanos(activeWeeklyPlanos);
+    setPlanos(weeklyPlanos);
   };
 
   const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
@@ -60,8 +64,13 @@ const WeeklyPaymentExpandedControl: React.FC = () => {
         : `Pagamento de ${clientName} marcado como pendente!`
     );
     
-    window.dispatchEvent(new Event('atendimentosUpdated'));
-    loadPlanos();
+    // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
+    setTimeout(() => {
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
+      loadPlanos();
+    }, 100);
   };
 
   const toggleClientExpansion = (clientName: string) => {
