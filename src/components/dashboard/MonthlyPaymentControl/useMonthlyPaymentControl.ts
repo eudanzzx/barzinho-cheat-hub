@@ -75,7 +75,7 @@ export const useMonthlyPaymentControl = () => {
         : `Pagamento de ${clientName} marcado como pago!`
     );
     
-    // Forçar atualização imediata
+    // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
     setTimeout(() => {
       window.dispatchEvent(new Event('atendimentosUpdated'));
       window.dispatchEvent(new Event('planosUpdated'));

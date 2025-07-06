@@ -42,6 +42,7 @@ const WeeklyPaymentControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
+    // CARREGAR TODOS OS PLANOS SEMANAIS - PAGOS E PENDENTES
     const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
       const hasClient = existingClientNames.has(plano.clientName);
@@ -68,9 +69,12 @@ const WeeklyPaymentControl: React.FC = () => {
     const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
+    // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
     setTimeout(() => {
-      loadPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('atendimentosUpdated'));
+      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
+      loadPlanos();
     }, 100);
   };
 
