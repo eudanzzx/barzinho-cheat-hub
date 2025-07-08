@@ -11,22 +11,26 @@ const AutomaticPaymentNotifications: React.FC = () => {
     checkUpcomingPayments();
   }, []);
 
+  const getDaysOverdue = (dueDate: string) => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = today.getTime() - due.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const checkUpcomingPayments = () => {
     const allPlanos = getPlanos();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
 
-    // Filtrar planos ativos que vencem hoje ou amanhã
+    // Filtrar planos ativos que vencem hoje, amanhã ou estão em atraso
     const upcomingPayments = allPlanos.filter(plano => {
       if (!plano.active) return false;
       
-      const dueDate = new Date(plano.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      
-      return dueDate.getTime() === today.getTime() || dueDate.getTime() === tomorrow.getTime();
+      const daysOverdue = getDaysOverdue(plano.dueDate);
+      // Notificar se está em atraso (> 0), vence hoje (0) ou vence amanhã (-1)
+      return daysOverdue >= -1;
     });
 
     // Separar entre principais e tarot
@@ -40,21 +44,41 @@ const AutomaticPaymentNotifications: React.FC = () => {
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
         : `Semana ${(payment as PlanoSemanal).week}/${(payment as PlanoSemanal).totalWeeks}`;
 
-      const dueDate = new Date(payment.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      const isToday = dueDate.getTime() === today.getTime();
+      const daysOverdue = getDaysOverdue(payment.dueDate);
       
-      toast.info(
-        isToday ? `💳 Pagamento vence HOJE!` : `💳 Pagamento vence amanhã!`,
-        {
+      let message = '';
+      let variant = 'info';
+      
+      if (daysOverdue > 0) {
+        message = `💳 Pagamento em atraso há ${daysOverdue} ${daysOverdue === 1 ? 'dia' : 'dias'}!`;
+        variant = 'error';
+      } else if (daysOverdue === 0) {
+        message = `💳 Pagamento vence HOJE!`;
+        variant = 'error';
+      } else if (daysOverdue === -1) {
+        message = `💳 Pagamento vence amanhã!`;
+        variant = 'warning';
+      }
+      
+      if (variant === 'error') {
+        toast.error(message, {
+          duration: 15000,
+          description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
+          action: {
+            label: "Ver detalhes",
+            onClick: () => console.log("Pagamento principal:", payment)
+          }
+        });
+      } else if (variant === 'warning') {
+        toast.warning(message, {
           duration: 10000,
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
             onClick: () => console.log("Pagamento principal:", payment)
           }
-        }
-      );
+        });
+      }
     });
 
     // Notificações para pagamentos do tarot
@@ -64,21 +88,41 @@ const AutomaticPaymentNotifications: React.FC = () => {
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
         : `Semana ${(payment as PlanoSemanal).week}/${(payment as PlanoSemanal).totalWeeks}`;
 
-      const dueDate = new Date(payment.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      const isToday = dueDate.getTime() === today.getTime();
-
-      toast.info(
-        isToday ? `🔮 Pagamento do tarot vence HOJE!` : `🔮 Pagamento do tarot vence amanhã!`,
-        {
+      const daysOverdue = getDaysOverdue(payment.dueDate);
+      
+      let message = '';
+      let variant = 'info';
+      
+      if (daysOverdue > 0) {
+        message = `🔮 Pagamento do tarot em atraso há ${daysOverdue} ${daysOverdue === 1 ? 'dia' : 'dias'}!`;
+        variant = 'error';
+      } else if (daysOverdue === 0) {
+        message = `🔮 Pagamento do tarot vence HOJE!`;
+        variant = 'error';
+      } else if (daysOverdue === -1) {
+        message = `🔮 Pagamento do tarot vence amanhã!`;
+        variant = 'warning';
+      }
+      
+      if (variant === 'error') {
+        toast.error(message, {
+          duration: 15000,
+          description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
+          action: {
+            label: "Ver detalhes",
+            onClick: () => console.log("Pagamento tarot:", payment)
+          }
+        });
+      } else if (variant === 'warning') {
+        toast.warning(message, {
           duration: 10000,
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
             onClick: () => console.log("Pagamento tarot:", payment)
           }
-        }
-      );
+        });
+      }
     });
 
     // Log para debug

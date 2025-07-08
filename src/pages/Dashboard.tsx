@@ -190,7 +190,6 @@ const Dashboard = () => {
           {/* Controles de Pagamento */}
           <div className="mb-8 space-y-6">
             <MonthlyPaymentControl />
-            <WeeklyPaymentControl />
           </div>
 
           {/* Lista de Atendimentos */}
