@@ -13,18 +13,20 @@ const AutomaticPaymentNotifications: React.FC = () => {
 
   const checkUpcomingPayments = () => {
     const allPlanos = getPlanos();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    // Filtrar planos ativos que vencem amanhã
+    // Filtrar planos ativos que vencem hoje ou amanhã
     const upcomingPayments = allPlanos.filter(plano => {
       if (!plano.active) return false;
       
       const dueDate = new Date(plano.dueDate);
       dueDate.setHours(0, 0, 0, 0);
       
-      return dueDate.getTime() === tomorrow.getTime();
+      return dueDate.getTime() === today.getTime() || dueDate.getTime() === tomorrow.getTime();
     });
 
     // Separar entre principais e tarot
@@ -38,10 +40,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
         : `Semana ${(payment as PlanoSemanal).week}/${(payment as PlanoSemanal).totalWeeks}`;
 
+      const dueDate = new Date(payment.dueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      const isToday = dueDate.getTime() === today.getTime();
+      
       toast.info(
-        `💳 Pagamento vence amanhã!`,
+        isToday ? `💳 Pagamento vence HOJE!` : `💳 Pagamento vence amanhã!`,
         {
-          duration: 8000,
+          duration: 10000,
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
@@ -58,10 +64,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
         : `Semana ${(payment as PlanoSemanal).week}/${(payment as PlanoSemanal).totalWeeks}`;
 
+      const dueDate = new Date(payment.dueDate);
+      dueDate.setHours(0, 0, 0, 0);
+      const isToday = dueDate.getTime() === today.getTime();
+
       toast.info(
-        `🔮 Pagamento do tarot vence amanhã!`,
+        isToday ? `🔮 Pagamento do tarot vence HOJE!` : `🔮 Pagamento do tarot vence amanhã!`,
         {
-          duration: 8000,
+          duration: 10000,
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",

@@ -44,13 +44,20 @@ const WeeklyPaymentControl: React.FC = () => {
     const atendimentos = getAtendimentos();
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
-    // CARREGAR TODOS OS PLANOS SEMANAIS - PAGOS E PENDENTES
+    // CARREGAR TODOS OS PLANOS SEMANAIS - INCLUINDO PAGOS E PENDENTES
     const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
       const hasClient = existingClientNames.has(plano.clientName);
       const noAnalysisId = !plano.analysisId;
       
       return isWeekly && hasClient && noAnalysisId;
+    });
+    
+    console.log('WeeklyPaymentControl - Carregando planos:', {
+      total: allPlanos.length,
+      semanais: weeklyPlanos.length,
+      ativos: weeklyPlanos.filter(p => p.active).length,
+      pagos: weeklyPlanos.filter(p => !p.active).length
     });
     
     setPlanos(weeklyPlanos);
