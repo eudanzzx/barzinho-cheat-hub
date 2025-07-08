@@ -30,10 +30,12 @@ const WeeklyPaymentControl: React.FC = () => {
 
     window.addEventListener('atendimentosUpdated', handleAtendimentosUpdated);
     window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handleAtendimentosUpdated);
       window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('monthlyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -54,19 +56,19 @@ const WeeklyPaymentControl: React.FC = () => {
     setPlanos(weeklyPlanos);
   };
 
-  const handlePaymentToggle = (planoId: string, clientName: string, isCurrentlyPending: boolean) => {
+  const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => {
       if (plano.id === planoId) {
-        const newActive = !isCurrentlyPending;
-        return { ...plano, active: newActive };
+        // active = false significa que foi pago
+        return { ...plano, active: !isPaid };
       }
       return plano;
     });
     
     savePlanos(updatedPlanos);
     
-    const newStatus = isCurrentlyPending ? 'pago' : 'pendente';
+    const newStatus = isPaid ? 'pendente' : 'pago';
     toast.success(`Pagamento de ${clientName} marcado como ${newStatus}!`);
     
     // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
@@ -238,7 +240,7 @@ const WeeklyPaymentControl: React.FC = () => {
                                 <Button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handlePaymentToggle(plano.id, clientName, isPending);
+                                    handlePaymentToggle(plano.id, clientName, !isPending);
                                   }}
                                   size="sm"
                                   className={cn(
