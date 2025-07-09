@@ -16,6 +16,14 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
   formattedTime,
   timeRemaining,
 }) => {
+  console.log('AnalysisHeader - Dados da análise:', {
+    nomeCliente: analise.nomeCliente,
+    planoAtivo: analise.planoAtivo,
+    planoData: analise.planoData,
+    semanalAtivo: analise.semanalAtivo,
+    semanalData: analise.semanalData
+  });
+
   return (
     <div className="flex-1 min-w-0">
       <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -36,30 +44,12 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
               {formattedTime}
             </Badge>
           )}
-          
-          {/* Botões de Pagamento */}
-          <div className="flex items-center gap-1">
-            {analise.planoAtivo && analise.planoData && (
-              <PlanoPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente}
-                planoData={analise.planoData}
-                startDate={analise.dataInicio}
-              />
-            )}
-            {analise.semanalAtivo && analise.semanalData && (
-              <SemanalPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente}
-                semanalData={analise.semanalData}
-                startDate={analise.dataInicio}
-              />
-            )}
-          </div>
         </h3>
+        
         {analise.atencaoFlag && (
           <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
         )}
+        
         <Badge
           variant={analise.finalizado ? "default" : "secondary"}
           className={`${
@@ -70,6 +60,33 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         >
           {analise.finalizado ? "Finalizada" : "Em andamento"}
         </Badge>
+      </div>
+      
+      {/* Botões de Pagamento - Linha separada para melhor visibilidade */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        {analise.planoAtivo && analise.planoData && (
+          <PlanoPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            planoData={analise.planoData}
+            startDate={analise.dataInicio}
+          />
+        )}
+        {analise.semanalAtivo && analise.semanalData && (
+          <SemanalPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            semanalData={analise.semanalData}
+            startDate={analise.dataInicio}
+          />
+        )}
+        
+        {/* Debug visual para verificar se os dados estão presentes */}
+        {(analise.planoAtivo || analise.semanalAtivo) && (
+          <div className="text-xs text-gray-500 ml-2">
+            {analise.planoAtivo && "💳"} {analise.semanalAtivo && "📅"}
+          </div>
+        )}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">

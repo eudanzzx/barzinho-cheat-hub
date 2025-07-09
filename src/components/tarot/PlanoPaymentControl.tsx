@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, CreditCard } from "lucide-react";
+import { ChevronDown, CreditCard, X } from "lucide-react";
 import { usePlanoMonths } from "./payment-control/usePlanoMonths";
 import { PlanoControlHeader } from "./payment-control/PlanoControlHeader";
 import { PlanoMonthButton } from "./payment-control/PlanoMonthButton";
@@ -25,7 +25,7 @@ const PlanoPaymentControl: React.FC<PlanoPaymentControlProps> = ({
   planoData,
   startDate,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const { planoMonths, handlePaymentToggle } = usePlanoMonths({
     analysisId,
     clientName,
@@ -33,33 +33,49 @@ const PlanoPaymentControl: React.FC<PlanoPaymentControlProps> = ({
     startDate,
   });
 
+  console.log('PlanoPaymentControl - Renderizado:', {
+    analysisId,
+    clientName,
+    planoData,
+    planoMonthsCount: planoMonths.length
+  });
+
   const paidCount = planoMonths.filter(m => m.isPaid).length;
   const totalValue = planoMonths.length * parseFloat(planoData.valorMensal);
   const paidValue = paidCount * parseFloat(planoData.valorMensal);
 
   return (
-    <div className="mt-4">
+    <div className="w-full">
+      {/* Header sempre visível */}
+      <div className="bg-purple-50 border-b border-purple-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4 text-purple-600" />
+            <span className="font-medium text-purple-800">Controle de Pagamentos Mensais</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-purple-700">
+              {paidCount}/{planoMonths.length} pagos
+            </span>
+          </div>
+        </div>
+      </div>
+
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <Button
-            variant="outline"
-            className="w-full border-[#6B21A8]/30 text-[#6B21A8] hover:bg-[#6B21A8]/10 hover:border-[#6B21A8] transition-colors duration-200 flex items-center justify-between"
+            variant="ghost"
+            className="w-full justify-between p-4 hover:bg-purple-50"
           >
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              <span>Controle de Pagamentos</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {paidCount}/{planoMonths.length} pagos
-              </span>
-              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </div>
+            <span className="text-sm text-purple-700">
+              Ver detalhes dos pagamentos
+            </span>
+            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
           </Button>
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <Card className="mt-2 border-gray-200">
+          <div className="p-4 border-t border-purple-100">
             <PlanoControlHeader
               paidCount={paidCount}
               totalMonths={planoMonths.length}
@@ -68,7 +84,7 @@ const PlanoPaymentControl: React.FC<PlanoPaymentControlProps> = ({
               diaVencimento={planoData.diaVencimento}
             />
             
-            <CardContent className="p-4">
+            <div className="mt-4">
               {planoMonths.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <p>Carregando meses do plano...</p>
@@ -85,8 +101,8 @@ const PlanoPaymentControl: React.FC<PlanoPaymentControlProps> = ({
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </div>
