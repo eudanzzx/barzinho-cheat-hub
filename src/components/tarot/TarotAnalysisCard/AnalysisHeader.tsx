@@ -62,23 +62,27 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         </Badge>
       </div>
       
-      {/* Botões de Pagamento - Centralizados no mobile */}
-      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
+      {/* Botões de Pagamento - Centralizados e responsivos */}
+      <div className="w-full flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-3 px-2 sm:px-0">
         {analise.planoAtivo && analise.planoData && (
-          <PlanoPaymentButton
-            analysisId={analise.id}
-            clientName={analise.nomeCliente}
-            planoData={analise.planoData}
-            startDate={analise.dataInicio}
-          />
+          <div className="flex-shrink-0">
+            <PlanoPaymentButton
+              analysisId={analise.id}
+              clientName={analise.nomeCliente}
+              planoData={analise.planoData}
+              startDate={analise.dataInicio}
+            />
+          </div>
         )}
         {analise.semanalAtivo && analise.semanalData && (
-          <SemanalPaymentButton
-            analysisId={analise.id}
-            clientName={analise.nomeCliente}
-            semanalData={analise.semanalData}
-            startDate={analise.dataInicio}
-          />
+          <div className="flex-shrink-0">
+            <SemanalPaymentButton
+              analysisId={analise.id}
+              clientName={analise.nomeCliente}
+              semanalData={analise.semanalData}
+              startDate={analise.dataInicio}
+            />
+          </div>
         )}
       </div>
       

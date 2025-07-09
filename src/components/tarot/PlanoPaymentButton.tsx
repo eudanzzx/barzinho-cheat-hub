@@ -38,24 +38,24 @@ const PlanoPaymentButton: React.FC<PlanoPaymentButtonProps> = ({
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block w-full sm:w-auto">
       <Button
         variant="outline"
         size="sm"
-        className="border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center gap-2 min-w-[100px]"
+        className="w-full sm:w-auto border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center justify-center gap-2 min-w-[120px] px-3 py-2"
         onClick={handleToggle}
         type="button"
       >
         <span className="text-base">💳</span>
-        <span className="text-xs sm:text-sm">Mensais</span>
+        <span className="text-sm font-medium">Mensais</span>
         <ChevronDown className={cn(
-          "h-3 w-3 transition-transform duration-200",
+          "h-3 w-3 transition-transform duration-200 flex-shrink-0",
           isOpen && "rotate-180"
         )} />
       </Button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 sm:left-0 sm:transform-none mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg">
           <PlanoPaymentControl
             analysisId={analysisId}
             clientName={clientName}
