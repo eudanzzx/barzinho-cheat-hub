@@ -51,6 +51,11 @@ const TarotAnalysisCard = React.memo(({
 
   const loadPlanos = () => {
     const allPlanos = getPlanos();
+    console.log('TarotAnalysisCard - loadPlanos:', { 
+      analiseId: analise.id, 
+      clientName: analise.nome,
+      totalPlanos: allPlanos.length 
+    });
     
     // CARREGAR TODOS OS PLANOS DE TAROT - INCLUINDO PAGOS E PENDENTES
     const filteredPlanos = allPlanos.filter((plano) => 
@@ -58,6 +63,11 @@ const TarotAnalysisCard = React.memo(({
       plano.analysisId === analise.id
     ) as PlanoMensal[];
 
+    console.log('TarotAnalysisCard - filteredPlanos:', { 
+      count: filteredPlanos.length, 
+      planos: filteredPlanos 
+    });
+    
     setPlanos(filteredPlanos);
   };
 
@@ -85,6 +95,11 @@ const TarotAnalysisCard = React.memo(({
   const hasMonthlyPayments = planos.length > 0;
 
   const togglePaymentExpansion = () => {
+    console.log('TarotAnalysisCard - togglePaymentExpansion:', { 
+      current: isPaymentExpanded, 
+      planos: planos.length,
+      analise: analise.nome 
+    });
     setIsPaymentExpanded(prev => !prev);
   };
 
@@ -106,7 +121,12 @@ const TarotAnalysisCard = React.memo(({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={togglePaymentExpansion}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('TarotAnalysisCard - Button clicked:', { isMobile, hasMonthlyPayments, planos: planos.length });
+                      togglePaymentExpansion();
+                    }}
                     className="p-1 h-auto ml-1"
                   >
                     <div className="flex items-center gap-1">
@@ -137,65 +157,70 @@ const TarotAnalysisCard = React.memo(({
       </Card>
 
       {hasMonthlyPayments && isMobile && (
-        <Collapsible open={isPaymentExpanded} onOpenChange={setIsPaymentExpanded}>
-          <CollapsibleContent>
-            <Card className="border-purple-200 mb-4">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="h-4 w-4 text-purple-600" />
-                  <span className="font-medium text-purple-800">Pagamentos Tarot</span>
-                  <Badge 
-                    variant="secondary" 
-                    className="bg-purple-100 text-purple-800"
-                  >
-                    {planos.filter(p => !p.active).length}/{planos.length}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  {planos.map((plano) => {
-                    const isPaid = !plano.active;
-                    return (
-                      <Button
-                        key={plano.id}
-                        onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
-                        variant="outline"
-                        className={`
-                          w-full p-4 h-auto flex items-center justify-between
-                          ${isPaid 
-                            ? 'bg-green-50 border-green-200 text-green-800' 
-                            : 'bg-red-50 border-red-200 text-red-800'
-                          }
-                        `}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
-                            {isPaid ? (
-                              <Check className="h-4 w-4" />
-                            ) : (
-                              <X className="h-4 w-4" />
-                            )}
-                          </div>
-                          <div className="text-left">
-                            <div className="font-medium">
-                              {plano.month}º Mês
+        <div className="mt-2">
+          <Collapsible open={isPaymentExpanded} onOpenChange={(open) => {
+            console.log('TarotAnalysisCard - Collapsible onOpenChange:', { open, analise: analise.nome });
+            setIsPaymentExpanded(open);
+          }}>
+            <CollapsibleContent className="animate-accordion-down">
+              <Card className="border-purple-200 mb-4 bg-white shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CreditCard className="h-4 w-4 text-purple-600" />
+                    <span className="font-medium text-purple-800">Pagamentos Tarot</span>
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-purple-100 text-purple-800"
+                    >
+                      {planos.filter(p => !p.active).length}/{planos.length}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {planos.map((plano) => {
+                      const isPaid = !plano.active;
+                      return (
+                        <Button
+                          key={plano.id}
+                          onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
+                          variant="outline"
+                          className={`
+                            w-full p-4 h-auto flex items-center justify-between
+                            ${isPaid 
+                              ? 'bg-green-50 border-green-200 text-green-800' 
+                              : 'bg-red-50 border-red-200 text-red-800'
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                              {isPaid ? (
+                                <Check className="h-4 w-4" />
+                              ) : (
+                                <X className="h-4 w-4" />
+                              )}
                             </div>
-                            <div className="text-sm opacity-75">
-                              Vencimento: {formatDate(plano.dueDate)}
+                            <div className="text-left">
+                              <div className="font-medium">
+                                {plano.month}º Mês
+                              </div>
+                              <div className="text-sm opacity-75">
+                                Vencimento: {formatDate(plano.dueDate)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <Badge variant={isPaid ? "default" : "destructive"}>
-                          {isPaid ? 'Pago' : 'Pendente'}
-                        </Badge>
-                      </Button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
+                          <Badge variant={isPaid ? "default" : "destructive"}>
+                            {isPaid ? 'Pago' : 'Pendente'}
+                          </Badge>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
       )}
     </>
   );
