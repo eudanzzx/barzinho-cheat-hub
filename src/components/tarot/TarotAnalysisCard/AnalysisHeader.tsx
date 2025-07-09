@@ -2,6 +2,8 @@
 import React from "react";
 import { Calendar, DollarSign, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import PlanoPaymentButton from "../PlanoPaymentButton";
+import SemanalPaymentButton from "../SemanalPaymentButton";
 
 interface AnalysisHeaderProps {
   analise: any;
@@ -34,6 +36,26 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
               {formattedTime}
             </Badge>
           )}
+          
+          {/* Botões de Pagamento */}
+          <div className="flex items-center gap-1">
+            {analise.planoAtivo && analise.planoData && (
+              <PlanoPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente}
+                planoData={analise.planoData}
+                startDate={analise.dataInicio}
+              />
+            )}
+            {analise.semanalAtivo && analise.semanalData && (
+              <SemanalPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente}
+                semanalData={analise.semanalData}
+                startDate={analise.dataInicio}
+              />
+            )}
+          </div>
         </h3>
         {analise.atencaoFlag && (
           <AlertTriangle className="h-5 w-5 text-amber-500 animate-pulse" />
