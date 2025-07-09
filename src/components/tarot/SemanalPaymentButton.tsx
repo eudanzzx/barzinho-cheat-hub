@@ -43,12 +43,12 @@ const SemanalPaymentButton: React.FC<SemanalPaymentButtonProps> = ({
       <Button
         variant="outline"
         size="sm"
-        className="w-full sm:w-auto border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 transition-colors duration-200 flex items-center justify-center gap-2 min-w-[120px] px-3 py-2"
+        className="w-full sm:w-auto border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 transition-colors duration-200 flex items-center justify-center gap-1.5 min-w-[100px] px-2 py-1.5 text-xs sm:text-sm"
         onClick={handleToggle}
         type="button"
       >
-        <span className="text-base">📅</span>
-        <span className="text-sm font-medium">Semanais</span>
+        <span className="text-sm">📅</span>
+        <span className="font-medium">Semanais</span>
         <ChevronDown className={cn(
           "h-3 w-3 transition-transform duration-200 flex-shrink-0",
           isOpen && "rotate-180"
