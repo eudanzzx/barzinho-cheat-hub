@@ -62,8 +62,8 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         </Badge>
       </div>
       
-      {/* Botões de Pagamento - Linha separada para melhor visibilidade */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
+      {/* Botões de Pagamento - Centralizados no mobile */}
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
         {analise.planoAtivo && analise.planoData && (
           <PlanoPaymentButton
             analysisId={analise.id}
@@ -79,13 +79,6 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
             semanalData={analise.semanalData}
             startDate={analise.dataInicio}
           />
-        )}
-        
-        {/* Debug visual para verificar se os dados estão presentes */}
-        {(analise.planoAtivo || analise.semanalAtivo) && (
-          <div className="text-xs text-gray-500 ml-2">
-            {analise.planoAtivo && "💳"} {analise.semanalAtivo && "📅"}
-          </div>
         )}
       </div>
       

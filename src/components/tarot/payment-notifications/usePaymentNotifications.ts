@@ -28,8 +28,46 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     const updatedPlanos = handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
-    // Refresh imediato
-    console.log('markAsPaid - Executando refresh imediato');
+    // Disparar eventos de sincronização múltiplos
+    const triggerSyncEvents = () => {
+      console.log('markAsPaid - Disparando eventos de sincronização...');
+      
+      // Eventos para sincronizar diferentes partes do sistema
+      const events = [
+        'tarot-payment-updated',
+        'planosUpdated',
+        'tarotAnalysesUpdated',
+        'atendimentosUpdated',
+        'paymentStatusChanged'
+      ];
+      
+      events.forEach(eventName => {
+        const event = new CustomEvent(eventName, { 
+          detail: { 
+            updatedId: notificationId,
+            timestamp: Date.now(),
+            action: 'mark_as_paid'
+          }
+        });
+        window.dispatchEvent(event);
+        console.log('markAsPaid - Evento disparado:', eventName);
+      });
+
+      // Disparar evento de storage para garantir sincronização
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'planos',
+        newValue: JSON.stringify(updatedPlanos),
+        url: window.location.href
+      }));
+    };
+
+    // Disparar eventos múltiplas vezes para garantir sincronização
+    triggerSyncEvents(); // Imediato
+    setTimeout(triggerSyncEvents, 50); // 50ms
+    setTimeout(triggerSyncEvents, 200); // 200ms
+    setTimeout(triggerSyncEvents, 500); // 500ms
+
+    // Refresh imediato das notificações
     setTimeout(() => {
       checkTarotPaymentNotifications();
     }, 100);
@@ -40,9 +78,31 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     handlePostponePayment(notificationId, allPlanos, savePlanos);
     
+    // Disparar eventos de sincronização
+    const triggerSyncEvents = () => {
+      const events = [
+        'tarot-payment-updated',
+        'planosUpdated',
+        'paymentStatusChanged'
+      ];
+      
+      events.forEach(eventName => {
+        const event = new CustomEvent(eventName, { 
+          detail: { 
+            updatedId: notificationId,
+            action: 'postpone'
+          }
+        });
+        window.dispatchEvent(event);
+      });
+    };
+
+    triggerSyncEvents();
+    setTimeout(triggerSyncEvents, 100);
+    
     setTimeout(() => {
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   const deleteNotification = useCallback((notificationId: string) => {
@@ -50,9 +110,31 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     handleDeleteNotification(notificationId, allPlanos, savePlanos);
     
+    // Disparar eventos de sincronização
+    const triggerSyncEvents = () => {
+      const events = [
+        'tarot-payment-updated',
+        'planosUpdated',
+        'paymentStatusChanged'
+      ];
+      
+      events.forEach(eventName => {
+        const event = new CustomEvent(eventName, { 
+          detail: { 
+            deletedId: notificationId,
+            action: 'delete'
+          }
+        });
+        window.dispatchEvent(event);
+      });
+    };
+
+    triggerSyncEvents();
+    setTimeout(triggerSyncEvents, 100);
+    
     setTimeout(() => {
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   useEffect(() => {
@@ -61,17 +143,29 @@ export const usePaymentNotifications = () => {
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      // Refresh imediato sem delay
-      checkTarotPaymentNotifications();
+      // Refresh com delay pequeno para garantir que os dados foram salvos
+      setTimeout(() => {
+        checkTarotPaymentNotifications();
+      }, 50);
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações
-    window.addEventListener('tarot-payment-updated', handlePaymentUpdate as EventListener);
-    window.addEventListener('planosUpdated', handlePaymentUpdate as EventListener);
+    const eventNames = [
+      'tarot-payment-updated',
+      'planosUpdated',
+      'paymentStatusChanged',
+      'tarotAnalysesUpdated',
+      'atendimentosUpdated'
+    ];
+
+    eventNames.forEach(eventName => {
+      window.addEventListener(eventName, handlePaymentUpdate as EventListener);
+    });
     
     return () => {
-      window.removeEventListener('tarot-payment-updated', handlePaymentUpdate as EventListener);
-      window.removeEventListener('planosUpdated', handlePaymentUpdate as EventListener);
+      eventNames.forEach(eventName => {
+        window.removeEventListener(eventName, handlePaymentUpdate as EventListener);
+      });
     };
   }, [checkTarotPaymentNotifications]);
 

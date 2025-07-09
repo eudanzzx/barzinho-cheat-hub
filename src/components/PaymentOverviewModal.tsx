@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
@@ -270,27 +271,43 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
   }, [getPlanos, getAtendimentos, getTarotAnalyses, cleanOrphanedPlanos, generateTarotPayments]);
 
   useEffect(() => {
-    const handleDataUpdated = () => {
-      console.log('PaymentOverviewModal - Dados atualizados, recarregando...');
+    const handleDataUpdated = (event?: CustomEvent) => {
+      console.log('PaymentOverviewModal - Dados atualizados, recarregando...', event?.detail);
+      // Delay maior para garantir que todos os dados foram salvos
       setTimeout(() => {
         loadUpcomingPayments();
-      }, 100);
+      }, 200);
     };
 
     const events = [
       'atendimentosUpdated',
       'tarotAnalysesUpdated', 
-      'planosUpdated'
+      'planosUpdated',
+      'tarot-payment-updated',
+      'paymentStatusChanged'
     ];
     
     events.forEach(eventName => {
-      window.addEventListener(eventName, handleDataUpdated);
+      window.addEventListener(eventName, handleDataUpdated as EventListener);
     });
+
+    // Também escutar eventos de storage
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'planos' || event.key === 'analises' || event.key === 'atendimentos') {
+        console.log('PaymentOverviewModal - Storage alterado:', event.key);
+        setTimeout(() => {
+          loadUpcomingPayments();
+        }, 300);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
     
     return () => {
       events.forEach(eventName => {
-        window.removeEventListener(eventName, handleDataUpdated);
+        window.removeEventListener(eventName, handleDataUpdated as EventListener);
       });
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [loadUpcomingPayments]);
 
@@ -409,6 +426,7 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
 
   const syncTarotPaymentsToModal = useCallback(() => {
     if (context === "tarot" || context === "all") {
+      console.log('PaymentOverviewModal - Sincronizando pagamentos tarot:', groupedTarotPaymentsState.length);
       setFilteredTarotGroups(groupedTarotPaymentsState.slice(0, 20));
     }
   }, [groupedTarotPaymentsState, context]);
@@ -418,7 +436,10 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
   }, [groupedTarotPaymentsState, context]);
 
   const handleMarkAsPaidTarot = useCallback((paymentId: string) => {
+    console.log('PaymentOverviewModal - Marcando como pago:', paymentId);
     markAsPaidTarot(paymentId);
+    
+    // Atualizar estado local imediatamente
     setFilteredTarotGroups((prevGroups) =>
       prevGroups
         .map(group => {
@@ -440,14 +461,24 @@ const PaymentOverviewModal: React.FC<PaymentOverviewModalProps> = ({ children, c
         })
         .filter((group): group is GroupedPayment => !!group && !!group.mostUrgent)
     );
-    toast({ title: "Pagamento marcado como pago!" });
-  }, [markAsPaidTarot]);
 
-  return (
-    <Dialog onOpenChange={() => {
+    // Forçar atualização dos dados principais
+    setTimeout(() => {
       loadUpcomingPayments();
       refreshTarotPayments();
-      setTimeout(syncTarotPaymentsToModal, 100);
+    }, 300);
+
+    toast({ title: "Pagamento marcado como pago!" });
+  }, [markAsPaidTarot, loadUpcomingPayments, refreshTarotPayments]);
+
+  return (
+    <Dialog onOpenChange={(open) => {
+      if (open) {
+        console.log('PaymentOverviewModal - Modal aberto, carregando dados...');
+        loadUpcomingPayments();
+        refreshTarotPayments();
+        setTimeout(syncTarotPaymentsToModal, 200);
+      }
     }}>
       <DialogTrigger asChild>
         {children}
