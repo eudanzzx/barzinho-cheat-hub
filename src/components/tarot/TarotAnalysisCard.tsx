@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
-import { PlanoMensal } from "@/types/payment";
+import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import AnalysisHeader from "./TarotAnalysisCard/AnalysisHeader";
 import AnalysisActions from "./TarotAnalysisCard/AnalysisActions";
 
@@ -30,7 +30,7 @@ const TarotAnalysisCard = React.memo(({
   }) => {
   const isMobile = useIsMobile();
   const { getPlanos, savePlanos } = useUserDataService();
-  const [planos, setPlanos] = useState<PlanoMensal[]>([]);
+  const [planos, setPlanos] = useState<(PlanoMensal | PlanoSemanal)[]>([]);
   const [isPaymentExpanded, setIsPaymentExpanded] = useState(false);
 
   useEffect(() => {
@@ -57,15 +57,17 @@ const TarotAnalysisCard = React.memo(({
       totalPlanos: allPlanos.length 
     });
     
-    // CARREGAR TODOS OS PLANOS DE TAROT - INCLUINDO PAGOS E PENDENTES
+    // CARREGAR TODOS OS PLANOS DE TAROT - MENSAIS E SEMANAIS
     const filteredPlanos = allPlanos.filter((plano) => 
-      plano.type === 'plano' && 
+      (plano.type === 'plano' || plano.type === 'semanal') && 
       plano.analysisId === analise.id
-    ) as PlanoMensal[];
+    );
 
     console.log('TarotAnalysisCard - filteredPlanos:', { 
       count: filteredPlanos.length, 
-      planos: filteredPlanos 
+      planos: filteredPlanos,
+      mensais: filteredPlanos.filter(p => p.type === 'plano').length,
+      semanais: filteredPlanos.filter(p => p.type === 'semanal').length
     });
     
     setPlanos(filteredPlanos);
@@ -177,44 +179,48 @@ const TarotAnalysisCard = React.memo(({
                   </div>
                   
                   <div className="space-y-3">
-                    {planos.map((plano) => {
-                      const isPaid = !plano.active;
-                      return (
-                        <Button
-                          key={plano.id}
-                          onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
-                          variant="outline"
-                          className={`
-                            w-full p-4 h-auto flex items-center justify-between
-                            ${isPaid 
-                              ? 'bg-green-50 border-green-200 text-green-800' 
-                              : 'bg-red-50 border-red-200 text-red-800'
-                            }
-                          `}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
-                              {isPaid ? (
-                                <Check className="h-4 w-4" />
-                              ) : (
-                                <X className="h-4 w-4" />
-                              )}
+                  {planos.map((plano) => {
+                    const isPaid = !plano.active;
+                    const isWeekly = plano.type === 'semanal';
+                    return (
+                      <Button
+                        key={plano.id}
+                        onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
+                        variant="outline"
+                        className={`
+                          w-full p-4 h-auto flex items-center justify-between
+                          ${isPaid 
+                            ? 'bg-green-50 border-green-200 text-green-800' 
+                            : 'bg-red-50 border-red-200 text-red-800'
+                          }
+                        `}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                            {isPaid ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium">
+                              {isWeekly 
+                                ? `${(plano as PlanoSemanal).week}ª Semana` 
+                                : `${(plano as PlanoMensal).month}º Mês`
+                              }
                             </div>
-                            <div className="text-left">
-                              <div className="font-medium">
-                                {plano.month}º Mês
-                              </div>
-                              <div className="text-sm opacity-75">
-                                Vencimento: {formatDate(plano.dueDate)}
-                              </div>
+                            <div className="text-sm opacity-75">
+                              Vencimento: {formatDate(plano.dueDate)}
                             </div>
                           </div>
-                          <Badge variant={isPaid ? "default" : "destructive"}>
-                            {isPaid ? 'Pago' : 'Pendente'}
-                          </Badge>
-                        </Button>
-                      );
-                    })}
+                        </div>
+                        <Badge variant={isPaid ? "default" : "destructive"}>
+                          {isPaid ? 'Pago' : 'Pendente'}
+                        </Badge>
+                      </Button>
+                    );
+                  })}
                   </div>
                 </CardContent>
               </Card>
