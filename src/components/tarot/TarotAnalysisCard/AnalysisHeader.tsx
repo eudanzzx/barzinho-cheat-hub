@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Calendar, DollarSign, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -62,28 +61,30 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         </Badge>
       </div>
       
-      {/* Botões de Pagamento - Centralizados e com tamanho otimizado */}
-      <div className="w-full flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3 px-1 sm:px-0">
-        {analise.planoAtivo && analise.planoData && (
-          <div className="flex-shrink-0 w-[48%] sm:w-auto">
-            <PlanoPaymentButton
-              analysisId={analise.id}
-              clientName={analise.nomeCliente}
-              planoData={analise.planoData}
-              startDate={analise.dataInicio}
-            />
-          </div>
-        )}
-        {analise.semanalAtivo && analise.semanalData && (
-          <div className="flex-shrink-0 w-[48%] sm:w-auto">
-            <SemanalPaymentButton
-              analysisId={analise.id}
-              clientName={analise.nomeCliente}
-              semanalData={analise.semanalData}
-              startDate={analise.dataInicio}
-            />
-          </div>
-        )}
+      {/* Botões de Pagamento - Centralizados perfeitamente */}
+      <div className="w-full flex items-center justify-center sm:justify-start gap-2 mb-3">
+        <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
+          {analise.planoAtivo && analise.planoData && (
+            <div className="w-[47%] sm:w-auto max-w-[120px]">
+              <PlanoPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente}
+                planoData={analise.planoData}
+                startDate={analise.dataInicio}
+              />
+            </div>
+          )}
+          {analise.semanalAtivo && analise.semanalData && (
+            <div className="w-[47%] sm:w-auto max-w-[120px]">
+              <SemanalPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente}
+                semanalData={analise.semanalData}
+                startDate={analise.dataInicio}
+              />
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
