@@ -15,7 +15,7 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
   const location = useLocation();
   
   // Só mostrar notificações principais na página principal
-  const isMainPage = location.pathname === '/' || location.pathname === '/dashboard';
+  const isMainPage = location.pathname === '/';
   
   if (!isMainPage) {
     return null;

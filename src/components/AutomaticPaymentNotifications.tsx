@@ -1,11 +1,13 @@
 
 import React, { useEffect } from "react";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
 const AutomaticPaymentNotifications: React.FC = () => {
   const { getPlanos } = useUserDataService();
+  const location = useLocation();
 
   useEffect(() => {
     checkUpcomingPayments();
@@ -37,8 +39,15 @@ const AutomaticPaymentNotifications: React.FC = () => {
     const mainPayments = upcomingPayments.filter(plano => !plano.analysisId);
     const tarotPayments = upcomingPayments.filter(plano => plano.analysisId);
 
-    // Notificações para pagamentos principais
-    mainPayments.forEach(payment => {
+    // Verificar se estamos na página principal para mostrar notificações principais
+    const isMainPage = location.pathname === '/';
+    const isTarotPage = location.pathname.includes('listagem-tarot') || 
+                        location.pathname.includes('analise-frequencial') || 
+                        location.pathname.includes('editar-analise-frequencial');
+
+    // Notificações para pagamentos principais (só na página principal)
+    if (isMainPage) {
+      mainPayments.forEach(payment => {
       const isMonthly = payment.type === 'plano';
       const planInfo = isMonthly 
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
@@ -79,10 +88,12 @@ const AutomaticPaymentNotifications: React.FC = () => {
           }
         });
       }
-    });
+      });
+    }
 
-    // Notificações para pagamentos do tarot
-    tarotPayments.forEach(payment => {
+    // Notificações para pagamentos do tarot (só em páginas de tarot)
+    if (isTarotPage) {
+      tarotPayments.forEach(payment => {
       const isMonthly = payment.type === 'plano';
       const planInfo = isMonthly 
         ? `Mês ${(payment as PlanoMensal).month}/${(payment as PlanoMensal).totalMonths}`
@@ -123,7 +134,8 @@ const AutomaticPaymentNotifications: React.FC = () => {
           }
         });
       }
-    });
+      });
+    }
 
     // Log para debug
     if (upcomingPayments.length > 0) {

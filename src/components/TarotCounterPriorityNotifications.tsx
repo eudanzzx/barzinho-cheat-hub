@@ -18,15 +18,19 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
 
   // Só mostrar notificações de tarot nas páginas de tarot
-  const isTarotPage = location.pathname.includes('tarot') || location.pathname.includes('frequencial');
+  const isTarotPage = location.pathname.includes('listagem-tarot') || 
+                      location.pathname.includes('analise-frequencial') || 
+                      location.pathname.includes('editar-analise-frequencial') ||
+                      location.pathname.includes('relatorio-geral-tarot') ||
+                      location.pathname.includes('relatorio-individual-tarot');
   
   if (!isTarotPage || groupedPayments.length === 0) {
     return null;
   }
 
   const handleViewDetails = (payment: any) => {
-    // Navegar para a página de tarot com foco no pagamento específico
-    window.location.href = `/listagem-tarot?highlight=${payment.id}`;
+    // Navegar para a página de listagem de tarot
+    window.location.href = `/listagem-tarot`;
   };
 
   return (

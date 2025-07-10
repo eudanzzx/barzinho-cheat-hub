@@ -58,6 +58,10 @@ export const updateAtendimento = (id: string, updatedData: any, userDataService:
   // Save all
   saveAtendimentos(updatedAtendimentos);
   
+  // Disparar evento para atualizar as notificações
+  window.dispatchEvent(new Event('atendimentosUpdated'));
+  window.dispatchEvent(new Event('planosUpdated'));
+  
   console.log('updateAtendimento - Dados salvos com sucesso');
   
   return updatedAtendimento;
