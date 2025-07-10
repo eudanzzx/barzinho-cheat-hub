@@ -10,6 +10,11 @@ export const useTarotPlanoCreator = () => {
     console.log('createTarotPlanos - Criando planos para análise:', analysis.id);
     
     const currentPlanos = getPlanos();
+    
+    // REMOVER TODOS OS PLANOS EXISTENTES DESTA ANÁLISE PRIMEIRO
+    const filteredPlanos = currentPlanos.filter(plano => plano.analysisId !== analysis.id);
+    console.log('createTarotPlanos - Removidos planos antigos da análise:', analysis.id);
+    
     const newPlanos: Plano[] = [];
     const clientName = analysis.nomeCliente || analysis.clientName;
     const startDate = analysis.dataInicio || analysis.analysisDate || new Date().toISOString().split('T')[0];
@@ -37,23 +42,19 @@ export const useTarotPlanoCreator = () => {
         
         const planoId = `${analysis.id}-month-${month}`;
         
-        // Verificar se plano já existe
-        const existingPlano = currentPlanos.find(p => p.id === planoId);
-        if (!existingPlano) {
-          newPlanos.push({
-            id: planoId,
-            clientName: clientName,
-            type: 'plano',
-            amount: monthlyAmount,
-            dueDate: dueDate.toISOString().split('T')[0],
-            month: month,
-            totalMonths: totalMonths,
-            created: new Date().toISOString(),
-            active: true,
-            analysisId: analysis.id,
-            notificationTiming: 'on_due_date'
-          });
-        }
+        newPlanos.push({
+          id: planoId,
+          clientName: clientName,
+          type: 'plano',
+          amount: monthlyAmount,
+          dueDate: dueDate.toISOString().split('T')[0],
+          month: month,
+          totalMonths: totalMonths,
+          created: new Date().toISOString(),
+          active: true,
+          analysisId: analysis.id,
+          notificationTiming: 'on_due_date'
+        });
       }
     }
     
@@ -87,33 +88,30 @@ export const useTarotPlanoCreator = () => {
         
         const planoId = `${analysis.id}-week-${week}`;
         
-        // Verificar se plano já existe
-        const existingPlano = currentPlanos.find(p => p.id === planoId);
-        if (!existingPlano) {
-          newPlanos.push({
-            id: planoId,
-            clientName: clientName,
-            type: 'semanal',
-            amount: weeklyAmount,
-            dueDate: dueDate.toISOString().split('T')[0],
-            week: week,
-            totalWeeks: totalWeeks,
-            created: new Date().toISOString(),
-            active: true,
-            analysisId: analysis.id,
-            notificationTiming: 'on_due_date'
-          });
-        }
+        newPlanos.push({
+          id: planoId,
+          clientName: clientName,
+          type: 'semanal',
+          amount: weeklyAmount,
+          dueDate: dueDate.toISOString().split('T')[0],
+          week: week,
+          totalWeeks: totalWeeks,
+          created: new Date().toISOString(),
+          active: true,
+          analysisId: analysis.id,
+          notificationTiming: 'on_due_date'
+        });
       }
     }
     
-    if (newPlanos.length > 0) {
-      console.log('createTarotPlanos - Salvando', newPlanos.length, 'novos planos');
-      const updatedPlanos = [...currentPlanos, ...newPlanos];
-      savePlanos(updatedPlanos);
-    } else {
-      console.log('createTarotPlanos - Nenhum plano novo para criar');
-    }
+    // Salvar os planos atualizados (sem os antigos + os novos)
+    const updatedPlanos = [...filteredPlanos, ...newPlanos];
+    console.log('createTarotPlanos - Salvando', newPlanos.length, 'novos planos, total:', updatedPlanos.length);
+    savePlanos(updatedPlanos);
+    
+    // Disparar eventos de sincronização
+    window.dispatchEvent(new Event('planosUpdated'));
+    window.dispatchEvent(new Event('tarot-payment-updated'));
   };
 
   return { createTarotPlanos };

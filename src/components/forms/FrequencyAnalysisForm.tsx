@@ -184,7 +184,7 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">Ativar Plano Mensal</FormLabel>
+                  <FormLabel className="text-base">Ativar Plano MENSAL</FormLabel>
                   <div className="text-sm text-muted-foreground">
                     Habilita o sistema de pagamento parcelado mensal
                   </div>

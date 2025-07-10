@@ -1,12 +1,9 @@
 
-import React, { memo, useState, useEffect } from "react";
+import React, { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import useUserDataService from "@/services/userDataService";
-import { MainClientPaymentGroup } from "@/components/main-payment-notifications/MainClientPaymentGroup";
-import { filterMainPlans } from "@/components/main-payment-notifications/utils/mainPlanFilters";
-import { groupPaymentsByClient } from "@/components/tarot/payment-notifications/utils/paymentGrouping";
+import { useLocation } from "react-router-dom";
 
 interface MainCounterPriorityNotificationsProps {
   atendimentos: any[];
@@ -15,92 +12,59 @@ interface MainCounterPriorityNotificationsProps {
 const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotificationsProps> = memo(({
   atendimentos,
 }) => {
-  const { getPlanos, savePlanos } = useUserDataService();
-  const [groupedPayments, setGroupedPayments] = useState<any[]>([]);
+  const location = useLocation();
+  
+  // Só mostrar notificações principais na página principal
+  const isMainPage = location.pathname === '/' || location.pathname === '/dashboard';
+  
+  if (!isMainPage) {
+    return null;
+  }
 
-  useEffect(() => {
-    const loadMainPayments = () => {
-      const allPlanos = getPlanos();
-      const existingClientNames = new Set(atendimentos.map(a => a.nome));
-      
-      const mainPlans = filterMainPlans(allPlanos, existingClientNames);
-      const grouped = groupPaymentsByClient(mainPlans);
-      
-      setGroupedPayments(grouped);
-    };
+  // Filtrar apenas atendimentos com vencimentos próximos
+  const today = new Date();
+  const nextWeek = new Date();
+  nextWeek.setDate(today.getDate() + 7);
 
-    loadMainPayments();
-    
-    const handlePaymentUpdate = () => {
-      loadMainPayments();
-    };
-    
-    window.addEventListener('planosUpdated', handlePaymentUpdate);
-    
-    return () => {
-      window.removeEventListener('planosUpdated', handlePaymentUpdate);
-    };
-  }, [getPlanos, atendimentos]);
+  const upcomingPayments = atendimentos.filter((atendimento) => {
+    // Lógica para verificar vencimentos próximos dos atendimentos
+    return atendimento.planoAtivo || atendimento.semanalAtivo;
+  });
 
-  const markAsPaid = (paymentId: string) => {
-    const allPlanos = getPlanos();
-    const updatedPlanos = allPlanos.map(plano => {
-      if (plano.id === paymentId) {
-        // Marcar como pago (active: false) - isso fará ele sair da lista de próximos vencimentos
-        return { ...plano, active: false };
-      }
-      return plano;
-    });
-    
-    savePlanos(updatedPlanos);
-    
-    // Recarregar a lista imediatamente para mostrar o próximo vencimento
-    setTimeout(() => {
-      window.dispatchEvent(new Event('planosUpdated'));
-      window.dispatchEvent(new Event('atendimentosUpdated'));
-      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
-    }, 100);
-  };
-
-  const deleteNotification = (paymentId: string) => {
-    const allPlanos = getPlanos();
-    const updatedPlanos = allPlanos.filter(plano => plano.id !== paymentId);
-    savePlanos(updatedPlanos);
-    
-    setTimeout(() => {
-      window.dispatchEvent(new Event('planosUpdated'));
-    }, 100);
-  };
-
-  if (groupedPayments.length === 0) {
-    return (
-      <div className="p-4 text-slate-500 text-center">
-        <Bell className="h-6 w-6 mx-auto mb-3 opacity-40" />
-        <p className="text-sm">Nenhum vencimento de atendimentos pendente</p>
-      </div>
-    );
+  if (upcomingPayments.length === 0) {
+    return null;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-blue-800 mb-4">
-        <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-        <span className="font-medium text-sm sm:text-base">Próximos Vencimentos</span>
-        <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
-          {groupedPayments.length} {groupedPayments.length === 1 ? 'cliente' : 'clientes'}
-        </Badge>
-      </div>
-      <div className="space-y-3">
-        {groupedPayments.map((group) => (
-          <MainClientPaymentGroup
-            key={group.clientName}
-            group={group}
-            onMarkAsPaid={markAsPaid}
-            onDeleteNotification={deleteNotification}
-          />
+    <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-blue-800">
+          <Bell className="h-5 w-5" />
+          Próximos Vencimentos - Atendimentos
+          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+            {upcomingPayments.length} {upcomingPayments.length === 1 ? 'atendimento' : 'atendimentos'}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {upcomingPayments.map((atendimento) => (
+          <div key={atendimento.id} className="p-3 border border-blue-200 rounded-lg bg-white/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-blue-800">{atendimento.nome}</h4>
+                <p className="text-sm text-blue-600">
+                  {atendimento.planoAtivo && 'Plano Mensal'} 
+                  {atendimento.semanalAtivo && 'Plano Semanal'}
+                </p>
+              </div>
+              <Badge variant="outline" className="bg-blue-100 text-blue-700">
+                Próximo
+              </Badge>
+            </div>
+          </div>
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 });
 

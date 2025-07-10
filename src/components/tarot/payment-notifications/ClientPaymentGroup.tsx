@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle, Calendar, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { CheckCircle, Calendar, Trash2, ChevronDown, ChevronRight, Eye } from "lucide-react";
 import { PaymentCard } from "./PaymentCard";
 import { GroupedPayment } from "./utils/paymentGrouping";
 
@@ -11,12 +11,14 @@ interface ClientPaymentGroupProps {
   group: GroupedPayment;
   onMarkAsPaid: (id: string) => void;
   onDeleteNotification: (id: string) => void;
+  onViewDetails?: (payment: any) => void;
 }
 
 export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
   group,
   onMarkAsPaid,
-  onDeleteNotification
+  onDeleteNotification,
+  onViewDetails
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -49,6 +51,18 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
             )}
           </div>
           <div className="flex gap-1 ml-2 items-center">
+            {/* Botão Ver Detalhes */}
+            {onViewDetails && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onViewDetails(group.mostUrgent)}
+                className="h-6 w-6 p-0 text-purple-600 hover:bg-purple-100"
+                title="Ver detalhes"
+              >
+                <Eye className="h-3 w-3" />
+              </Button>
+            )}
             {/* Excluir pagamento - só se semanal */}
             {group.mostUrgent.type === 'semanal' && (
               <Button
@@ -104,6 +118,18 @@ export const ClientPaymentGroup: React.FC<ClientPaymentGroupProps> = ({
                     />
                   </div>
                   <div className="flex gap-1 flex-shrink-0">
+                    {/* Botão Ver Detalhes para pagamentos adicionais */}
+                    {onViewDetails && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onViewDetails(payment)}
+                        className="h-6 w-6 p-0 text-purple-600 hover:bg-purple-100"
+                        title="Ver detalhes"
+                      >
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                    )}
                     {/* Excluir pagamento adicional - só se semanal */}
                     {payment.type === 'semanal' && (
                       <Button
