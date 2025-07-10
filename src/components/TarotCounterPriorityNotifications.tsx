@@ -29,7 +29,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   }
 
   const handleViewDetails = (payment: any) => {
-    // Navegar para a página de listagem de tarot
+    console.log('handleViewDetails called with payment:', payment);
+    // Usar react-router-dom para navegar
     window.location.href = `/listagem-tarot`;
   };
 
