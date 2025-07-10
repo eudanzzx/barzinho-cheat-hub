@@ -26,7 +26,7 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
 
   const handleViewDetails = (payment: any) => {
     // Navegar para a página de tarot com foco no pagamento específico
-    window.location.href = `/tarot?highlight=${payment.id}`;
+    window.location.href = `/listagem-tarot?highlight=${payment.id}`;
   };
 
   return (

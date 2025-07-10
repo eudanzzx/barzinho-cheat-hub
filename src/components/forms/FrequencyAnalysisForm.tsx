@@ -1,388 +1,343 @@
-import React, { useState, useCallback, useMemo, memo } from "react";
+import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { v4 as uuidv4 } from "uuid";
-import ClientInfoFields from "./frequency-analysis/ClientInfoFields";
-import AnalysisFields from "./frequency-analysis/AnalysisFields";
-import CountersSection from "./frequency-analysis/CountersSection";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Save, Sparkles, Calendar, Clock, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import useUserDataService from "@/services/userDataService";
+import { TarotAnalysis } from "@/services/tarotAnalysisService";
+import BirthdayNotifications from "@/components/BirthdayNotifications";
+import Logo from "@/components/Logo";
+import ClientInfoFields from "@/components/forms/frequency-analysis/ClientInfoFields";
+import AnalysisFields from "@/components/forms/frequency-analysis/AnalysisFields";
+import CountersSection from "@/components/forms/frequency-analysis/CountersSection";
 
 const formSchema = z.object({
-  clientName: z.string().min(1, "Nome é obrigatório"),
-  birthDate: z.date({
-    required_error: "Data de nascimento é obrigatória",
+  nomeCliente: z.string().min(2, {
+    message: "Nome deve ter pelo menos 2 caracteres.",
   }),
-  startDate: z.date({
-    required_error: "Data de início é obrigatória",
-  }),
-  treatmentDays: z.number().int().min(1, "A duração deve ser pelo menos 1 dia"),
-  beforeAnalysis: z.string().min(1, "Análise anterior é obrigatória"),
-  afterAnalysis: z.string().default(""),
-  recommendedTreatment: z.string().min(1, "Tratamento recomendado é obrigatória"),
-  price: z.number().min(0, "Valor não pode ser negativo"),
-  attention: z.boolean().default(false),
-  planoAtivo: z.boolean().default(false),
-  planoMeses: z.string().default(""),
-  planoValorMensal: z.string().default(""),
-  planoDiaVencimento: z.string().default("5"),
-  semanalAtivo: z.boolean().default(false),
-  semanalSemanas: z.string().default(""),
-  semanalValorSemanal: z.string().default(""),
-  semanalDiaVencimento: z.string().default("sexta"),
-  counters: z.array(
+  dataNascimento: z.string().optional(),
+  signo: z.string().optional(),
+  dataInicio: z.string(),
+  preco: z.string().optional(),
+  finalizado: z.boolean().default(false),
+  beforeAnalysis: z.string().optional(),
+  afterAnalysis: z.string().optional(),
+  recommendedTreatment: z.string().optional(),
+  lembretes: z.array(
     z.object({
-      id: z.string(),
-      name: z.string().min(1, "Nome do contador é obrigatório"),
-      endDate: z.date(),
+      texto: z.string(),
+      dias: z.string(),
     })
-  ).default([]),
+  ).optional(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
-
-interface Counter {
-  id: string;
-  name: string;
-  endDate: Date;
-}
-
 interface FrequencyAnalysisFormProps {
-  onSubmit: (data: any) => void;
+  onSave: (data: TarotAnalysis) => void;
+  initialData?: TarotAnalysis;
   onCancel: () => void;
-  editingAnalysis?: any;
 }
 
-const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = memo(({
-  onSubmit,
+const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
+  onSave,
+  initialData,
   onCancel,
-  editingAnalysis,
 }) => {
-  const initialCounters: Counter[] = useMemo(() => 
-    (editingAnalysis?.counters || []).map((counter: any) => ({
-      id: counter.id || uuidv4(),
-      name: counter.name || '',
-      endDate: counter.endDate || new Date(),
-    })), [editingAnalysis?.counters]
-  );
-  
-  const [counters, setCounters] = useState<Counter[]>(initialCounters);
+  const navigate = useNavigate();
+  const { saveTarotAnalysisWithPlan } = useUserDataService();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [planoAtivo, setPlanoAtivo] = useState(initialData?.planoAtivo || false);
+  const [semanalAtivo, setSemanalAtivo] = useState(initialData?.semanalAtivo || false);
+  const [planoData, setPlanoData] = useState({
+    meses: initialData?.planoData?.meses || "",
+    valorMensal: initialData?.planoData?.valorMensal || "",
+    diaVencimento: initialData?.planoData?.diaVencimento || "5",
+  });
+  const [semanalData, setSemanalData] = useState({
+    semanas: initialData?.semanalData?.semanas || "",
+    valorSemanal: initialData?.semanalData?.valorSemanal || "",
+    diaVencimento: initialData?.semanalData?.diaVencimento || "sexta",
+  });
 
-  const form = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientName: editingAnalysis?.client.name || "",
-      birthDate: editingAnalysis?.client.birthDate || undefined,
-      startDate: editingAnalysis?.startDate || new Date(),
-      treatmentDays: editingAnalysis?.treatmentDays || 10,
-      beforeAnalysis: editingAnalysis?.beforeAnalysis || "",
-      afterAnalysis: editingAnalysis?.afterAnalysis || "",
-      recommendedTreatment: editingAnalysis?.recommendedTreatment || "",
-      price: editingAnalysis?.price || 0,
-      attention: editingAnalysis?.attention || false,
-      planoAtivo: editingAnalysis?.planoAtivo || false,
-      planoMeses: editingAnalysis?.planoData?.meses || "",
-      planoValorMensal: editingAnalysis?.planoData?.valorMensal || "",
-      planoDiaVencimento: editingAnalysis?.planoData?.diaVencimento || "5",
-      semanalAtivo: editingAnalysis?.semanalAtivo || false,
-      semanalSemanas: editingAnalysis?.semanalData?.semanas || "",
-      semanalValorSemanal: editingAnalysis?.semanalData?.valorSemanal || "",
-      semanalDiaVencimento: editingAnalysis?.semanalData?.diaVencimento || "sexta",
-      counters: initialCounters,
+      nomeCliente: initialData?.nomeCliente || "",
+      dataNascimento: initialData?.dataNascimento || "",
+      signo: initialData?.signo || "",
+      dataInicio: initialData?.dataInicio || new Date().toISOString().split('T')[0],
+      preco: initialData?.preco || "150",
+      finalizado: initialData?.finalizado || false,
+      beforeAnalysis: initialData?.beforeAnalysis || "",
+      afterAnalysis: initialData?.afterAnalysis || "",
+      recommendedTreatment: initialData?.recommendedTreatment || "",
+      lembretes: initialData?.lembretes || [],
     },
   });
 
-  const planoAtivo = form.watch("planoAtivo");
-  const semanalAtivo = form.watch("semanalAtivo");
+  const handlePlanoDataChange = (field: string, value: string) => {
+    setPlanoData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-  const handleAddCounter = useCallback(() => {
-    const newCounter: Counter = {
-      id: uuidv4(),
-      name: `Contador ${counters.length + 1}`,
-      endDate: new Date(),
-    };
-    const updatedCounters = [...counters, newCounter];
-    setCounters(updatedCounters);
-    form.setValue("counters", updatedCounters);
-  }, [counters, form]);
+  const handleSemanalDataChange = (field: string, value: string) => {
+    setSemanalData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-  const handleRemoveCounter = useCallback((id: string) => {
-    const updatedCounters = counters.filter((counter) => counter.id !== id);
-    setCounters(updatedCounters);
-    form.setValue("counters", updatedCounters);
-  }, [counters, form]);
+  const handleSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    try {
+      const analysisData: TarotAnalysis = {
+        ...values,
+        id: initialData?.id || Date.now().toString(),
+        planoAtivo: planoAtivo,
+        planoData: planoAtivo ? planoData : null,
+        semanalAtivo: semanalAtivo,
+        semanalData: semanalAtivo ? semanalData : null,
+        analysisDate: values.dataInicio,
+      };
 
-  const handleUpdateCounter = useCallback((id: string, name: string, endDate: Date) => {
-    const updatedCounters = counters.map((counter) =>
-      counter.id === id ? { ...counter, name, endDate } : counter
-    );
-    setCounters(updatedCounters);
-    form.setValue("counters", updatedCounters);
-  }, [counters, form]);
+      console.log('Dados da análise a serem salvos:', analysisData);
+      saveTarotAnalysisWithPlan(analysisData);
 
-  const handleSubmit = useCallback((data: FormValues) => {
-    const newAnalysis = {
-      id: editingAnalysis?.id || uuidv4(),
-      client: {
-        id: uuidv4(),
-        name: data.clientName,
-        birthDate: data.birthDate,
-        zodiacSign: "",
-      },
-      startDate: data.startDate,
-      treatmentDays: data.treatmentDays,
-      beforeAnalysis: data.beforeAnalysis,
-      afterAnalysis: data.afterAnalysis,
-      recommendedTreatment: data.recommendedTreatment,
-      price: data.price,
-      attention: data.attention,
-      planoAtivo: data.planoAtivo,
-      planoData: data.planoAtivo ? {
-        meses: data.planoMeses,
-        valorMensal: data.planoValorMensal,
-        diaVencimento: data.planoDiaVencimento,
-      } : null,
-      semanalAtivo: data.semanalAtivo,
-      semanalData: data.semanalAtivo ? {
-        semanas: data.semanalSemanas,
-        valorSemanal: data.semanalValorSemanal,
-        diaVencimento: data.semanalDiaVencimento,
-      } : null,
-      counters: data.counters,
-      completed: false,
-      createdAt: editingAnalysis?.createdAt || new Date(),
-      updatedAt: new Date(),
-    };
-
-    onSubmit(newAnalysis);
-    form.reset();
-  }, [editingAnalysis, onSubmit, form]);
+      toast.success(`Análise ${initialData ? 'atualizada' : 'criada'} com sucesso!`);
+      onSave(analysisData);
+      navigate("/listagem-tarot");
+    } catch (error) {
+      console.error("Erro ao salvar análise:", error);
+      toast.error("Erro ao salvar análise.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [initialData, planoAtivo, planoData, saveTarotAnalysisWithPlan, onSave, navigate, semanalAtivo, semanalData]);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-4">
-        <ClientInfoFields form={form} />
-        <AnalysisFields form={form} />
-
-        {/* Plano Section */}
-        <div className="space-y-4 p-4 border border-[#6B21A8]/20 rounded-lg bg-[#6B21A8]/5">
-          <h3 className="text-lg font-medium text-[#6B21A8]">Plano de Pagamento</h3>
-          
-          <FormField
-            control={form.control}
-            name="planoAtivo"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Ativar Plano MENSAL</FormLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Habilita o sistema de pagamento parcelado mensal
-                  </div>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {planoAtivo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="planoMeses"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantidade de Meses</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ex: 12"
-                        {...field}
-                        className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="planoValorMensal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Mensal (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Ex: 150.00"
-                        {...field}
-                        className="bg-white/50 border-[#6B21A8]/20 focus:border-[#6B21A8]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="planoDiaVencimento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dia de Vencimento</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-10 w-full rounded-md border border-[#6B21A8]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {[...Array(28)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            Dia {i + 1}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Semanal Section */}
-        <div className="space-y-4 p-4 border border-[#10B981]/20 rounded-lg bg-[#10B981]/5">
-          <h3 className="text-lg font-medium text-[#10B981]">Plano Semanal</h3>
-          
-          <FormField
-            control={form.control}
-            name="semanalAtivo"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Ativar Plano Semanal</FormLabel>
-                  <div className="text-sm text-muted-foreground">
-                    Habilita o sistema de pagamento semanal
-                  </div>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {semanalAtivo && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="semanalSemanas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantidade de Semanas</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ex: 8"
-                        {...field}
-                        className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="semanalValorSemanal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Semanal (R$)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Ex: 37.50"
-                        {...field}
-                        className="bg-white/50 border-[#10B981]/20 focus:border-[#10B981]"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="semanalDiaVencimento"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dia de Vencimento</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-10 w-full rounded-md border border-[#10B981]/20 bg-white/50 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="domingo">Domingo</option>
-                        <option value="segunda">Segunda-feira</option>
-                        <option value="terca">Terça-feira</option>
-                        <option value="quarta">Quarta-feira</option>
-                        <option value="quinta">Quinta-feira</option>
-                        <option value="sexta">Sexta-feira</option>
-                        <option value="sabado">Sábado</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          )}
-        </div>
-
-        <CountersSection
-          counters={counters}
-          onAddCounter={handleAddCounter}
-          onUpdateCounter={handleUpdateCounter}
-          onRemoveCounter={handleRemoveCounter}
-        />
-
-        <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-pink-50">
+      <BirthdayNotifications checkOnMount={false} />
+      
+      <div className="container mx-auto max-w-4xl py-8 px-4">
+        <div className="mb-8 flex items-center">
           <Button 
-            type="submit" 
-            className="bg-[#6B21A8] hover:bg-[#6B21A8]/90 text-white"
+            variant="ghost" 
+            className="mr-2 text-purple-600 hover:bg-purple-100 hover:text-purple-700 transition-all duration-200" 
+            onClick={onCancel}
           >
-            Salvar Análise
+            <ArrowLeft className="h-5 w-5" />
           </Button>
+          <div className="flex items-center gap-3">
+            <Logo height={40} width={40} />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              {initialData ? 'Editar' : 'Nova'} Análise Frequencial
+            </h1>
+          </div>
         </div>
-      </form>
-    </Form>
-  );
-});
 
-FrequencyAnalysisForm.displayName = 'FrequencyAnalysisForm';
+        <Card className="border-purple-200 shadow-xl bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Análise Frequencial
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="p-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <ClientInfoFields form={form} />
+                <AnalysisFields form={form} />
+
+                {/* Seção de Planos */}
+                <div className="space-y-6 border-t border-purple-200 pt-6">
+                  <h3 className="text-xl font-semibold text-purple-800 mb-4">Configurações de Planos</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Plano Mensal */}
+                    <div className="space-y-4 p-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="planoAtivo" className="text-lg font-medium text-purple-800 flex items-center gap-2">
+                          <Calendar className="h-5 w-5" />
+                          MENSAIS
+                        </Label>
+                        <Switch 
+                          checked={planoAtivo} 
+                          onCheckedChange={setPlanoAtivo}
+                        />
+                      </div>
+                      
+                      {planoAtivo && (
+                        <div className="space-y-4 animate-fade-in">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-purple-700">Meses</Label>
+                              <Select value={planoData.meses} onValueChange={(value) => handlePlanoDataChange("meses", value)}>
+                                <SelectTrigger className="border-purple-300 focus:border-purple-500">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 12 }, (_, i) => (
+                                    <SelectItem key={i + 1} value={String(i + 1)}>
+                                      {i + 1} {i + 1 === 1 ? 'mês' : 'meses'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-purple-700">Valor Mensal</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="R$ 0,00"
+                                value={planoData.valorMensal}
+                                onChange={(e) => handlePlanoDataChange("valorMensal", e.target.value)}
+                                className="border-purple-300 focus:border-purple-500"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-purple-700">Dia de Vencimento</Label>
+                            <Select value={planoData.diaVencimento} onValueChange={(value) => handlePlanoDataChange("diaVencimento", value)}>
+                              <SelectTrigger className="border-purple-300 focus:border-purple-500">
+                                <SelectValue placeholder="Dia 5" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 31 }, (_, i) => (
+                                  <SelectItem key={i + 1} value={String(i + 1)}>
+                                    Dia {i + 1}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Plano Semanal */}
+                    <div className="space-y-4 p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="semanalAtivo" className="text-lg font-medium text-green-800 flex items-center gap-2">
+                          <Clock className="h-5 w-5" />
+                          Semanal
+                        </Label>
+                        <Switch 
+                          checked={semanalAtivo} 
+                          onCheckedChange={setSemanalAtivo}
+                        />
+                      </div>
+                      
+                      {semanalAtivo && (
+                        <div className="space-y-4 animate-fade-in">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-green-700">Semanas</Label>
+                              <Select value={semanalData.semanas} onValueChange={(value) => handleSemanalDataChange("semanas", value)}>
+                                <SelectTrigger className="border-green-300 focus:border-green-500">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 12 }, (_, i) => (
+                                    <SelectItem key={i + 1} value={String(i + 1)}>
+                                      {i + 1} {i + 1 === 1 ? 'semana' : 'semanas'}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-green-700">Valor Semanal</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="R$ 0,00"
+                                value={semanalData.valorSemanal}
+                                onChange={(e) => handleSemanalDataChange("valorSemanal", e.target.value)}
+                                className="border-green-300 focus:border-green-500"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-green-700">Dia da Semana</Label>
+                            <Select value={semanalData.diaVencimento} onValueChange={(value) => handleSemanalDataChange("diaVencimento", value)}>
+                              <SelectTrigger className="border-green-300 focus:border-green-500">
+                                <SelectValue placeholder="Sexta-feira" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="domingo">Domingo</SelectItem>
+                                <SelectItem value="segunda">Segunda-feira</SelectItem>
+                                <SelectItem value="terca">Terça-feira</SelectItem>
+                                <SelectItem value="quarta">Quarta-feira</SelectItem>
+                                <SelectItem value="quinta">Quinta-feira</SelectItem>
+                                <SelectItem value="sexta">Sexta-feira</SelectItem>
+                                <SelectItem value="sabado">Sábado</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <CountersSection form={form} />
+
+                <div className="flex justify-end space-x-4 pt-6 border-t border-purple-200">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={onCancel}
+                    className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        {initialData ? 'Atualizar' : 'Salvar'} Análise
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
 
 export default FrequencyAnalysisForm;
