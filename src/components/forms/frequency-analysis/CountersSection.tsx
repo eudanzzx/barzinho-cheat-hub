@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar as CalendarIcon, Plus, X } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
+import { UseFormReturn } from "react-hook-form";
 
 interface Counter {
   id: string;
@@ -20,10 +20,11 @@ interface Counter {
 }
 
 interface CountersSectionProps {
-  counters: Counter[];
-  onAddCounter: () => void;
-  onUpdateCounter: (id: string, name: string, endDate: Date) => void;
-  onRemoveCounter: (id: string) => void;
+  counters?: Counter[];
+  onAddCounter?: () => void;
+  onUpdateCounter?: (id: string, name: string, endDate: Date) => void;
+  onRemoveCounter?: (id: string) => void;
+  form?: UseFormReturn<any>;
 }
 
 const CounterField = memo(({ 
@@ -34,21 +35,25 @@ const CounterField = memo(({
 }: { 
   counter: Counter; 
   index: number; 
-  onUpdate: (id: string, name: string, endDate: Date) => void;
-  onRemove: (id: string) => void;
+  onUpdate?: (id: string, name: string, endDate: Date) => void;
+  onRemove?: (id: string) => void;
 }) => {
   const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onUpdate(counter.id, e.target.value, counter.endDate);
+    if (onUpdate) {
+      onUpdate(counter.id, e.target.value, counter.endDate);
+    }
   }, [counter.id, counter.endDate, onUpdate]);
 
   const handleDateChange = useCallback((date: Date | undefined) => {
-    if (date) {
+    if (date && onUpdate) {
       onUpdate(counter.id, counter.name, date);
     }
   }, [counter.id, counter.name, onUpdate]);
 
   const handleRemove = useCallback(() => {
-    onRemove(counter.id);
+    if (onRemove) {
+      onRemove(counter.id);
+    }
   }, [counter.id, onRemove]);
 
   return (
@@ -112,7 +117,7 @@ const CounterField = memo(({
 CounterField.displayName = 'CounterField';
 
 const CountersSection: React.FC<CountersSectionProps> = memo(({
-  counters,
+  counters = [],
   onAddCounter,
   onUpdateCounter,
   onRemoveCounter,

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { ArrowLeft, Save, Sparkles, Calendar, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
@@ -80,15 +82,15 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nomeCliente: initialData?.nomeCliente || "",
-      dataNascimento: initialData?.dataNascimento || "",
-      signo: initialData?.signo || "",
-      dataInicio: initialData?.dataInicio || new Date().toISOString().split('T')[0],
-      preco: initialData?.preco || "150",
+      nomeCliente: initialData?.nomeCliente || initialData?.clientName || "",
+      dataNascimento: initialData?.dataNascimento || initialData?.clientBirthdate || "",
+      signo: initialData?.signo || initialData?.clientSign || "",
+      dataInicio: initialData?.dataInicio || initialData?.analysisDate || new Date().toISOString().split('T')[0],
+      preco: initialData?.preco || initialData?.value || "150",
       finalizado: initialData?.finalizado || false,
-      beforeAnalysis: initialData?.beforeAnalysis || "",
-      afterAnalysis: initialData?.afterAnalysis || "",
-      recommendedTreatment: initialData?.recommendedTreatment || "",
+      beforeAnalysis: initialData?.analiseAntes || "",
+      afterAnalysis: initialData?.analiseDepois || "",
+      recommendedTreatment: initialData?.treatment || "",
       lembretes: initialData?.lembretes || [],
     },
   });
@@ -111,13 +113,29 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
     setIsSubmitting(true);
     try {
       const analysisData: TarotAnalysis = {
-        ...values,
         id: initialData?.id || Date.now().toString(),
+        clientName: values.nomeCliente,
+        clientBirthdate: values.dataNascimento,
+        clientSign: values.signo,
+        analysisDate: values.dataInicio,
+        analysisType: "frequencial",
+        paymentStatus: "pendente",
+        value: values.preco || "150",
+        finalizado: values.finalizado,
         planoAtivo: planoAtivo,
         planoData: planoAtivo ? planoData : null,
         semanalAtivo: semanalAtivo,
         semanalData: semanalAtivo ? semanalData : null,
-        analysisDate: values.dataInicio,
+        // Legacy fields for backward compatibility
+        nomeCliente: values.nomeCliente,
+        dataNascimento: values.dataNascimento,
+        signo: values.signo,
+        dataInicio: values.dataInicio,
+        preco: values.preco,
+        analiseAntes: values.beforeAnalysis,
+        analiseDepois: values.afterAnalysis,
+        treatment: values.recommendedTreatment,
+        lembretes: values.lembretes,
       };
 
       console.log('Dados da análise a serem salvos:', analysisData);
@@ -301,8 +319,6 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
                     </div>
                   </div>
                 </div>
-
-                <CountersSection form={form} />
 
                 <div className="flex justify-end space-x-4 pt-6 border-t border-purple-200">
                   <Button 
