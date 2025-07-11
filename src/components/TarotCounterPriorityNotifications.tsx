@@ -5,7 +5,7 @@ import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import { ClientPaymentGroup } from "@/components/tarot/payment-notifications/ClientPaymentGroup";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 
 interface TarotCounterPriorityNotificationsProps {
@@ -16,23 +16,10 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   analises,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Dados de teste para demonstrar o modal funcionando
-  const testPayments = [
-    {
-      id: 'test-1',
-      clientName: 'Maria Silva',
-      type: 'plano',
-      amount: 150.00,
-      dueDate: '2025-07-10T14:00:00Z',
-      description: 'Análise de Tarot - Plano Mensal',
-      monthNumber: 1
-    }
-  ];
 
   // Se não há notificações pendentes, não mostrar o componente
   if (groupedPayments.length === 0) {

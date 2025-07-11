@@ -114,23 +114,6 @@ export const useMainPaymentNotifications = () => {
     }, 100);
   }, [getPlanos, savePlanos, checkMainPaymentNotifications]);
 
-  const handleViewDetails = useCallback((payment: any) => {
-    console.log('handleViewDetails - Abrindo modal de detalhes:', payment);
-    
-    // Disparar evento customizado para abrir o modal de detalhes de pagamento
-    const event = new CustomEvent('open-payment-details-modal', {
-      detail: { payment }
-    });
-    window.dispatchEvent(event);
-    
-    // Também disparar via timeout para garantir
-    setTimeout(() => {
-      const eventRetry = new CustomEvent('open-payment-details-modal', {
-        detail: { payment }
-      });
-      window.dispatchEvent(eventRetry);
-    }, 100);
-  }, []);
 
   useEffect(() => {
     console.log('useMainPaymentNotifications - Inicializando...');
@@ -186,7 +169,6 @@ export const useMainPaymentNotifications = () => {
     groupedPayments,
     markAsPaid,
     deleteNotification,
-    handleViewDetails,
     refresh: checkMainPaymentNotifications
   };
 };

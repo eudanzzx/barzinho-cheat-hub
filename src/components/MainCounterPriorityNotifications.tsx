@@ -1,5 +1,5 @@
 
-import React, { memo, useState, useEffect } from "react";
+import React, { memo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -38,20 +38,6 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     return null;
   }
 
-  // Escutar evento para abrir modal de detalhes
-  useEffect(() => {
-    const handleOpenPaymentDetailsModal = (event: CustomEvent) => {
-      console.log('Abrindo modal de detalhes para pagamento:', event.detail.payment);
-      setSelectedPayment(event.detail.payment);
-      setIsModalOpen(true);
-    };
-
-    window.addEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
-    
-    return () => {
-      window.removeEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
-    };
-  }, []);
 
   // Se não há notificações pendentes, não mostrar o componente
   if (groupedPayments.length === 0) {
