@@ -115,13 +115,21 @@ export const useMainPaymentNotifications = () => {
   }, [getPlanos, savePlanos, checkMainPaymentNotifications]);
 
   const handleViewDetails = useCallback((payment: any) => {
-    console.log('handleViewDetails - Redirecionando para modal de detalhes:', payment);
+    console.log('handleViewDetails - Abrindo modal de detalhes:', payment);
     
     // Disparar evento customizado para abrir o modal de detalhes de pagamento
     const event = new CustomEvent('open-payment-details-modal', {
       detail: { payment }
     });
     window.dispatchEvent(event);
+    
+    // Também disparar via timeout para garantir
+    setTimeout(() => {
+      const eventRetry = new CustomEvent('open-payment-details-modal', {
+        detail: { payment }
+      });
+      window.dispatchEvent(eventRetry);
+    }, 100);
   }, []);
 
   useEffect(() => {
@@ -133,6 +141,20 @@ export const useMainPaymentNotifications = () => {
       setTimeout(() => {
         checkMainPaymentNotifications();
       }, 50);
+    };
+
+    const handleMarkAsPaid = (event: CustomEvent) => {
+      console.log('handleMarkAsPaid - Evento recebido:', event.detail);
+      if (event.detail?.id) {
+        markAsPaid(event.detail.id);
+      }
+    };
+
+    const handleDeleteNotification = (event: CustomEvent) => {
+      console.log('handleDeleteNotification - Evento recebido:', event.detail);
+      if (event.detail?.id) {
+        deleteNotification(event.detail.id);
+      }
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações
@@ -146,13 +168,19 @@ export const useMainPaymentNotifications = () => {
     eventNames.forEach(eventName => {
       window.addEventListener(eventName, handlePaymentUpdate as EventListener);
     });
+
+    // Escutar eventos do modal de detalhes
+    window.addEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
+    window.addEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
     
     return () => {
       eventNames.forEach(eventName => {
         window.removeEventListener(eventName, handlePaymentUpdate as EventListener);
       });
+      window.removeEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
+      window.removeEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
     };
-  }, [checkMainPaymentNotifications]);
+  }, [checkMainPaymentNotifications, markAsPaid, deleteNotification]);
 
   return {
     groupedPayments,

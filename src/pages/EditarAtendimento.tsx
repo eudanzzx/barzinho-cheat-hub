@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, AlertTriangle, Cake, CreditCard, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
-import { updateAtendimento } from "@/utils/dataServices";
+import { updateAtendimentoWithPlans } from "@/utils/updateAtendimentoWithPlans";
 import BirthdayNotifications from "@/components/BirthdayNotifications";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import Logo from "@/components/Logo";
@@ -317,7 +317,11 @@ const EditarAtendimento = () => {
       
       console.log('Dados do formulário que serão salvos:', formData);
       
-      const resultado = updateAtendimento(id!, formData, userDataService);
+      const resultado = updateAtendimentoWithPlans({
+        id: id!,
+        updatedData: formData,
+        userDataService
+      });
       
       if (resultado) {
         console.log('Atendimento salvo com sucesso:', resultado);

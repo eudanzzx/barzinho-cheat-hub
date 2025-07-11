@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
-import { MainClientPaymentGroup } from "@/components/main-payment-notifications/MainClientPaymentGroup";
+import { MainClientPaymentGroupNew } from "@/components/main-payment-notifications/MainClientPaymentGroupNew";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 import { useMainPaymentNotifications } from "@/hooks/useMainPaymentNotifications";
 
@@ -66,7 +66,7 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
       </CardHeader>
       <CardContent className="space-y-4">
         {groupedPayments.map((group, index) => (
-          <MainClientPaymentGroup
+          <MainClientPaymentGroupNew
             key={`${group.clientName}-${group.mostUrgent.id}-${index}`}
             group={group}
             onMarkAsPaid={markAsPaid}

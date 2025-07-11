@@ -7,6 +7,8 @@ import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
 import IndexMainContent from "@/components/dashboard/IndexMainContent";
 import IndexStats from "@/components/dashboard/IndexStats";
 import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
+import PaymentDetailsModal from "@/components/PaymentDetailsModal";
+import MainPriorityPaymentsModal from "@/components/dashboard/MainPriorityPaymentsModal";
 import { useIndexStats } from "@/hooks/useIndexStats";
 import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
@@ -17,6 +19,8 @@ const Index: React.FC = () => {
   const [periodoVisualizacao, setPeriodoVisualizacao] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
   const [searchTerm, setSearchTerm] = useState('');
   const [aniversarianteHoje, setAniversarianteHoje] = useState<{ nome: string; dataNascimento: string } | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const filteredAtendimentos = useIndexFiltering(atendimentos, periodoVisualizacao, searchTerm);
   const calculateStats = useIndexStats(atendimentos);
@@ -45,6 +49,21 @@ const Index: React.FC = () => {
   useEffect(() => {
     loadAtendimentos();
   }, [loadAtendimentos]);
+
+  // Escutar evento para abrir modal de detalhes
+  useEffect(() => {
+    const handleOpenPaymentDetailsModal = (event: CustomEvent) => {
+      console.log('Index - Abrindo modal de detalhes para pagamento:', event.detail.payment);
+      setSelectedPayment(event.detail.payment);
+      setIsPaymentModalOpen(true);
+    };
+
+    window.addEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+    
+    return () => {
+      window.removeEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     const handleDataUpdated = () => {
@@ -85,6 +104,9 @@ const Index: React.FC = () => {
                 Gerencie seus atendimentos e acompanhe estatísticas
               </p>
             </div>
+            <div className="flex gap-2">
+              <MainPriorityPaymentsModal atendimentos={atendimentos} />
+            </div>
           </div>
 
           <IndexStats 
@@ -105,6 +127,28 @@ const Index: React.FC = () => {
           />
         </div>
       </main>
+      
+      <PaymentDetailsModal
+        payment={selectedPayment}
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onMarkAsPaid={(id: string) => {
+          // Disparar evento para marcar como pago
+          const event = new CustomEvent('mark-payment-as-paid', {
+            detail: { id }
+          });
+          window.dispatchEvent(event);
+          setIsPaymentModalOpen(false);
+        }}
+        onDeleteNotification={(id: string) => {
+          // Disparar evento para excluir notificação
+          const event = new CustomEvent('delete-payment-notification', {
+            detail: { id }
+          });
+          window.dispatchEvent(event);
+          setIsPaymentModalOpen(false);
+        }}
+      />
     </div>
   );
 };
