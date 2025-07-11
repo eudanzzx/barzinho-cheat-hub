@@ -23,20 +23,8 @@ export const useMainPaymentNotifications = () => {
     const mainPlans = filterMainPlans(allPlanos, existingClientNames);
     console.log('useMainPaymentNotifications - Planos principais válidos:', mainPlans.length);
     
-    // Filtrar apenas planos com vencimento próximo (hoje, amanhã) ou em atraso
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const pendingNotifications = mainPlans.filter(plano => {
-      const dueDate = new Date(plano.dueDate);
-      dueDate.setHours(0, 0, 0, 0);
-      
-      const diffTime = dueDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      // Mostrar se está em atraso (< 0), vence hoje (0) ou vence amanhã (1)
-      return diffDays <= 1;
-    });
+    // Mostrar TODOS os planos ativos (sem filtro de tempo)
+    const pendingNotifications = mainPlans;
     
     console.log('useMainPaymentNotifications - Notificações pendentes:', pendingNotifications.length);
     
