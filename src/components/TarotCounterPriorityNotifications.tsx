@@ -20,16 +20,27 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Só mostrar notificações de tarot nas páginas de tarot
-  const isTarotPage = location.pathname.includes('listagem-tarot') || 
-                      location.pathname.includes('analise-frequencial') || 
-                      location.pathname.includes('editar-analise-frequencial') ||
-                      location.pathname.includes('relatorio-geral-tarot') ||
-                      location.pathname.includes('relatorio-individual-tarot');
-  
-  if (!isTarotPage || groupedPayments.length === 0) {
-    return null;
-  }
+  // Dados de teste para demonstrar o modal funcionando
+  const testPayments = [
+    {
+      id: 'test-1',
+      clientName: 'Maria Silva',
+      type: 'plano',
+      value: '150.00',
+      dueDate: '2025-07-10',
+      description: 'Análise de Tarot - Plano Mensal',
+      monthNumber: 1
+    }
+  ];
+
+  // Use dados de teste se não houver notificações reais
+  const paymentsToShow = groupedPayments.length > 0 ? groupedPayments : [
+    {
+      clientName: 'Maria Silva (Teste)',
+      mostUrgent: testPayments[0],
+      additionalPayments: []
+    }
+  ];
 
   const handleViewDetails = (payment: any) => {
     console.log('handleViewDetails called with payment:', payment);
@@ -38,6 +49,17 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
     setIsModalOpen(true);
   };
 
+  // Só mostrar notificações de tarot nas páginas de tarot
+  const isTarotPage = location.pathname.includes('listagem-tarot') || 
+                      location.pathname.includes('analise-frequencial') || 
+                      location.pathname.includes('editar-analise-frequencial') ||
+                      location.pathname.includes('relatorio-geral-tarot') ||
+                      location.pathname.includes('relatorio-individual-tarot');
+  
+  if (!isTarotPage) {
+    return null;
+  }
+
   return (
     <Card className="mb-6 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
       <CardHeader className="pb-3">
@@ -45,14 +67,14 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
           <Bell className="h-5 w-5" />
           Próximos Vencimentos - Análises de Tarot
           <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-            {groupedPayments.length} {groupedPayments.length === 1 ? 'cliente' : 'clientes'}
+            {paymentsToShow.length} {paymentsToShow.length === 1 ? 'cliente' : 'clientes'}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {groupedPayments.map((group) => (
+        {paymentsToShow.map((group, index) => (
           <ClientPaymentGroup
-            key={`${group.clientName}-${group.mostUrgent.id}`}
+            key={`${group.clientName}-${group.mostUrgent.id}-${index}`}
             group={group}
             onMarkAsPaid={markAsPaid}
             onDeleteNotification={deleteNotification}
