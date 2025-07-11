@@ -56,7 +56,7 @@ export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional 
           </Badge>
         </div>
         <span className="text-lg font-bold text-green-600">
-          R$ {payment.amount.toFixed(2)}
+          R$ {(payment.amount || 0).toFixed(2)}
         </span>
       </div>
       <div className="flex items-center gap-2 text-sm text-[#8e46dd] font-medium mb-1 mt-1">

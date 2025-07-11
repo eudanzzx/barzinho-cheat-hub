@@ -26,8 +26,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
       id: 'test-1',
       clientName: 'Maria Silva',
       type: 'plano',
-      value: '150.00',
-      dueDate: '2025-07-10',
+      amount: 150.00,
+      dueDate: '2025-07-10T14:00:00Z',
       description: 'Análise de Tarot - Plano Mensal',
       monthNumber: 1
     }
