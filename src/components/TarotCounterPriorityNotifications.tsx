@@ -5,7 +5,7 @@ import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import { ClientPaymentGroup } from "@/components/tarot/payment-notifications/ClientPaymentGroup";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 
 interface TarotCounterPriorityNotificationsProps {
@@ -16,6 +16,7 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   analises,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,8 +46,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const handleViewDetails = (payment: any) => {
     console.log('handleViewDetails called with payment:', payment);
     console.log('Setting modal state - payment:', payment, 'opening modal...');
-    setSelectedPayment(payment);
-    setIsModalOpen(true);
+    // Redirecionar para a página de listagem tarot com scroll para o pagamento específico
+    navigate('/listagem-tarot');
   };
 
   // Só mostrar notificações de tarot nas páginas de tarot
