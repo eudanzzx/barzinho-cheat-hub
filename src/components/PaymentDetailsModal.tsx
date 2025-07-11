@@ -22,7 +22,12 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   onMarkAsPaid,
   onDeleteNotification,
 }) => {
-  if (!payment) return null;
+  console.log('PaymentDetailsModal render - payment:', payment, 'isOpen:', isOpen);
+  
+  if (!payment) {
+    console.log('PaymentDetailsModal: No payment data, returning null');
+    return null;
+  }
 
   const dueDate = parseISO(payment.dueDate);
   const today = new Date();

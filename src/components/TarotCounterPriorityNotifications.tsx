@@ -33,6 +33,7 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
 
   const handleViewDetails = (payment: any) => {
     console.log('handleViewDetails called with payment:', payment);
+    console.log('Setting modal state - payment:', payment, 'opening modal...');
     setSelectedPayment(payment);
     setIsModalOpen(true);
   };
