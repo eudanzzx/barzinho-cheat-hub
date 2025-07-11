@@ -1,11 +1,12 @@
 
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePaymentNotifications } from "@/components/tarot/payment-notifications/usePaymentNotifications";
 import { ClientPaymentGroup } from "@/components/tarot/payment-notifications/ClientPaymentGroup";
 import { useLocation } from "react-router-dom";
+import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 
 interface TarotCounterPriorityNotificationsProps {
   analises: any[];
@@ -16,6 +17,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
 }) => {
   const location = useLocation();
   const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Só mostrar notificações de tarot nas páginas de tarot
   const isTarotPage = location.pathname.includes('listagem-tarot') || 
@@ -30,8 +33,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
 
   const handleViewDetails = (payment: any) => {
     console.log('handleViewDetails called with payment:', payment);
-    // Usar react-router-dom para navegar
-    window.location.href = `/listagem-tarot`;
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
   };
 
   return (
@@ -56,6 +59,14 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
           />
         ))}
       </CardContent>
+      
+      <PaymentDetailsModal
+        payment={selectedPayment}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onMarkAsPaid={markAsPaid}
+        onDeleteNotification={deleteNotification}
+      />
     </Card>
   );
 });
