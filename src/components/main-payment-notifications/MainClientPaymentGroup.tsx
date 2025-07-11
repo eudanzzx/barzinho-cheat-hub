@@ -73,12 +73,36 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
         
         <MainPaymentCard payment={group.mostUrgent} onViewDetails={onViewDetails} />
         
+        {/* Botão Ver Detalhes para o pagamento principal */}
+        {onViewDetails && (
+          <div className="flex justify-end mt-2">
+            <Button
+              onClick={() => onViewDetails(group.mostUrgent)}
+              size="sm"
+              variant="outline"
+              className="text-xs px-2 py-1 h-6 text-purple-600 hover:bg-purple-50 border-purple-300"
+            >
+              Ver Detalhes
+            </Button>
+          </div>
+        )}
+        
         {hasAdditionalPayments && (
           <CollapsibleContent className="space-y-2 mt-2">
             {group.additionalPayments.map((payment: any) => (
               <div key={payment.id} className="ml-2 sm:ml-4">
                 <MainPaymentCard payment={payment} isAdditional={true} onViewDetails={onViewDetails} />
                 <div className="flex justify-end gap-1 sm:gap-2 mt-2">
+                  {onViewDetails && (
+                    <Button
+                      onClick={() => onViewDetails(payment)}
+                      size="sm"
+                      variant="outline"
+                      className="px-1 sm:px-2 h-5 sm:h-6 text-xs text-purple-600 hover:bg-purple-50 border-purple-300"
+                    >
+                      Ver Detalhes
+                    </Button>
+                  )}
                   <Button
                     onClick={() => onDeleteNotification(payment.id)}
                     size="sm"
