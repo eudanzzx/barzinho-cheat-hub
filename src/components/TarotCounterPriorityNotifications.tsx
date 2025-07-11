@@ -46,8 +46,8 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const handleViewDetails = (payment: any) => {
     console.log('handleViewDetails called with payment:', payment);
     console.log('Setting modal state - payment:', payment, 'opening modal...');
-    // Redirecionar para a página de listagem tarot com scroll para o pagamento específico
-    navigate('/listagem-tarot');
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
   };
 
   // Só mostrar notificações de tarot nas páginas de tarot

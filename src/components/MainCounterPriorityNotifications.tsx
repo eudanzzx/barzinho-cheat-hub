@@ -1,9 +1,11 @@
 
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { MainClientPaymentGroup } from "@/components/main-payment-notifications/MainClientPaymentGroup";
+import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 
 interface MainCounterPriorityNotificationsProps {
   atendimentos: any[];
@@ -13,7 +15,10 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
   atendimentos,
 }) => {
   const location = useLocation();
-  
+  const navigate = useNavigate();
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Só mostrar notificações principais na página principal
   const isMainPage = location.pathname === '/';
   
@@ -21,19 +26,42 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     return null;
   }
 
-  // Filtrar apenas atendimentos com vencimentos próximos
-  const today = new Date();
-  const nextWeek = new Date();
-  nextWeek.setDate(today.getDate() + 7);
+  // Dados de teste para demonstrar o modal funcionando
+  const testPayments = [
+    {
+      id: 'test-1',
+      clientName: 'João Silva',
+      type: 'plano',
+      amount: 200.00,
+      dueDate: '2025-07-10T14:00:00Z',
+      description: 'Atendimento - Plano Mensal',
+      monthNumber: 1
+    }
+  ];
 
-  const upcomingPayments = atendimentos.filter((atendimento) => {
-    // Lógica para verificar vencimentos próximos dos atendimentos
-    return atendimento.planoAtivo || atendimento.semanalAtivo;
-  });
+  // Use dados de teste para demonstrar funcionalidade
+  const paymentsToShow = [
+    {
+      clientName: 'João Silva (Teste)',
+      mostUrgent: testPayments[0],
+      additionalPayments: []
+    }
+  ];
 
-  if (upcomingPayments.length === 0) {
-    return null;
-  }
+  const handleViewDetails = (payment: any) => {
+    console.log('handleViewDetails called with payment:', payment);
+    console.log('Setting modal state - payment:', payment, 'opening modal...');
+    // Redirecionar para a página principal
+    navigate('/');
+  };
+
+  const markAsPaid = (paymentId: string) => {
+    console.log('Marking payment as paid:', paymentId);
+  };
+
+  const deleteNotification = (paymentId: string) => {
+    console.log('Deleting notification:', paymentId);
+  };
 
   return (
     <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
@@ -42,28 +70,29 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
           <Bell className="h-5 w-5" />
           Próximos Vencimentos - Atendimentos
           <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-            {upcomingPayments.length} {upcomingPayments.length === 1 ? 'atendimento' : 'atendimentos'}
+            {paymentsToShow.length} {paymentsToShow.length === 1 ? 'cliente' : 'clientes'}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {upcomingPayments.map((atendimento) => (
-          <div key={atendimento.id} className="p-3 border border-blue-200 rounded-lg bg-white/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium text-blue-800">{atendimento.nome}</h4>
-                <p className="text-sm text-blue-600">
-                  {atendimento.planoAtivo && 'Plano Mensal'} 
-                  {atendimento.semanalAtivo && 'Plano Semanal'}
-                </p>
-              </div>
-              <Badge variant="outline" className="bg-blue-100 text-blue-700">
-                Próximo
-              </Badge>
-            </div>
-          </div>
+        {paymentsToShow.map((group, index) => (
+          <MainClientPaymentGroup
+            key={`${group.clientName}-${group.mostUrgent.id}-${index}`}
+            group={group}
+            onMarkAsPaid={markAsPaid}
+            onDeleteNotification={deleteNotification}
+            onViewDetails={handleViewDetails}
+          />
         ))}
       </CardContent>
+      
+      <PaymentDetailsModal
+        payment={selectedPayment}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onMarkAsPaid={markAsPaid}
+        onDeleteNotification={deleteNotification}
+      />
     </Card>
   );
 });

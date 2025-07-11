@@ -10,12 +10,14 @@ interface MainClientPaymentGroupProps {
   group: any;
   onMarkAsPaid: (paymentId: string) => void;
   onDeleteNotification: (paymentId: string) => void;
+  onViewDetails?: (payment: any) => void;
 }
 
 export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
   group,
   onMarkAsPaid,
   onDeleteNotification,
+  onViewDetails,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -69,13 +71,13 @@ export const MainClientPaymentGroup: React.FC<MainClientPaymentGroupProps> = ({
           </div>
         </div>
         
-        <MainPaymentCard payment={group.mostUrgent} />
+        <MainPaymentCard payment={group.mostUrgent} onViewDetails={onViewDetails} />
         
         {hasAdditionalPayments && (
           <CollapsibleContent className="space-y-2 mt-2">
             {group.additionalPayments.map((payment: any) => (
               <div key={payment.id} className="ml-2 sm:ml-4">
-                <MainPaymentCard payment={payment} isAdditional={true} />
+                <MainPaymentCard payment={payment} isAdditional={true} onViewDetails={onViewDetails} />
                 <div className="flex justify-end gap-1 sm:gap-2 mt-2">
                   <Button
                     onClick={() => onDeleteNotification(payment.id)}

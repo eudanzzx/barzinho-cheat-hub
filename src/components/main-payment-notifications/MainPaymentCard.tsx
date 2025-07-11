@@ -1,15 +1,17 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Eye } from "lucide-react";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
 interface MainPaymentCardProps {
   payment: PlanoMensal | PlanoSemanal;
   isAdditional?: boolean;
+  onViewDetails?: (payment: any) => void;
 }
 
-export const MainPaymentCard: React.FC<MainPaymentCardProps> = ({ payment, isAdditional = false }) => {
+export const MainPaymentCard: React.FC<MainPaymentCardProps> = ({ payment, isAdditional = false, onViewDetails }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
@@ -67,6 +69,19 @@ export const MainPaymentCard: React.FC<MainPaymentCardProps> = ({ payment, isAdd
       <div className="text-sm mt-0.5 font-medium text-[#0284c7] mb-1">
         {getUrgencyText(daysUntilDue)}
       </div>
+      {onViewDetails && (
+        <div className="mt-3 flex justify-end">
+          <Button
+            onClick={() => onViewDetails(payment)}
+            size="sm"
+            variant="outline"
+            className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs px-3 py-1.5 h-7"
+          >
+            <Eye className="h-3 w-3 mr-1" />
+            Ver detalhes
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
