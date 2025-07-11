@@ -6,7 +6,7 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
 const AutomaticPaymentNotifications: React.FC = () => {
-  const { getPlanos } = useUserDataService();
+  const { getPlanos, getAtendimentos } = useUserDataService();
   const location = useLocation();
 
   useEffect(() => {
@@ -26,6 +26,10 @@ const AutomaticPaymentNotifications: React.FC = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Obter clientes existentes para validar
+    const allAtendimentos = getAtendimentos();
+    const existingClientNames = new Set(allAtendimentos.map(a => a.nome));
+
     // Filtrar planos ativos que vencem hoje, amanhã ou estão em atraso
     const upcomingPayments = allPlanos.filter(plano => {
       if (!plano.active) return false;
@@ -35,8 +39,10 @@ const AutomaticPaymentNotifications: React.FC = () => {
       return daysOverdue >= -1;
     });
 
-    // Separar entre principais e tarot
-    const mainPayments = upcomingPayments.filter(plano => !plano.analysisId);
+    // Separar entre principais e tarot, validando se os clientes ainda existem
+    const mainPayments = upcomingPayments.filter(plano => 
+      !plano.analysisId && existingClientNames.has(plano.clientName)
+    );
     const tarotPayments = upcomingPayments.filter(plano => plano.analysisId);
 
     // Verificar se estamos na página principal para mostrar notificações principais
@@ -75,7 +81,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
-            onClick: () => console.log("Pagamento principal:", payment)
+            onClick: () => {
+              console.log("Abrindo detalhes do pagamento principal:", payment);
+              // Disparar evento para abrir o modal de detalhes
+              const event = new CustomEvent('open-payment-details-modal', {
+                detail: { payment }
+              });
+              window.dispatchEvent(event);
+            }
           }
         });
       } else if (variant === 'warning') {
@@ -84,7 +97,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
-            onClick: () => console.log("Pagamento principal:", payment)
+            onClick: () => {
+              console.log("Abrindo detalhes do pagamento principal:", payment);
+              // Disparar evento para abrir o modal de detalhes
+              const event = new CustomEvent('open-payment-details-modal', {
+                detail: { payment }
+              });
+              window.dispatchEvent(event);
+            }
           }
         });
       }
