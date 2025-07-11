@@ -34,18 +34,15 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
     }
   ];
 
-  // Use dados de teste se não houver notificações reais
-  const paymentsToShow = groupedPayments.length > 0 ? groupedPayments : [
-    {
-      clientName: 'Maria Silva (Teste)',
-      mostUrgent: testPayments[0],
-      additionalPayments: []
-    }
-  ];
+  // Se não há notificações pendentes, não mostrar o componente
+  if (groupedPayments.length === 0) {
+    return null;
+  }
+
+  const paymentsToShow = groupedPayments;
 
   const handleViewDetails = (payment: any) => {
-    console.log('handleViewDetails called with payment:', payment);
-    console.log('Setting modal state - payment:', payment, 'opening modal...');
+    console.log('TarotCounterPriorityNotifications - handleViewDetails called with payment:', payment);
     setSelectedPayment(payment);
     setIsModalOpen(true);
   };

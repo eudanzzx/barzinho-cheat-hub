@@ -22,9 +22,14 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
   const {
     groupedPayments,
     markAsPaid,
-    deleteNotification,
-    handleViewDetails
+    deleteNotification
   } = useMainPaymentNotifications();
+
+  const handleViewDetails = (payment: any) => {
+    console.log('MainCounterPriorityNotifications - handleViewDetails called with payment:', payment);
+    setSelectedPayment(payment);
+    setIsModalOpen(true);
+  };
 
   // Só mostrar notificações principais na página principal
   const isMainPage = location.pathname === '/';
