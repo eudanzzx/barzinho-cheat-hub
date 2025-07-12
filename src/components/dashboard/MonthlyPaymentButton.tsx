@@ -111,20 +111,20 @@ const MonthlyPaymentButton: React.FC = () => {
       className={cn(
         "cursor-pointer transition-all duration-300 border-2",
         isOpen 
-          ? "border-purple-400 bg-gradient-to-br from-purple-50 to-violet-50 shadow-lg" 
-          : "border-purple-200 bg-white hover:border-purple-300 hover:shadow-md"
+          ? "border-blue-400 bg-gradient-to-br from-blue-50 to-sky-50 shadow-lg" 
+          : "border-blue-200 bg-white hover:border-blue-300 hover:shadow-md"
       )}
       onClick={() => setIsOpen(!isOpen)}
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-purple-700">
-            <div className="p-2 rounded-full bg-purple-100">
-              <CreditCard className="h-5 w-5 text-purple-600" />
+          <CardTitle className="flex items-center gap-3 text-blue-700">
+            <div className="p-2 rounded-full bg-blue-100">
+              <CreditCard className="h-5 w-5 text-blue-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold">Pagamentos Mensais</h3>
-              <p className="text-sm text-purple-600 font-normal">
+              <p className="text-sm text-blue-600 font-normal">
                 {allPlanos.length} total | {pendingPlanos.length} pendente(s)
               </p>
             </div>
@@ -132,12 +132,12 @@ const MonthlyPaymentButton: React.FC = () => {
           <div className="flex items-center gap-2">
             <Badge 
               variant="secondary" 
-              className="bg-purple-100 text-purple-800 border-purple-200"
+              className="bg-blue-100 text-blue-800 border-blue-200"
             >
               {allPlanos.length}
             </Badge>
             <ChevronDown className={cn(
-              "h-5 w-5 text-purple-600 transition-transform duration-300",
+              "h-5 w-5 text-blue-600 transition-transform duration-300",
               isOpen && "rotate-180"
             )} />
           </div>
@@ -167,7 +167,7 @@ const MonthlyPaymentButton: React.FC = () => {
                         ? "border-l-green-500 bg-green-50"
                         : isOverdue
                         ? "border-l-red-500 bg-red-50"
-                        : "border-l-purple-400 bg-gradient-to-r from-white to-purple-50/30 hover:shadow-md"
+                        : "border-l-blue-400 bg-gradient-to-r from-white to-blue-50/30 hover:shadow-md"
                     )}
                   >
                     <CardContent className="p-4">
@@ -180,7 +180,7 @@ const MonthlyPaymentButton: React.FC = () => {
                             <Badge className={cn(
                               isPaid 
                                 ? "bg-green-100 text-green-800 border-green-200"
-                                : "bg-purple-100 text-purple-800 border-purple-200"
+                                : "bg-blue-100 text-blue-800 border-blue-200"
                             )}>
                               {plano.month}º Mês
                             </Badge>

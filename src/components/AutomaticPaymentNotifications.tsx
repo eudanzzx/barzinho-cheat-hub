@@ -1,17 +1,83 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
 const AutomaticPaymentNotifications: React.FC = () => {
-  const { getPlanos, getAtendimentos } = useUserDataService();
+  const { getPlanos, getAtendimentos, savePlanos } = useUserDataService();
   const location = useLocation();
+
+  const checkNotifications = useCallback(() => {
+    checkUpcomingPayments();
+  }, []);
 
   useEffect(() => {
     checkUpcomingPayments();
   }, []);
+
+  // Adicionar listeners para sincronização
+  useEffect(() => {
+    const handlePaymentUpdate = () => {
+      console.log('AutomaticPaymentNotifications - Evento recebido, recarregando...');
+      setTimeout(() => {
+        checkNotifications();
+      }, 100);
+    };
+
+    const handleMarkAsPaid = (event: CustomEvent) => {
+      console.log('AutomaticPaymentNotifications - Marcando como pago:', event.detail.id);
+      const allPlanos = getPlanos();
+      const updatedPlanos = allPlanos.map(plano => 
+        plano.id === event.detail.id ? { ...plano, active: false } : plano
+      );
+      savePlanos(updatedPlanos);
+      
+      // Disparar eventos de sincronização
+      setTimeout(() => {
+        window.dispatchEvent(new Event('planosUpdated'));
+        window.dispatchEvent(new Event('atendimentosUpdated'));
+        checkNotifications();
+      }, 100);
+    };
+
+    const handleDeleteNotification = (event: CustomEvent) => {
+      console.log('AutomaticPaymentNotifications - Excluindo notificação:', event.detail.id);
+      const allPlanos = getPlanos();
+      const updatedPlanos = allPlanos.filter(plano => plano.id !== event.detail.id);
+      savePlanos(updatedPlanos);
+      
+      // Disparar eventos de sincronização
+      setTimeout(() => {
+        window.dispatchEvent(new Event('planosUpdated'));
+        window.dispatchEvent(new Event('atendimentosUpdated'));
+        checkNotifications();
+      }, 100);
+    };
+
+    const eventNames = [
+      'atendimentosUpdated',
+      'planosUpdated',
+      'paymentStatusChanged'
+    ];
+
+    eventNames.forEach(eventName => {
+      window.addEventListener(eventName, handlePaymentUpdate);
+    });
+
+    // Eventos específicos do modal de detalhes
+    window.addEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
+    window.addEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
+
+    return () => {
+      eventNames.forEach(eventName => {
+        window.removeEventListener(eventName, handlePaymentUpdate);
+      });
+      window.removeEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
+      window.removeEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
+    };
+  }, [checkNotifications, getPlanos, savePlanos]);
 
   const getDaysOverdue = (dueDate: string) => {
     const today = new Date();
