@@ -17,7 +17,9 @@ export const initializePlanoData = (
   analysisId: string,
   clientName: string
 ): PlanoMonth[] => {
-  console.log('initializePlanoMonths - Dia de vencimento configurado:', dueDay);
+  console.log('initializePlanoData - Dia de vencimento configurado:', dueDay);
+  console.log('initializePlanoData - Total de meses:', totalMonths);
+  console.log('initializePlanoData - Data base:', baseDate.toISOString());
   
   const months: PlanoMonth[] = [];
   
@@ -29,7 +31,7 @@ export const initializePlanoData = (
     const actualDueDay = Math.min(dueDay, lastDayOfMonth);
     dueDate.setDate(actualDueDay);
     
-    console.log(`initializePlanoMonths - Mês ${i}: ${dueDate.toISOString().split('T')[0]} (dia ${actualDueDay})`);
+    console.log(`initializePlanoData - Mês ${i}/${totalMonths}: ${dueDate.toISOString().split('T')[0]} (dia ${actualDueDay})`);
     
     const planoForMonth = planos.find((plano) => 
       plano.analysisId === analysisId &&
@@ -50,5 +52,6 @@ export const initializePlanoData = (
     });
   }
   
+  console.log(`initializePlanoData - Total de meses criados: ${months.length}`);
   return months;
 };

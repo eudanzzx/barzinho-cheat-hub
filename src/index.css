@@ -35,17 +35,17 @@
 
     --radius: 0.375rem;
     
-    /* Core system colors */
-    --main-primary: 214 88% 60%; /* #3B82F6 - Azul mais forte */
-    --main-primary-light: 214 88% 65%;
-    --main-primary-dark: 214 88% 55%;
-    --main-accent: 214 88% 95%;
+    /* Core system colors - #038DCE */
+    --main-primary: 193 97% 51%; /* #038DCE */
+    --main-primary-light: 193 97% 56%;
+    --main-primary-dark: 193 97% 46%;
+    --main-accent: 193 97% 95%;
     
-    /* Tarot system colors */
-    --tarot-primary: 271 76% 40%; /* #6B21A8 */
-    --tarot-primary-light: 271 76% 45%;
-    --tarot-primary-dark: 271 76% 35%;
-    --tarot-accent: 271 76% 95%;
+    /* Tarot system colors - #B7ADE2 */
+    --tarot-primary: 253 42% 77%; /* #B7ADE2 */
+    --tarot-primary-light: 253 42% 82%;
+    --tarot-primary-dark: 253 42% 72%;
+    --tarot-accent: 253 42% 95%;
   }
 
   .dark {

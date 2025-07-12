@@ -45,12 +45,12 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
   }
 
   return (
-    <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+    <Card className="mb-6 border-main-primary bg-main-accent">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-blue-800">
+        <CardTitle className="flex items-center gap-2 main-primary">
           <Bell className="h-5 w-5" />
           Próximos Vencimentos - Atendimentos
-          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+          <Badge variant="secondary" className="bg-main-primary text-white">
             {groupedPayments.length} {groupedPayments.length === 1 ? 'cliente' : 'clientes'}
           </Badge>
         </CardTitle>

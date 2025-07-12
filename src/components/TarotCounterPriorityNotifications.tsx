@@ -66,12 +66,12 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   }
 
   return (
-    <Card className="mb-6 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+    <Card className="mb-6 border-tarot-primary bg-tarot-accent">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-purple-800">
+        <CardTitle className="flex items-center gap-2 tarot-primary">
           <Bell className="h-5 w-5" />
           Próximos Vencimentos - Análises de Tarot
-          <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+          <Badge variant="secondary" className="bg-tarot-primary text-white">
             {paymentsToShow.length} {paymentsToShow.length === 1 ? 'cliente' : 'clientes'}
           </Badge>
         </CardTitle>

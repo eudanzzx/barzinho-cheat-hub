@@ -11,14 +11,27 @@ interface PaymentCardProps {
 
 export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional = false }) => {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return {
-      date: date.toLocaleDateString('pt-BR'),
-      time: date.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    };
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return {
+          date: 'Data inválida',
+          time: '00:00'
+        };
+      }
+      return {
+        date: date.toLocaleDateString('pt-BR'),
+        time: date.toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      };
+    } catch (error) {
+      return {
+        date: 'Data inválida',
+        time: '00:00'
+      };
+    }
   };
 
   const getDaysUntilDue = (dueDate: string) => {
@@ -41,15 +54,15 @@ export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional 
     return `${daysUntilDue} ${daysUntilDue === 1 ? 'dia' : 'dias'} restantes`;
   }
 
-  // Estilo do cartão do print: fundo roxo claro, sombra, layout destacado
+  // Usar cores do sistema tarot
   return (
-    <div className={`rounded-xl border border-[#ceb8fa] bg-[#f6f0ff] shadow-sm p-4 transition-all duration-200 relative 
+    <div className={`rounded-xl border border-tarot-primary bg-tarot-accent shadow-sm p-4 transition-all duration-200 relative 
       ${isAdditional ? 'ml-4 mt-2' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Badge 
             variant="outline" 
-            className="border-transparent bg-white/60 text-[#8e46dd] font-semibold px-3 py-1 text-xs"
+            className="border-transparent bg-white/60 tarot-primary font-semibold px-3 py-1 text-xs"
             style={{ boxShadow: 'none' }}
           >
             {payment.type === "plano" ? "Mensal" : "Semanal"}
@@ -59,13 +72,13 @@ export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional 
           R$ {(payment.amount || 0).toFixed(2)}
         </span>
       </div>
-      <div className="flex items-center gap-2 text-sm text-[#8e46dd] font-medium mb-1 mt-1">
+      <div className="flex items-center gap-2 text-sm tarot-primary font-medium mb-1 mt-1">
         <Calendar className="h-4 w-4" />
         <span>
-          {formattedDate.date} às {formattedDate.time}
+          {formattedDate.date}
         </span>
       </div>
-      <div className="text-sm mt-0.5 font-medium text-[#9156e0] mb-1">
+      <div className="text-sm mt-0.5 font-medium tarot-primary mb-1">
         {getUrgencyText(daysUntilDue)}
       </div>
     </div>
