@@ -47,7 +47,6 @@ const SemanalPaymentButton: React.FC<SemanalPaymentButtonProps> = ({
         onClick={handleToggle}
         type="button"
       >
-        <span className="text-xs">📅</span>
         <span className="font-medium text-xs">Semanais</span>
         <ChevronDown className={cn(
           "h-3 w-3 transition-transform duration-200 flex-shrink-0",

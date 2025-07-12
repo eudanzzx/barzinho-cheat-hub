@@ -13,6 +13,16 @@ const TarotPaymentNotificationsButton = () => {
 
   const totalPayments = groupedPayments.reduce((acc, group) => acc + group.totalPayments, 0);
 
+  const handleViewDetails = (payment: any) => {
+    console.log('TarotPaymentNotificationsButton - Abrindo detalhes para pagamento:', payment);
+    // Disparar evento personalizado para abrir o modal de detalhes
+    const event = new CustomEvent('open-payment-details-modal', {
+      detail: { payment }
+    });
+    window.dispatchEvent(event);
+    setIsOpen(false); // Fechar o popover
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -55,6 +65,7 @@ const TarotPaymentNotificationsButton = () => {
                   group={group}
                   onMarkAsPaid={markAsPaid}
                   onDeleteNotification={deleteNotification}
+                  onViewDetails={handleViewDetails}
                 />
               ))}
             </div>
