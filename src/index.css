@@ -35,17 +35,17 @@
 
     --radius: 0.375rem;
     
-    /* Core system colors - #038DCE */
-    --main-primary: 193 97% 51%; /* #038DCE */
-    --main-primary-light: 193 97% 56%;
-    --main-primary-dark: 193 97% 46%;
-    --main-accent: 193 97% 95%;
+    /* Core system colors - #2563EE */
+    --main-primary: 233 95% 66%; /* #2563EE */
+    --main-primary-light: 233 95% 71%;
+    --main-primary-dark: 233 95% 61%;
+    --main-accent: 233 95% 95%;
     
-    /* Tarot system colors - #B7ADE2 */
-    --tarot-primary: 253 42% 77%; /* #B7ADE2 */
-    --tarot-primary-light: 253 42% 82%;
-    --tarot-primary-dark: 253 42% 72%;
-    --tarot-accent: 253 42% 95%;
+    /* Tarot system colors - #673193 */
+    --tarot-primary: 280 51% 31%; /* #673193 */
+    --tarot-primary-light: 280 51% 36%;
+    --tarot-primary-dark: 280 51% 26%;
+    --tarot-accent: 280 51% 95%;
   }
 
   .dark {
@@ -261,9 +261,31 @@
   100% { opacity: 1; }
 }
 
-/* Better touch targets for mobile */
+  /* Better touch targets for mobile and performance optimizations */
 button, a, input, select, textarea {
   min-height: 40px;
+}
+
+/* Performance optimizations */
+* {
+  /* Improve rendering performance */
+  will-change: auto;
+}
+
+/* Reduce repaints and reflows */
+.container, .card, .button {
+  contain: layout;
+}
+
+/* Optimize transitions for better performance */
+button, a, .interactive {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* Reduce expensive operations */
+input, textarea, select {
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* Responsive improvements */

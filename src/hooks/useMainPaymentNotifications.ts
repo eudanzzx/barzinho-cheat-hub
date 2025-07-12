@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import useUserDataService from "@/services/userDataService";
 import { filterMainPlans } from "@/components/main-payment-notifications/utils/mainPlanFilters";
 import { groupPaymentsByClient, GroupedPayment } from "@/components/tarot/payment-notifications/utils/paymentGrouping";
+import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 
 export const useMainPaymentNotifications = () => {
   const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
@@ -33,6 +34,8 @@ export const useMainPaymentNotifications = () => {
     
     setGroupedPayments(grouped);
   }, [getPlanos, getAtendimentos]);
+
+  const debouncedCheck = useDebounceCallback(checkMainPaymentNotifications, 100);
 
   const markAsPaid = useCallback((notificationId: string) => {
     console.log('markAsPaid - Marcando como pago:', notificationId);
@@ -68,9 +71,9 @@ export const useMainPaymentNotifications = () => {
     
     // Refresh das notificações
     setTimeout(() => {
-      checkMainPaymentNotifications();
+      debouncedCheck();
     }, 100);
-  }, [getPlanos, savePlanos, checkMainPaymentNotifications]);
+  }, [getPlanos, savePlanos, debouncedCheck]);
 
   const deleteNotification = useCallback((notificationId: string) => {
     console.log('deleteNotification - Excluindo notificação:', notificationId);
@@ -98,9 +101,9 @@ export const useMainPaymentNotifications = () => {
     
     // Refresh das notificações
     setTimeout(() => {
-      checkMainPaymentNotifications();
+      debouncedCheck();
     }, 100);
-  }, [getPlanos, savePlanos, checkMainPaymentNotifications]);
+  }, [getPlanos, savePlanos, debouncedCheck]);
 
 
   useEffect(() => {
@@ -109,9 +112,7 @@ export const useMainPaymentNotifications = () => {
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      setTimeout(() => {
-        checkMainPaymentNotifications();
-      }, 50);
+      debouncedCheck();
     };
 
     const handleMarkAsPaid = (event: CustomEvent) => {
@@ -155,7 +156,7 @@ export const useMainPaymentNotifications = () => {
       window.removeEventListener('main-payment-updated', handlePaymentUpdate as EventListener);
       window.removeEventListener('paymentStatusChanged', handlePaymentUpdate as EventListener);
     };
-  }, [checkMainPaymentNotifications, markAsPaid, deleteNotification]);
+  }, [debouncedCheck, markAsPaid, deleteNotification]);
 
   return {
     groupedPayments,

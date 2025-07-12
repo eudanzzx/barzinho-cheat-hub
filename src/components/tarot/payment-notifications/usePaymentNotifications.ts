@@ -4,6 +4,7 @@ import useUserDataService from "@/services/userDataService";
 import { filterTarotPlans } from "./utils/tarotPlanFilters";
 import { groupPaymentsByClient, GroupedPayment } from "./utils/paymentGrouping";
 import { handleMarkAsPaid, handlePostponePayment, handleDeleteNotification } from "./utils/paymentActions";
+import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 
 export const usePaymentNotifications = () => {
   const { getPlanos, savePlanos } = useUserDataService();
@@ -22,6 +23,8 @@ export const usePaymentNotifications = () => {
     
     setGroupedPayments(grouped);
   }, [getPlanos]);
+
+  const debouncedCheck = useDebounceCallback(checkTarotPaymentNotifications, 100);
 
   const markAsPaid = useCallback((notificationId: string) => {
     console.log('markAsPaid - Iniciando para ID:', notificationId);
@@ -67,7 +70,7 @@ export const usePaymentNotifications = () => {
     // Força refresh completo após pequeno delay
     setTimeout(() => {
       triggerSyncEvents();
-      checkTarotPaymentNotifications();
+      debouncedCheck();
     }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
@@ -99,7 +102,7 @@ export const usePaymentNotifications = () => {
     setTimeout(triggerSyncEvents, 100);
     
     setTimeout(() => {
-      checkTarotPaymentNotifications();
+      debouncedCheck();
     }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
@@ -139,7 +142,7 @@ export const usePaymentNotifications = () => {
     triggerSyncEvents();
     setTimeout(() => {
       triggerSyncEvents();
-      checkTarotPaymentNotifications();
+      debouncedCheck();
     }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
@@ -149,10 +152,7 @@ export const usePaymentNotifications = () => {
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      // Refresh com delay pequeno para garantir que os dados foram salvos
-      setTimeout(() => {
-        checkTarotPaymentNotifications();
-      }, 50);
+      debouncedCheck();
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações

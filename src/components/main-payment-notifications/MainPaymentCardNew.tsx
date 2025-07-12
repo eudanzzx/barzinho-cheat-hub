@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";  
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
@@ -8,50 +8,34 @@ interface MainPaymentCardNewProps {
   isAdditional?: boolean;
 }
 
-export const MainPaymentCardNew: React.FC<MainPaymentCardNewProps> = ({ payment, isAdditional = false }) => {
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return {
-          date: 'Data inválida',
-          time: '00:00'
-        };
-      }
-      return {
-        date: date.toLocaleDateString('pt-BR'),
-        time: date.toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      };
-    } catch (error) {
-      return {
-        date: 'Data inválida',
-        time: '00:00'
-      };
-    }
-  };
-
-  const getDaysUntilDue = (dueDate: string) => {
+export const MainPaymentCardNew: React.FC<MainPaymentCardNewProps> = memo(({ payment, isAdditional = false }) => {
+  const { daysUntilDue, formattedDate, urgencyText } = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const due = new Date(dueDate);
+    const due = new Date(payment.dueDate);
     due.setHours(0, 0, 0, 0);
     const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const daysUntilDue = getDaysUntilDue(payment.dueDate);
-  const formattedDate = formatDate(payment.dueDate);
-
-  function getUrgencyText(daysUntilDue: number) {
-    if (daysUntilDue < 0) return `${Math.abs(daysUntilDue)} ${Math.abs(daysUntilDue) === 1 ? 'dia' : 'dias'} em atraso`;
-    if (daysUntilDue === 0) return 'Vence hoje';
-    if (daysUntilDue === 1) return 'Vence amanhã';
-    return `${daysUntilDue} ${daysUntilDue === 1 ? 'dia' : 'dias'} restantes`;
-  }
+    
+    let urgencyText: string;
+    if (diffDays < 0) {
+      urgencyText = `${Math.abs(diffDays)} ${Math.abs(diffDays) === 1 ? 'dia' : 'dias'} em atraso`;
+    } else if (diffDays === 0) {
+      urgencyText = 'Vence hoje';
+    } else if (diffDays === 1) {
+      urgencyText = 'Vence amanhã';
+    } else {
+      urgencyText = `${diffDays} ${diffDays === 1 ? 'dia' : 'dias'} restantes`;
+    }
+    
+    const formattedDate = new Date(payment.dueDate).toLocaleDateString('pt-BR');
+    
+    return {
+      daysUntilDue: diffDays,
+      formattedDate,
+      urgencyText
+    };
+  }, [payment.dueDate]);
 
     // Usar cores do sistema: azul principal para todos os atendimentos
     return (
@@ -74,12 +58,14 @@ export const MainPaymentCardNew: React.FC<MainPaymentCardNewProps> = ({ payment,
       <div className="flex items-center gap-2 text-sm main-primary font-medium mb-1 mt-1">
         <Calendar className="h-4 w-4" />
         <span>
-          {formattedDate.date}
+          {formattedDate}
         </span>
       </div>
       <div className="text-sm mt-0.5 main-primary font-medium mb-1">
-        {getUrgencyText(daysUntilDue)}
+        {urgencyText}
       </div>
     </div>
   );
-};
+});
+
+MainPaymentCardNew.displayName = 'MainPaymentCardNew';
