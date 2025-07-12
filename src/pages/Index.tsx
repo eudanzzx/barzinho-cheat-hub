@@ -13,7 +13,7 @@ import { useIndexStats } from "@/hooks/useIndexStats";
 import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
 
-const Index: React.FC = React.memo(() => {
+const Index: React.FC = () => {
   const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useOptimizedUserDataService();
   const [atendimentos, setAtendimentos] = useState<any[]>([]);
   const [periodoVisualizacao, setPeriodoVisualizacao] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
@@ -151,8 +151,6 @@ const Index: React.FC = React.memo(() => {
       />
     </div>
   );
-});
+};
 
-Index.displayName = 'Index';
-
-export default Index;
+export default React.memo(Index);

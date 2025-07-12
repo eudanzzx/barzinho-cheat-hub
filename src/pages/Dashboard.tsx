@@ -26,7 +26,7 @@ interface AtendimentoData {
   semanalAtivo?: boolean;
 }
 
-const Dashboard = React.memo(() => {
+const Dashboard = () => {
   const navigate = useNavigate();
   const userDataService = useOptimizedUserDataService();
   const { getAtendimentos } = userDataService;
@@ -247,8 +247,6 @@ const Dashboard = React.memo(() => {
       </main>
     </div>
   );
-});
+};
 
-Dashboard.displayName = 'Dashboard';
-
-export default Dashboard;
+export default React.memo(Dashboard);
