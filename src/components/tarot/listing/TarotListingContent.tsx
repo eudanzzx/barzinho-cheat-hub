@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText } from 'lucide-react';
 import { Tabs } from "@/components/ui/tabs";
@@ -21,7 +21,7 @@ interface TarotListingContentProps {
   onDelete: (id: string) => void;
 }
 
-const TarotListingContent: React.FC<TarotListingContentProps> = ({
+const TarotListingContent: React.FC<TarotListingContentProps> = memo(({
   tabAnalises,
   searchTerm,
   activeTab,
@@ -31,6 +31,36 @@ const TarotListingContent: React.FC<TarotListingContentProps> = ({
   onEdit,
   onDelete
 }) => {
+  const isEmpty = useMemo(() => tabAnalises.length === 0, [tabAnalises.length]);
+  
+  const emptyStateContent = useMemo(() => (
+    <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
+      <CardContent className="flex flex-col items-center justify-center py-16">
+        <FileText className="h-12 w-12 text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium text-gray-600 mb-2">
+          Nenhuma análise encontrada
+        </h3>
+        <p className="text-gray-500 text-center">
+          {searchTerm
+            ? "Não há análises que correspondam à sua busca."
+            : "Não há análises frequenciais registradas."}
+        </p>
+      </CardContent>
+    </Card>
+  ), [searchTerm]);
+
+  const listContent = useMemo(() => (
+    <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
+      <CardContent className="p-4">
+        <TarotAnalysisListOptimized
+          analises={tabAnalises}
+          onToggleFinished={onToggleFinished}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </CardContent>
+    </Card>
+  ), [tabAnalises, onToggleFinished, onEdit, onDelete]);
   return (
     <>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -44,34 +74,11 @@ const TarotListingContent: React.FC<TarotListingContentProps> = ({
         />
       </Tabs>
 
-      {tabAnalises.length === 0 ? (
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-600 mb-2">
-              Nenhuma análise encontrada
-            </h3>
-            <p className="text-gray-500 text-center">
-              {searchTerm
-                ? "Não há análises que correspondam à sua busca."
-                : "Não há análises frequenciais registradas."}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl">
-          <CardContent className="p-4">
-            <TarotAnalysisListOptimized
-              analises={tabAnalises}
-              onToggleFinished={onToggleFinished}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          </CardContent>
-        </Card>
-      )}
+      {isEmpty ? emptyStateContent : listContent}
     </>
   );
-};
+});
+
+TarotListingContent.displayName = 'TarotListingContent';
 
 export default TarotListingContent;

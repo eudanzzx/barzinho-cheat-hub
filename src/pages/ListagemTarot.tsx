@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
@@ -31,7 +31,7 @@ const ListagemTarot = React.memo(() => {
     handleToggleFinished,
   } = useTarotAnalises();
 
-  const counts = getStatusCounts;
+  const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
 
   // Escutar evento para abrir modal de detalhes
   useEffect(() => {

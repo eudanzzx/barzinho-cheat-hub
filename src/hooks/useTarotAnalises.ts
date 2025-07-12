@@ -16,10 +16,10 @@ export function useTarotAnalises() {
   const [aniversarianteHoje, setAniversarianteHoje] = useState<any>(null);
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
-  // Aumentar debounce para reduzir re-renderizações
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  // Debounce super otimizado para busca instantânea
+  const debouncedSearchTerm = useDebounce(searchTerm, 150);
 
-  // Carrega análises apenas uma vez
+  // Carrega análises apenas uma vez com otimização
   useEffect(() => {
     const loadAnalises = () => {
       try {

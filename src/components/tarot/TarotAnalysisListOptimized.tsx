@@ -18,12 +18,12 @@ const TarotAnalysisListOptimized = memo(
     onDelete: (id: string) => void;
   }) => {
     const [showAll, setShowAll] = useState(false);
-    const ITEMS_PER_PAGE = 10; // Reduzir para 10 para melhor performance
+    const ITEMS_PER_PAGE = 8; // Reduzir para 8 para performance máxima
     
     // Super otimizar renderização limitando itens visíveis
     const visibleAnalises = useMemo(() => {
       if (showAll) {
-        return analises.slice(0, 30); // Limitar máximo quando "mostrar todos"
+        return analises.slice(0, 20); // Máximo 20 quando "mostrar todos"
       }
       return analises.slice(0, ITEMS_PER_PAGE);
     }, [analises, showAll]);
@@ -46,7 +46,7 @@ const TarotAnalysisListOptimized = memo(
     }, []);
     
     const hasMoreItems = analises.length > ITEMS_PER_PAGE;
-    const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 35); // Limitar contagem
+    const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 20); // Limitar contagem
     
     const renderAnaliseItem = useCallback((analise: any) => (
       <TarotAnalysisCard
@@ -65,8 +65,8 @@ const TarotAnalysisListOptimized = memo(
         <VirtualizedList
           items={visibleAnalises}
           renderItem={renderAnaliseItem}
-          maxVisibleItems={showAll ? 30 : ITEMS_PER_PAGE}
-          containerHeight="600px"
+          maxVisibleItems={showAll ? 20 : ITEMS_PER_PAGE}
+          containerHeight="500px"
         />
         
         {hasMoreItems && (
