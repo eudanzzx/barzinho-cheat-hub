@@ -2,11 +2,11 @@
 import React, { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
-import useUserDataService from "@/services/userDataService";
+import useOptimizedUserDataService from "@/services/optimizedUserDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
-const AutomaticPaymentNotifications: React.FC = () => {
-  const { getPlanos, getAtendimentos, savePlanos } = useUserDataService();
+const AutomaticPaymentNotifications: React.FC = React.memo(() => {
+  const { getPlanos, getAtendimentos, savePlanos } = useOptimizedUserDataService();
   const location = useLocation();
 
   const checkNotifications = useCallback(() => {
@@ -20,14 +20,12 @@ const AutomaticPaymentNotifications: React.FC = () => {
   // Adicionar listeners para sincronização
   useEffect(() => {
     const handlePaymentUpdate = () => {
-      console.log('AutomaticPaymentNotifications - Evento recebido, recarregando...');
       setTimeout(() => {
         checkNotifications();
       }, 100);
     };
 
     const handleMarkAsPaid = (event: CustomEvent) => {
-      console.log('AutomaticPaymentNotifications - Marcando como pago:', event.detail.id);
       const allPlanos = getPlanos();
       const updatedPlanos = allPlanos.map(plano => 
         plano.id === event.detail.id ? { ...plano, active: false } : plano
@@ -43,7 +41,6 @@ const AutomaticPaymentNotifications: React.FC = () => {
     };
 
     const handleDeleteNotification = (event: CustomEvent) => {
-      console.log('AutomaticPaymentNotifications - Excluindo notificação:', event.detail.id);
       const allPlanos = getPlanos();
       const updatedPlanos = allPlanos.filter(plano => plano.id !== event.detail.id);
       savePlanos(updatedPlanos);
@@ -148,7 +145,6 @@ const AutomaticPaymentNotifications: React.FC = () => {
           action: {
             label: "Ver detalhes",
             onClick: () => {
-              console.log("Abrindo detalhes do pagamento principal:", payment);
               // Disparar evento para abrir o modal de detalhes
               const event = new CustomEvent('open-payment-details-modal', {
                 detail: { payment }
@@ -164,7 +160,6 @@ const AutomaticPaymentNotifications: React.FC = () => {
           action: {
             label: "Ver detalhes",
             onClick: () => {
-              console.log("Abrindo detalhes do pagamento principal:", payment);
               // Disparar evento para abrir o modal de detalhes
               const event = new CustomEvent('open-payment-details-modal', {
                 detail: { payment }
@@ -208,7 +203,6 @@ const AutomaticPaymentNotifications: React.FC = () => {
           action: {
             label: "Ver detalhes",
             onClick: () => {
-              console.log("Abrindo detalhes do pagamento tarot:", payment);
               // Disparar evento para abrir o modal de detalhes
               const event = new CustomEvent('open-payment-details-modal', {
                 detail: { payment }
@@ -224,7 +218,6 @@ const AutomaticPaymentNotifications: React.FC = () => {
           action: {
             label: "Ver detalhes",
             onClick: () => {
-              console.log("Abrindo detalhes do pagamento tarot:", payment);
               // Disparar evento para abrir o modal de detalhes
               const event = new CustomEvent('open-payment-details-modal', {
                 detail: { payment }
@@ -237,17 +230,12 @@ const AutomaticPaymentNotifications: React.FC = () => {
       });
     }
 
-    // Log para debug
-    if (upcomingPayments.length > 0) {
-      console.log('AutomaticPaymentNotifications - Pagamentos de amanhã:', {
-        total: upcomingPayments.length,
-        principais: mainPayments.length,
-        tarot: tarotPayments.length
-      });
-    }
+    // Otimizado: removido log para performance
   };
 
   return null; // Componente invisível
-};
+});
+
+AutomaticPaymentNotifications.displayName = 'AutomaticPaymentNotifications';
 
 export default AutomaticPaymentNotifications;

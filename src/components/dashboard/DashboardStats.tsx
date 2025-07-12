@@ -14,7 +14,7 @@ interface DashboardStatsProps {
   onPeriodChange: (period: 'semana' | 'mes' | 'ano' | 'total') => void;
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({
+const DashboardStats: React.FC<DashboardStatsProps> = React.memo(({
   totalAtendimentos,
   atendimentosSemana,
   totalRecebido,
@@ -101,6 +101,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       </div>
     </>
   );
-};
+});
+
+DashboardStats.displayName = 'DashboardStats';
 
 export default DashboardStats;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import useUserDataService from "@/services/userDataService";
+import useOptimizedUserDataService from "@/services/optimizedUserDataService";
 import { Search, FileText, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,9 +26,9 @@ interface AtendimentoData {
   semanalAtivo?: boolean;
 }
 
-const Dashboard = () => {
+const Dashboard = React.memo(() => {
   const navigate = useNavigate();
-  const userDataService = useUserDataService();
+  const userDataService = useOptimizedUserDataService();
   const { getAtendimentos } = userDataService;
   const [atendimentos, setAtendimentos] = useState<AtendimentoData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -247,6 +247,8 @@ const Dashboard = () => {
       </main>
     </div>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';
 
 export default Dashboard;

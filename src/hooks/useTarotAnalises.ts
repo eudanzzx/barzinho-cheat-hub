@@ -1,13 +1,13 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import useUserDataService from "@/services/userDataService";
-import { useDebounce } from "./useDebounce";
+import useOptimizedUserDataService from "@/services/optimizedUserDataService";
+import { useOptimizedDebounce } from "./useOptimizedDebounce";
 
 const defaultStats = { total: 0, semana: 0, mes: 0, ano: 0 };
 
 export function useTarotAnalises() {
   const { getAllTarotAnalyses, saveAllTarotAnalyses, deleteTarotAnalysis } =
-    useUserDataService();
+    useOptimizedUserDataService();
 
   const [analises, setAnalises] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,8 +16,8 @@ export function useTarotAnalises() {
   const [aniversarianteHoje, setAniversarianteHoje] = useState<any>(null);
   const [recebidoStats, setRecebidoStats] = useState(defaultStats);
 
-  // Aumentar debounce para reduzir re-renderizações
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  // Debounce otimizado para reduzir input lag
+  const debouncedSearchTerm = useOptimizedDebounce(searchTerm, 200);
 
   // Carrega análises apenas uma vez
   useEffect(() => {

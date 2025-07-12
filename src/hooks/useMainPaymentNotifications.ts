@@ -1,44 +1,39 @@
 import { useState, useEffect, useCallback } from "react";
-import useUserDataService from "@/services/userDataService";
+import useOptimizedUserDataService from "@/services/optimizedUserDataService";
 import { filterMainPlans } from "@/components/main-payment-notifications/utils/mainPlanFilters";
 import { groupPaymentsByClient, GroupedPayment } from "@/components/tarot/payment-notifications/utils/paymentGrouping";
-import { useDebounceCallback } from "@/hooks/useDebounceCallback";
+import { useThrottle } from "@/hooks/useThrottle";
 
 export const useMainPaymentNotifications = () => {
-  const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
+  const { getPlanos, savePlanos, getAtendimentos } = useOptimizedUserDataService();
   const [groupedPayments, setGroupedPayments] = useState<GroupedPayment[]>([]);
 
   const checkMainPaymentNotifications = useCallback(() => {
-    console.log('useMainPaymentNotifications - Verificando notificações...');
-    
     // Obter todos os atendimentos existentes para validar quais clientes ainda existem
     const allAtendimentos = getAtendimentos();
-    const existingClientNames = new Set(allAtendimentos.map(a => a.nome));
-    
-    console.log('useMainPaymentNotifications - Clientes existentes:', existingClientNames.size);
+    const existingClientNames = new Set<string>();
+    allAtendimentos.forEach((a: any) => {
+      if (a.nome && typeof a.nome === 'string') {
+        existingClientNames.add(a.nome);
+      }
+    });
     
     const allPlanos = getPlanos();
-    console.log('useMainPaymentNotifications - Total de planos:', allPlanos.length);
     
     // Filtrar apenas planos principais de clientes que ainda existem
     const mainPlans = filterMainPlans(allPlanos, existingClientNames);
-    console.log('useMainPaymentNotifications - Planos principais válidos:', mainPlans.length);
     
     // Mostrar TODOS os planos ativos (sem filtro de tempo)
     const pendingNotifications = mainPlans;
     
-    console.log('useMainPaymentNotifications - Notificações pendentes:', pendingNotifications.length);
-    
     const grouped = groupPaymentsByClient(pendingNotifications);
-    console.log('useMainPaymentNotifications - Grupos de pagamento:', grouped.length);
     
     setGroupedPayments(grouped);
   }, [getPlanos, getAtendimentos]);
 
-  const debouncedCheck = useDebounceCallback(checkMainPaymentNotifications, 100);
+  const throttledCheck = useThrottle(checkMainPaymentNotifications, 250);
 
   const markAsPaid = useCallback((notificationId: string) => {
-    console.log('markAsPaid - Marcando como pago:', notificationId);
     const allPlanos = getPlanos();
     
     const updatedPlanos = allPlanos.map(plano => {
@@ -71,12 +66,11 @@ export const useMainPaymentNotifications = () => {
     
     // Refresh das notificações
     setTimeout(() => {
-      debouncedCheck();
+      throttledCheck();
     }, 100);
-  }, [getPlanos, savePlanos, debouncedCheck]);
+  }, [getPlanos, savePlanos, throttledCheck]);
 
   const deleteNotification = useCallback((notificationId: string) => {
-    console.log('deleteNotification - Excluindo notificação:', notificationId);
     const allPlanos = getPlanos();
     
     const updatedPlanos = allPlanos.filter(plano => plano.id !== notificationId);
@@ -101,29 +95,25 @@ export const useMainPaymentNotifications = () => {
     
     // Refresh das notificações
     setTimeout(() => {
-      debouncedCheck();
+      throttledCheck();
     }, 100);
-  }, [getPlanos, savePlanos, debouncedCheck]);
+  }, [getPlanos, savePlanos, throttledCheck]);
 
 
   useEffect(() => {
-    console.log('useMainPaymentNotifications - Inicializando...');
     checkMainPaymentNotifications();
     
-    const handlePaymentUpdate = (event?: CustomEvent) => {
-      console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      debouncedCheck();
+    const handlePaymentUpdate = () => {
+      throttledCheck();
     };
 
     const handleMarkAsPaid = (event: CustomEvent) => {
-      console.log('handleMarkAsPaid - Evento recebido:', event.detail);
       if (event.detail?.id) {
         markAsPaid(event.detail.id);
       }
     };
 
     const handleDeleteNotification = (event: CustomEvent) => {
-      console.log('handleDeleteNotification - Evento recebido:', event.detail);
       if (event.detail?.id) {
         deleteNotification(event.detail.id);
       }
@@ -156,7 +146,7 @@ export const useMainPaymentNotifications = () => {
       window.removeEventListener('main-payment-updated', handlePaymentUpdate as EventListener);
       window.removeEventListener('paymentStatusChanged', handlePaymentUpdate as EventListener);
     };
-  }, [debouncedCheck, markAsPaid, deleteNotification]);
+  }, [throttledCheck, markAsPaid, deleteNotification]);
 
   return {
     groupedPayments,

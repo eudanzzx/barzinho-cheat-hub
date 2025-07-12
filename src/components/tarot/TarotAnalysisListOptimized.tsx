@@ -3,6 +3,7 @@ import React, { memo, useMemo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import TarotAnalysisCard from "./TarotAnalysisCard";
+import VirtualizedList from "@/components/VirtualizedList";
 
 const TarotAnalysisListOptimized = memo(
   ({
@@ -17,12 +18,12 @@ const TarotAnalysisListOptimized = memo(
     onDelete: (id: string) => void;
   }) => {
     const [showAll, setShowAll] = useState(false);
-    const ITEMS_PER_PAGE = 15; // Reduzir ainda mais para melhor performance
+    const ITEMS_PER_PAGE = 10; // Reduzir para 10 para melhor performance
     
     // Super otimizar renderização limitando itens visíveis
     const visibleAnalises = useMemo(() => {
       if (showAll) {
-        return analises.slice(0, 50); // Limitar máximo mesmo quando "mostrar todos"
+        return analises.slice(0, 30); // Limitar máximo quando "mostrar todos"
       }
       return analises.slice(0, ITEMS_PER_PAGE);
     }, [analises, showAll]);
@@ -47,19 +48,26 @@ const TarotAnalysisListOptimized = memo(
     const hasMoreItems = analises.length > ITEMS_PER_PAGE;
     const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 35); // Limitar contagem
     
+    const renderAnaliseItem = useCallback((analise: any) => (
+      <TarotAnalysisCard
+        key={analise.id}
+        analise={analise}
+        formattedTime={null}
+        timeRemaining={null}
+        onToggleFinished={handleToggleFinished}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    ), [handleToggleFinished, handleEdit, handleDelete]);
+
     return (
       <div className="space-y-3">
-        {visibleAnalises.map((analise) => (
-          <TarotAnalysisCard
-            key={analise.id}
-            analise={analise}
-            formattedTime={null}
-            timeRemaining={null}
-            onToggleFinished={handleToggleFinished}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
+        <VirtualizedList
+          items={visibleAnalises}
+          renderItem={renderAnaliseItem}
+          maxVisibleItems={showAll ? 30 : ITEMS_PER_PAGE}
+          containerHeight="600px"
+        />
         
         {hasMoreItems && (
           <div className="flex flex-col items-center gap-3 py-4">
