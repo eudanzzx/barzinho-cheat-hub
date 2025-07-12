@@ -2,11 +2,11 @@
 import React, { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
-import useOptimizedUserDataService from "@/services/optimizedUserDataService";
+import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 
-const AutomaticPaymentNotifications: React.FC = React.memo(() => {
-  const { getPlanos, getAtendimentos, savePlanos } = useOptimizedUserDataService();
+const AutomaticPaymentNotifications: React.FC = () => {
+  const { getPlanos, getAtendimentos, savePlanos } = useUserDataService();
   const location = useLocation();
 
   const checkNotifications = useCallback(() => {
@@ -234,8 +234,6 @@ const AutomaticPaymentNotifications: React.FC = React.memo(() => {
   };
 
   return null; // Componente invisível
-});
-
-AutomaticPaymentNotifications.displayName = 'AutomaticPaymentNotifications';
+};
 
 export default AutomaticPaymentNotifications;

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import useOptimizedUserDataService from "@/services/optimizedUserDataService";
+import useUserDataService from "@/services/userDataService";
 import { filterMainPlans } from "@/components/main-payment-notifications/utils/mainPlanFilters";
 import { groupPaymentsByClient, GroupedPayment } from "@/components/tarot/payment-notifications/utils/paymentGrouping";
 import { useThrottle } from "@/hooks/useThrottle";
 
 export const useMainPaymentNotifications = () => {
-  const { getPlanos, savePlanos, getAtendimentos } = useOptimizedUserDataService();
+  const { getPlanos, savePlanos, getAtendimentos } = useUserDataService();
   const [groupedPayments, setGroupedPayments] = useState<GroupedPayment[]>([]);
 
   const checkMainPaymentNotifications = useCallback(() => {
