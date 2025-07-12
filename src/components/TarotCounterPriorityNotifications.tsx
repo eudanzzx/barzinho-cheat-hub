@@ -1,5 +1,4 @@
-
-import React, { memo, useState } from "react";
+import React, { memo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,27 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Adicionar sincronização com controle de pagamentos
+  useEffect(() => {
+    const handleSyncUpdate = () => {
+      console.log('TarotCounterPriorityNotifications - Sincronizando com controle de pagamentos');
+      // Forçar refresh das notificações
+      setTimeout(() => {
+        window.dispatchEvent(new Event('tarot-payment-updated'));
+      }, 100);
+    };
+
+    const events = ['planosUpdated', 'atendimentosUpdated', 'paymentStatusChanged'];
+    events.forEach(event => {
+      window.addEventListener(event, handleSyncUpdate);
+    });
+
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handleSyncUpdate);
+      });
+    };
+  }, []);
 
   // Se não há notificações pendentes, não mostrar o componente
   if (groupedPayments.length === 0) {

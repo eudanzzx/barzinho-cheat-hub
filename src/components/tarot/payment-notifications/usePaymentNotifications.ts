@@ -28,17 +28,18 @@ export const usePaymentNotifications = () => {
     const allPlanos = getPlanos();
     const updatedPlanos = handleMarkAsPaid(notificationId, allPlanos, savePlanos);
     
-    // Disparar eventos de sincronização múltiplos
+    // Disparar eventos de sincronização múltiplos IMEDIATAMENTE
     const triggerSyncEvents = () => {
       console.log('markAsPaid - Disparando eventos de sincronização...');
       
-      // Eventos para sincronizar diferentes partes do sistema
+      // Eventos para sincronizar TODAS as partes do sistema
       const events = [
         'tarot-payment-updated',
         'planosUpdated',
         'tarotAnalysesUpdated',
         'atendimentosUpdated',
-        'paymentStatusChanged'
+        'paymentStatusChanged',
+        'monthlyPaymentsUpdated'
       ];
       
       events.forEach(eventName => {
@@ -46,31 +47,28 @@ export const usePaymentNotifications = () => {
           detail: { 
             updatedId: notificationId,
             timestamp: Date.now(),
-            action: 'mark_as_paid'
+            action: 'mark_as_paid',
+            triggeredBy: 'tarot-payment-notifications'
           }
         });
         window.dispatchEvent(event);
-        console.log('markAsPaid - Evento disparado:', eventName);
       });
 
-      // Disparar evento de storage para garantir sincronização
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'planos',
-        newValue: JSON.stringify(updatedPlanos),
-        url: window.location.href
-      }));
+      // Disparar evento customizado para modal principal
+      const customEvent = new CustomEvent('mark-payment-as-paid', {
+        detail: { id: notificationId }
+      });
+      window.dispatchEvent(customEvent);
     };
 
-    // Disparar eventos múltiplas vezes para garantir sincronização
-    triggerSyncEvents(); // Imediato
-    setTimeout(triggerSyncEvents, 50); // 50ms
-    setTimeout(triggerSyncEvents, 200); // 200ms
-    setTimeout(triggerSyncEvents, 500); // 500ms
-
-    // Refresh imediato das notificações
+    // Disparar eventos IMEDIATAMENTE
+    triggerSyncEvents();
+    
+    // Força refresh completo após pequeno delay
     setTimeout(() => {
+      triggerSyncEvents();
       checkTarotPaymentNotifications();
-    }, 100);
+    }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);
 
   const postponePayment = useCallback((notificationId: string) => {
@@ -115,24 +113,32 @@ export const usePaymentNotifications = () => {
       const events = [
         'tarot-payment-updated',
         'planosUpdated',
-        'paymentStatusChanged'
+        'paymentStatusChanged',
+        'atendimentosUpdated',
+        'monthlyPaymentsUpdated'
       ];
       
       events.forEach(eventName => {
         const event = new CustomEvent(eventName, { 
           detail: { 
             deletedId: notificationId,
-            action: 'delete'
+            action: 'delete',
+            triggeredBy: 'tarot-payment-notifications'
           }
         });
         window.dispatchEvent(event);
       });
+
+      // Disparar evento customizado para modal principal
+      const customEvent = new CustomEvent('delete-payment-notification', {
+        detail: { id: notificationId }
+      });
+      window.dispatchEvent(customEvent);
     };
 
     triggerSyncEvents();
-    setTimeout(triggerSyncEvents, 100);
-    
     setTimeout(() => {
+      triggerSyncEvents();
       checkTarotPaymentNotifications();
     }, 150);
   }, [getPlanos, savePlanos, checkTarotPaymentNotifications]);

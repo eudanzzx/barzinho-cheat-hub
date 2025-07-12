@@ -36,10 +36,10 @@
     --radius: 0.375rem;
     
     /* Core system colors */
-    --main-primary: 216 95% 40%; /* #1E40AF */
-    --main-primary-light: 216 95% 45%;
-    --main-primary-dark: 216 95% 35%;
-    --main-accent: 216 95% 95%;
+    --main-primary: 214 88% 60%; /* #3B82F6 - Azul mais forte */
+    --main-primary-light: 214 88% 65%;
+    --main-primary-dark: 214 88% 55%;
+    --main-accent: 214 88% 95%;
     
     /* Tarot system colors */
     --tarot-primary: 271 76% 40%; /* #6B21A8 */

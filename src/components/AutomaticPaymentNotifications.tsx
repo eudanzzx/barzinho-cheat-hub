@@ -207,7 +207,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
-            onClick: () => console.log("Pagamento tarot:", payment)
+            onClick: () => {
+              console.log("Abrindo detalhes do pagamento tarot:", payment);
+              // Disparar evento para abrir o modal de detalhes
+              const event = new CustomEvent('open-payment-details-modal', {
+                detail: { payment }
+              });
+              window.dispatchEvent(event);
+            }
           }
         });
       } else if (variant === 'warning') {
@@ -216,7 +223,14 @@ const AutomaticPaymentNotifications: React.FC = () => {
           description: `${payment.clientName} - R$ ${payment.amount.toFixed(2)} (${planInfo})`,
           action: {
             label: "Ver detalhes",
-            onClick: () => console.log("Pagamento tarot:", payment)
+            onClick: () => {
+              console.log("Abrindo detalhes do pagamento tarot:", payment);
+              // Disparar evento para abrir o modal de detalhes
+              const event = new CustomEvent('open-payment-details-modal', {
+                detail: { payment }
+              });
+              window.dispatchEvent(event);
+            }
           }
         });
       }
