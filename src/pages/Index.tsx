@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import useOptimizedUserDataService from "@/services/optimizedUserDataService";
+import useUserDataService from "@/services/userDataService";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
@@ -14,7 +14,7 @@ import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
 
 const Index: React.FC = () => {
-  const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useOptimizedUserDataService();
+  const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useUserDataService();
   const [atendimentos, setAtendimentos] = useState<any[]>([]);
   const [periodoVisualizacao, setPeriodoVisualizacao] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import useOptimizedUserDataService from "@/services/optimizedUserDataService";
+import useUserDataService from "@/services/userDataService";
 import { Search, FileText, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ interface AtendimentoData {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const userDataService = useOptimizedUserDataService();
+  const userDataService = useUserDataService();
   const { getAtendimentos } = userDataService;
   const [atendimentos, setAtendimentos] = useState<AtendimentoData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
