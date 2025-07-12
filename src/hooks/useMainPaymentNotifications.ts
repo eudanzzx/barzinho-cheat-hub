@@ -140,9 +140,11 @@ export const useMainPaymentNotifications = () => {
       window.addEventListener(eventName, handlePaymentUpdate as EventListener);
     });
 
-    // Escutar eventos do modal de detalhes
+    // Escutar eventos do modal de detalhes e controle de pagamentos
     window.addEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
     window.addEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
+    window.addEventListener('main-payment-updated', handlePaymentUpdate as EventListener);
+    window.addEventListener('paymentStatusChanged', handlePaymentUpdate as EventListener);
     
     return () => {
       eventNames.forEach(eventName => {
@@ -150,6 +152,8 @@ export const useMainPaymentNotifications = () => {
       });
       window.removeEventListener('mark-payment-as-paid', handleMarkAsPaid as EventListener);
       window.removeEventListener('delete-payment-notification', handleDeleteNotification as EventListener);
+      window.removeEventListener('main-payment-updated', handlePaymentUpdate as EventListener);
+      window.removeEventListener('paymentStatusChanged', handlePaymentUpdate as EventListener);
     };
   }, [checkMainPaymentNotifications, markAsPaid, deleteNotification]);
 

@@ -40,15 +40,22 @@ export const MainPaymentCardNew: React.FC<MainPaymentCardNewProps> = ({ payment,
     return `${daysUntilDue} ${daysUntilDue === 1 ? 'dia' : 'dias'} restantes`;
   }
 
-  // Cores azuis para manter a identidade visual da parte principal
-  return (
-    <div className={`rounded-xl border border-[#60a5fa] bg-[#eff6ff] shadow-sm p-4 transition-all duration-200 relative 
-      ${isAdditional ? 'ml-4 mt-2' : ''}`}>
+    // Cores azuis para mensal, roxas para semanal
+    const isMonthly = payment.type === "plano";
+    return (
+      <div className={`rounded-xl border shadow-sm p-4 transition-all duration-200 relative 
+        ${isMonthly 
+          ? 'border-[#60a5fa] bg-[#eff6ff]' 
+          : 'border-[#ceb8fa] bg-[#f6f0ff]'
+        } 
+        ${isAdditional ? 'ml-4 mt-2' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Badge 
             variant="outline" 
-            className="border-transparent bg-white/60 text-[#0ea5e9] font-semibold px-3 py-1 text-xs"
+            className={`border-transparent bg-white/60 font-semibold px-3 py-1 text-xs ${
+              payment.type === "plano" ? "text-[#0ea5e9]" : "text-[#8e46dd]"
+            }`}
             style={{ boxShadow: 'none' }}
           >
             {payment.type === "plano" ? "Mensal" : "Semanal"}
@@ -58,13 +65,17 @@ export const MainPaymentCardNew: React.FC<MainPaymentCardNewProps> = ({ payment,
           R$ {(payment.amount || 0).toFixed(2)}
         </span>
       </div>
-      <div className="flex items-center gap-2 text-sm text-[#0ea5e9] font-medium mb-1 mt-1">
+      <div className={`flex items-center gap-2 text-sm font-medium mb-1 mt-1 ${
+        payment.type === "plano" ? "text-[#0ea5e9]" : "text-[#8e46dd]"
+      }`}>
         <Calendar className="h-4 w-4" />
         <span>
           {formattedDate.date} às {formattedDate.time}
         </span>
       </div>
-      <div className="text-sm mt-0.5 font-medium text-[#0284c7] mb-1">
+      <div className={`text-sm mt-0.5 font-medium mb-1 ${
+        payment.type === "plano" ? "text-[#0284c7]" : "text-[#9156e0]"
+      }`}>
         {getUrgencyText(daysUntilDue)}
       </div>
     </div>

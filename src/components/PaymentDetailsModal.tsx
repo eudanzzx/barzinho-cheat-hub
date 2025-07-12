@@ -100,7 +100,7 @@ const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
                 <div>
                   <p className="text-sm text-muted-foreground">Valor</p>
                   <p className="font-medium text-green-600">
-                    {formatCurrency(payment.value)}
+                    {formatCurrency(payment.amount || payment.value || 0)}
                   </p>
                 </div>
               </div>

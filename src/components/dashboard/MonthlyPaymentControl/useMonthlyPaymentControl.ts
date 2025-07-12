@@ -76,10 +76,29 @@ export const useMonthlyPaymentControl = () => {
     );
     
     // SINCRONIZAÇÃO AUTOMÁTICA - Disparar múltiplos eventos para todos os controles
+    const triggerSyncEvents = () => {
+      const events = [
+        'atendimentosUpdated',
+        'planosUpdated', 
+        'monthlyPaymentsUpdated',
+        'main-payment-updated',
+        'paymentStatusChanged'
+      ];
+      
+      events.forEach(eventName => {
+        const event = new CustomEvent(eventName, { 
+          detail: { 
+            updatedId: planoId,
+            action: 'toggle_payment',
+            timestamp: Date.now()
+          }
+        });
+        window.dispatchEvent(event);
+      });
+    };
+    
     setTimeout(() => {
-      window.dispatchEvent(new Event('atendimentosUpdated'));
-      window.dispatchEvent(new Event('planosUpdated'));
-      window.dispatchEvent(new Event('monthlyPaymentsUpdated'));
+      triggerSyncEvents();
       loadPlanos();
     }, 100);
   };
