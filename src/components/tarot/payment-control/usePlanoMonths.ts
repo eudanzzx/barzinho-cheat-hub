@@ -39,6 +39,27 @@ export const usePlanoMonths = ({
     initializePlanoMonths();
   }, [analysisId, planoData, startDate]);
 
+  // Escutar mudanças nos planos para sincronizar
+  useEffect(() => {
+    const handlePlanosUpdate = () => {
+      console.log('usePlanoMonths - Planos atualizados, reinicializando...');
+      setTimeout(() => {
+        initializePlanoMonths();
+      }, 100);
+    };
+
+    const events = ['planosUpdated', 'tarot-payment-updated', 'paymentStatusChanged'];
+    events.forEach(event => {
+      window.addEventListener(event, handlePlanosUpdate);
+    });
+
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handlePlanosUpdate);
+      });
+    };
+  }, []);
+
   const initializePlanoMonths = () => {
     const totalMonths = parseInt(planoData.meses);
     const baseDate = new Date(startDate);
@@ -61,6 +82,12 @@ export const usePlanoMonths = ({
       clientName
     );
     
+    console.log('usePlanoMonths - Meses inicializados:', {
+      totalMonths: months.length,
+      paidMonths: months.filter(m => m.isPaid).length,
+      analysisId
+    });
+    
     setPlanoMonths(months);
   };
 
@@ -69,17 +96,25 @@ export const usePlanoMonths = ({
     const planos = getPlanos();
     const newIsPaid = !month.isPaid;
 
+    console.log('handlePaymentToggle - Iniciando:', {
+      monthIndex,
+      month: month.month,
+      currentIsPaid: month.isPaid,
+      newIsPaid,
+      planoId: month.planoId
+    });
+
     const currentPlano = month.planoId
       ? planos.find((plano) => plano.id === month.planoId)
       : undefined;
 
     // Normalize active to boolean for comparison
-    const isCurrentPendingPlano = currentPlano && Boolean(currentPlano.active === true || currentPlano.active === 'true');
+    const isCurrentPendingPlano = currentPlano && Boolean(currentPlano.active === true || currentPlano.active === 'true' || currentPlano.active === '1');
 
     const allActivePlanos = planoMonths
       .filter((pm) => pm.planoId)
       .map((pm) => planos.find((plano) => plano.id === pm.planoId))
-      .filter((plano): plano is PlanoMensal => !!plano && Boolean(plano.active === true || plano.active === 'true'));
+      .filter((plano): plano is PlanoMensal => !!plano && Boolean(plano.active === true || plano.active === 'true' || plano.active === '1'));
 
     let nextDuePlano;
     if (allActivePlanos.length > 0) {
@@ -95,14 +130,38 @@ export const usePlanoMonths = ({
       currentPlano.id === nextDuePlano.id &&
       newIsPaid
     ) {
+      console.log('handlePaymentToggle - Usando handleMarkAsPaid para plano ativo mais próximo');
       handleMarkAsPaid(currentPlano.id, planos, savePlanos);
+      
+      // Disparar eventos de sincronização
+      setTimeout(() => {
+        const events = [
+          'tarot-payment-updated',
+          'planosUpdated',
+          'paymentStatusChanged',
+          'monthlyPaymentsUpdated'
+        ];
+        
+        events.forEach(eventName => {
+          window.dispatchEvent(new CustomEvent(eventName, {
+            detail: { 
+              updated: true, 
+              action: 'mark_as_paid', 
+              monthIndex, 
+              planoId: currentPlano.id,
+              timestamp: Date.now() 
+            }
+          }));
+        });
+      }, 50);
+      
       return;
     }
 
     if (month.planoId) {
       const updatedPlanos = planos.map(plano =>
         plano.id === month.planoId
-          ? { ...plano, active: !newIsPaid as boolean }
+          ? { ...plano, active: Boolean(!newIsPaid) }
           : plano
       );
 
@@ -140,14 +199,39 @@ export const usePlanoMonths = ({
       console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);
     }
 
+    // Disparar eventos de sincronização com delay múltiplo
+    setTimeout(() => {
+      const events = [
+        'tarot-payment-updated',
+        'planosUpdated',
+        'paymentStatusChanged',
+        'monthlyPaymentsUpdated'
+      ];
+      
+      events.forEach(eventName => {
+        window.dispatchEvent(new CustomEvent(eventName, {
+          detail: { 
+            updated: true, 
+            action: 'toggle', 
+            monthIndex, 
+            newIsPaid,
+            timestamp: Date.now() 
+          }
+        }));
+      });
+    }, 50);
+
+    // Segundo disparo para garantir sincronização
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
-        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() }
+        detail: { 
+          updated: true, 
+          action: 'toggle_sync', 
+          monthIndex, 
+          timestamp: Date.now() 
+        }
       }));
-      window.dispatchEvent(new CustomEvent('planosUpdated', {
-        detail: { updated: true, action: 'toggle', monthIndex, timestamp: Date.now() }
-      }));
-    }, 100);
+    }, 200);
 
     toast.success(
       newIsPaid

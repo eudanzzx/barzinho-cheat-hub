@@ -9,40 +9,64 @@ import { useDebounceCallback } from "@/hooks/useDebounceCallback";
 export const usePaymentNotifications = () => {
   const { getPlanos, savePlanos } = useUserDataService();
   const [groupedPayments, setGroupedPayments] = useState<GroupedPayment[]>([]);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
   const checkTarotPaymentNotifications = useCallback(() => {
-    console.log('usePaymentNotifications - Verificando notificações...');
+    console.log('usePaymentNotifications - Verificando notificações...', new Date().toISOString());
     try {
       const allPlanos = getPlanos();
       console.log('usePaymentNotifications - Total de planos encontrados:', allPlanos.length);
       
       if (allPlanos.length > 0) {
-        console.log('usePaymentNotifications - Primeiros 3 planos:', allPlanos.slice(0, 3));
+        console.log('usePaymentNotifications - Primeiros 3 planos:', allPlanos.slice(0, 3).map(p => ({
+          id: p.id,
+          type: p.type,
+          active: p.active,
+          analysisId: 'analysisId' in p ? p.analysisId : 'N/A',
+          dueDate: p.dueDate
+        })));
       }
       
       const pendingNotifications = filterTarotPlans(allPlanos);
       console.log('usePaymentNotifications - Notificações pendentes de tarot:', pendingNotifications.length);
       
       if (pendingNotifications.length > 0) {
-        console.log('usePaymentNotifications - Primeiras notificações:', pendingNotifications.slice(0, 2));
+        console.log('usePaymentNotifications - Primeiras notificações:', pendingNotifications.slice(0, 2).map(p => ({
+          id: p.id,
+          clientName: p.clientName,
+          dueDate: p.dueDate,
+          amount: p.amount,
+          type: p.type
+        })));
       }
       
       const grouped = groupPaymentsByClient(pendingNotifications);
       console.log('usePaymentNotifications - Grupos de pagamento criados:', grouped.length);
       
       setGroupedPayments(grouped);
+      setLastUpdate(Date.now());
     } catch (error) {
       console.error('usePaymentNotifications - Erro ao verificar notificações:', error);
       setGroupedPayments([]);
     }
   }, [getPlanos]);
 
-  const debouncedCheck = useDebounceCallback(checkTarotPaymentNotifications, 100);
+  const debouncedCheck = useDebounceCallback(checkTarotPaymentNotifications, 50);
 
   const markAsPaid = useCallback((notificationId: string) => {
     console.log('markAsPaid - Iniciando para ID:', notificationId);
     try {
       const allPlanos = getPlanos();
+      const planoToUpdate = allPlanos.find(p => p.id === notificationId);
+      
+      if (planoToUpdate) {
+        console.log('markAsPaid - Plano encontrado:', {
+          id: planoToUpdate.id,
+          clientName: planoToUpdate.clientName,
+          currentActive: planoToUpdate.active
+        });
+      }
+      
       handleMarkAsPaid(notificationId, allPlanos, savePlanos);
       
       // Disparar eventos de sincronização IMEDIATAMENTE
@@ -77,14 +101,15 @@ export const usePaymentNotifications = () => {
         window.dispatchEvent(customEvent);
       };
 
-      // Disparar eventos IMEDIATAMENTE
+      // Disparar eventos múltiplas vezes para garantir sincronização
       triggerSyncEvents();
+      setTimeout(triggerSyncEvents, 50);
+      setTimeout(triggerSyncEvents, 100);
       
-      // Verificar novamente após pequeno delay
+      // Verificar novamente após delay
       setTimeout(() => {
-        triggerSyncEvents();
         debouncedCheck();
-      }, 100);
+      }, 200);
     } catch (error) {
       console.error('markAsPaid - Erro:', error);
     }
@@ -120,7 +145,7 @@ export const usePaymentNotifications = () => {
       
       setTimeout(() => {
         debouncedCheck();
-      }, 150);
+      }, 200);
     } catch (error) {
       console.error('postponePayment - Erro:', error);
     }
@@ -171,12 +196,14 @@ export const usePaymentNotifications = () => {
   }, [getPlanos, savePlanos, debouncedCheck]);
 
   useEffect(() => {
-    console.log('usePaymentNotifications - Inicializando...');
+    console.log('usePaymentNotifications - Inicializando hook...');
     checkTarotPaymentNotifications();
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
-      debouncedCheck();
+      setTimeout(() => {
+        debouncedCheck();
+      }, 50);
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações
@@ -185,19 +212,36 @@ export const usePaymentNotifications = () => {
       'planosUpdated',
       'paymentStatusChanged',
       'tarotAnalysesUpdated',
-      'atendimentosUpdated'
+      'atendimentosUpdated',
+      'monthlyPaymentsUpdated',
+      'payment-notifications-cleared'
     ];
 
     eventNames.forEach(eventName => {
       window.addEventListener(eventName, handlePaymentUpdate as EventListener);
     });
     
+    // Verificação periódica para garantir sincronização
+    const intervalId = setInterval(() => {
+      console.log('usePaymentNotifications - Verificação periódica');
+      checkTarotPaymentNotifications();
+    }, 30000); // A cada 30 segundos
+    
     return () => {
       eventNames.forEach(eventName => {
         window.removeEventListener(eventName, handlePaymentUpdate as EventListener);
       });
+      clearInterval(intervalId);
     };
   }, [checkTarotPaymentNotifications, debouncedCheck]);
+
+  // Forçar atualização quando lastUpdate muda
+  useEffect(() => {
+    console.log('usePaymentNotifications - Estado atualizado:', {
+      groupedPaymentsCount: groupedPayments.length,
+      lastUpdate: new Date(lastUpdate).toISOString()
+    });
+  }, [groupedPayments, lastUpdate]);
 
   return {
     groupedPayments,
