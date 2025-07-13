@@ -56,6 +56,10 @@ const ListagemTarot = React.memo(() => {
     };
   }, []);
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab as 'todas' | 'finalizadas' | 'em-andamento');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
       <DashboardHeader />
@@ -95,7 +99,7 @@ const ListagemTarot = React.memo(() => {
             tabAnalises={tabAnalises}
             searchTerm={searchTerm}
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             counts={counts}
             onToggleFinished={handleToggleFinished}
             onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}

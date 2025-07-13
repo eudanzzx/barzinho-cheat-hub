@@ -43,8 +43,8 @@ export const useTarotAnalises = () => {
 
       if (aniversariante) {
         setAniversarianteHoje({
-          nome: analise.nomeCliente || analise.clientName,
-          dataNascimento: analise.dataNascimento
+          nome: aniversariante.nomeCliente || aniversariante.clientName,
+          dataNascimento: aniversariante.dataNascimento
         });
       } else {
         setAniversarianteHoje(null);
@@ -54,8 +54,8 @@ export const useTarotAnalises = () => {
 
   const tabAnalises = useMemo(() => {
     return analises.filter(analise => {
-      if (activeTab === 'finalizadas') return analise.finalizada;
-      if (activeTab === 'em-andamento') return !analise.finalizada;
+      if (activeTab === 'finalizadas') return analise.finalizado;
+      if (activeTab === 'em-andamento') return !analise.finalizado;
       return true;
     });
   }, [analises, activeTab]);
@@ -78,16 +78,17 @@ export const useTarotAnalises = () => {
     });
 
     return {
-      total: filteredAnalises.reduce((sum, analise) => sum + (analise.valor || 0), 0),
-      semana: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfWeek).reduce((sum, a) => sum + (a.valor || 0), 0),
-      mes: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfMonth).reduce((sum, a) => sum + (a.valor || 0), 0),
-      ano: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfYear).reduce((sum, a) => sum + (a.valor || 0), 0),
+      total: filteredAnalises.reduce((sum, analise) => sum + (Number(analise.valor) || 0), 0),
+      semana: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfWeek).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
+      mes: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfMonth).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
+      ano: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfYear).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
     };
   }, [tabAnalises, selectedPeriod]);
 
   const getStatusCounts = useMemo(() => ({
-    finalizados: analises.filter(a => a.finalizada).length,
-    andamento: analises.filter(a => !a.finalizada).length,
+    finalizados: analises.filter(a => a.finalizado).length,
+    emAndamento: analises.filter(a => !a.finalizado).length,
+    atencao: 0,
   }), [analises]);
 
   const handleDelete = async (id: string) => {
@@ -134,7 +135,7 @@ export const useTarotAnalises = () => {
   const handleToggleFinished = (id: string) => {
     const updatedAnalises = analises.map(analise => 
       analise.id === id 
-        ? { ...analise, finalizada: !analise.finalizada }
+        ? { ...analise, finalizado: !analise.finalizado }
         : analise
     );
     
@@ -143,7 +144,7 @@ export const useTarotAnalises = () => {
     
     const analise = updatedAnalises.find(a => a.id === id);
     if (analise) {
-      toast.success(`Análise ${analise.finalizada ? 'finalizada' : 'reaberta'} com sucesso`);
+      toast.success(`Análise ${analise.finalizado ? 'finalizada' : 'reaberta'} com sucesso`);
     }
     
     window.dispatchEvent(new CustomEvent('tarotAnalysesUpdated'));
