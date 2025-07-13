@@ -1,8 +1,8 @@
+
 import React from "react";
 import { Calendar, DollarSign, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import PlanoPaymentButton from "../PlanoPaymentButton";
-import SemanalPaymentButton from "../SemanalPaymentButton";
+import AtendimentoPaymentButtons from "@/components/dashboard/AtendimentoPaymentButtons";
 
 interface AnalysisHeaderProps {
   analise: any;
@@ -61,33 +61,10 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         </Badge>
       </div>
       
-      {/* Botões de Pagamento - Centralizados perfeitamente */}
-      <div className="w-full flex items-center justify-center sm:justify-start gap-2 mb-3">
-        <div className="flex items-center justify-center gap-2 w-full sm:w-auto">
-          {analise.planoAtivo && analise.planoData && (
-            <div className="w-[47%] sm:w-auto max-w-[120px]">
-              <PlanoPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente}
-                planoData={analise.planoData}
-                startDate={analise.dataInicio}
-              />
-            </div>
-          )}
-          {analise.semanalAtivo && analise.semanalData && (
-            <div className="w-[47%] sm:w-auto max-w-[120px]">
-              <SemanalPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente}
-                semanalData={analise.semanalData}
-                startDate={analise.dataInicio}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Botões de Pagamento - Exatamente como na dashboard principal */}
+      <AtendimentoPaymentButtons clientName={analise.nomeCliente} />
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e] mt-3">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#673193]" />
           <span>

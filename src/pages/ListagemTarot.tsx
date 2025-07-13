@@ -8,7 +8,6 @@ import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
 import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
-import MonthlyPaymentControl from "@/components/dashboard/MonthlyPaymentControl";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 
@@ -78,9 +77,6 @@ const ListagemTarot = React.memo(() => {
             onPeriodChange={handlePeriodChange}
             variant="tarot"
           />
-
-          {/* Controle de Pagamentos Mensais - Exatamente igual à Dashboard Principal */}
-          <MonthlyPaymentControl />
 
           <TarotListingSearch
             searchTerm={searchTerm}
