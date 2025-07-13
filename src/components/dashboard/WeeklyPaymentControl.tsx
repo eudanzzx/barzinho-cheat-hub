@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
+import { getNextWeekDays } from "@/utils/weekDayCalculator";
 
 const WeeklyPaymentControl: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +46,7 @@ const WeeklyPaymentControl: React.FC = () => {
     const existingClientNames = new Set(atendimentos.map(a => a.nome));
     
     // CARREGAR TODOS OS PLANOS SEMANAIS - INCLUINDO PAGOS E PENDENTES
-    const weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
+    let weeklyPlanos = allPlanos.filter((plano): plano is PlanoSemanal => {
       const isWeekly = plano.type === 'semanal';
       const hasClient = existingClientNames.has(plano.clientName);
       const noAnalysisId = !plano.analysisId;
@@ -53,11 +54,86 @@ const WeeklyPaymentControl: React.FC = () => {
       return isWeekly && hasClient && noAnalysisId;
     });
     
+    // CORRIGIR DATAS DOS PLANOS SEMANAIS USANDO weekDayCalculator
+    const correctedPlanos: PlanoSemanal[] = [];
+    const planosNeedingCorrection: PlanoSemanal[] = [];
+    
+    // Agrupar planos por cliente para recalcular as datas
+    const planosByClient = weeklyPlanos.reduce((acc, plano) => {
+      if (!acc[plano.clientName]) {
+        acc[plano.clientName] = [];
+      }
+      acc[plano.clientName].push(plano);
+      return acc;
+    }, {} as Record<string, PlanoSemanal[]>);
+    
+    Object.entries(planosByClient).forEach(([clientName, clientPlanos]) => {
+      // Encontrar o atendimento correspondente para obter os dados semanais
+      const atendimento = atendimentos.find(a => a.nome === clientName && a.semanalAtivo && a.semanalData);
+      
+      if (atendimento && atendimento.semanalData) {
+        const { semanas, diaVencimento = 'sexta' } = atendimento.semanalData;
+        const totalWeeks = parseInt(semanas);
+        const startDate = new Date(atendimento.dataAtendimento);
+        
+        // Recalcular as datas corretas usando weekDayCalculator
+        const correctDates = getNextWeekDays(totalWeeks, diaVencimento, startDate);
+        
+        console.log(`WeeklyPaymentControl - Corrigindo datas para ${clientName}:`, {
+          totalWeeks,
+          diaVencimento,
+          startDate: startDate.toDateString(),
+          correctDates: correctDates.map(d => d.toDateString())
+        });
+        
+        // Corrigir cada plano com a data correta
+        clientPlanos.forEach((plano, index) => {
+          if (index < correctDates.length) {
+            const correctDate = correctDates[index].toISOString().split('T')[0];
+            const currentDate = plano.dueDate;
+            
+            if (currentDate !== correctDate) {
+              console.log(`WeeklyPaymentControl - CORRIGINDO semana ${plano.week}: ${currentDate} -> ${correctDate}`);
+              planosNeedingCorrection.push({
+                ...plano,
+                dueDate: correctDate
+              });
+            } else {
+              correctedPlanos.push(plano);
+            }
+          } else {
+            correctedPlanos.push(plano);
+          }
+        });
+      } else {
+        // Se não encontrar o atendimento, manter os planos como estão
+        correctedPlanos.push(...clientPlanos);
+      }
+    });
+    
+    // Se houver planos com datas incorretas, atualizar no localStorage
+    if (planosNeedingCorrection.length > 0) {
+      console.log(`WeeklyPaymentControl - SALVANDO ${planosNeedingCorrection.length} planos com datas corrigidas`);
+      
+      const updatedAllPlanos = allPlanos.map(plano => {
+        const correctedPlano = planosNeedingCorrection.find(p => p.id === plano.id);
+        return correctedPlano || plano;
+      });
+      
+      savePlanos(updatedAllPlanos);
+      
+      // Usar os planos corrigidos
+      weeklyPlanos = [...correctedPlanos, ...planosNeedingCorrection];
+    } else {
+      weeklyPlanos = correctedPlanos;
+    }
+    
     console.log('WeeklyPaymentControl - Carregando planos:', {
       total: allPlanos.length,
       semanais: weeklyPlanos.length,
       ativos: weeklyPlanos.filter(p => p.active).length,
-      pagos: weeklyPlanos.filter(p => !p.active).length
+      pagos: weeklyPlanos.filter(p => !p.active).length,
+      corrigidos: planosNeedingCorrection.length
     });
     
     setPlanos(weeklyPlanos);
