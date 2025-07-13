@@ -139,14 +139,24 @@ export const useSemanalWeeks = ({
           : plano
       );
       
-      // Se marcando como pago, criar próxima semana automaticamente
+      // Se marcando como pago, verificar se próxima semana precisa ser criada
       if (newIsPaid) {
         const totalWeeks = parseInt(semanalData.semanas);
         const nextWeekIndex = weekIndex + 1;
         
         if (nextWeekIndex < totalWeeks && nextWeekIndex < semanalWeeks.length) {
           const nextWeek = semanalWeeks[nextWeekIndex];
-          if (nextWeek && !nextWeek.semanalId) {
+          
+          // Verificar se já existe um plano para esta próxima semana
+          const existingNextWeekPlan = updatedPlanos.find(p => 
+            p.type === 'semanal' && 
+            'analysisId' in p && 
+            p.analysisId === analysisId && 
+            'week' in p && 
+            p.week === nextWeek.week
+          );
+          
+          if (nextWeek && !nextWeek.semanalId && !existingNextWeekPlan) {
             const nextSemanal: PlanoSemanal = {
               id: `${analysisId}-week-${nextWeek.week}-${Date.now() + 1}`,
               clientName: clientName,
@@ -161,8 +171,10 @@ export const useSemanalWeeks = ({
               analysisId: analysisId
             };
             
-            console.log('handlePaymentToggle - Criando próxima semana:', nextSemanal);
+            console.log('handlePaymentToggle - Criando próxima semana (sem duplicata):', nextSemanal);
             updatedPlanos.push(nextSemanal);
+          } else if (existingNextWeekPlan) {
+            console.log('handlePaymentToggle - Próxima semana já existe, não criando duplicata:', existingNextWeekPlan.id);
           }
         }
       }
@@ -193,13 +205,23 @@ export const useSemanalWeeks = ({
       
       let updatedPlanos = [...planos, newSemanal];
       
-      // Criar próxima semana automaticamente se não for a última
+      // Verificar se próxima semana precisa ser criada automaticamente
       const totalWeeks = parseInt(semanalData.semanas);
       const nextWeekIndex = weekIndex + 1;
       
       if (nextWeekIndex < totalWeeks && nextWeekIndex < semanalWeeks.length) {
         const nextWeek = semanalWeeks[nextWeekIndex];
-        if (nextWeek && !nextWeek.semanalId) {
+        
+        // Verificar se já existe um plano para esta próxima semana
+        const existingNextWeekPlan = updatedPlanos.find(p => 
+          p.type === 'semanal' && 
+          'analysisId' in p && 
+          p.analysisId === analysisId && 
+          'week' in p && 
+          p.week === nextWeek.week
+        );
+        
+        if (nextWeek && !nextWeek.semanalId && !existingNextWeekPlan) {
           const nextSemanal: PlanoSemanal = {
             id: `${analysisId}-week-${nextWeek.week}-${Date.now() + 1}`,
             clientName: clientName,
@@ -214,8 +236,10 @@ export const useSemanalWeeks = ({
             analysisId: analysisId
           };
           
-          console.log('handlePaymentToggle - Criando próxima semana automaticamente:', nextSemanal);
+          console.log('handlePaymentToggle - Criando próxima semana automaticamente (sem duplicata):', nextSemanal);
           updatedPlanos.push(nextSemanal);
+        } else if (existingNextWeekPlan) {
+          console.log('handlePaymentToggle - Próxima semana já existe, não criando duplicata:', existingNextWeekPlan.id);
         }
       }
       
