@@ -8,6 +8,7 @@ import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
 import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
+import TarotCounterPriorityNotifications from "@/components/TarotCounterPriorityNotifications";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 
@@ -17,6 +18,7 @@ const ListagemTarot = React.memo(() => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const {
+    analises,
     tabAnalises,
     searchTerm,
     setSearchTerm,
@@ -32,6 +34,13 @@ const ListagemTarot = React.memo(() => {
   } = useTarotAnalises();
 
   const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
+
+  console.log('ListagemTarot - Renderizada com:', {
+    analisesCount: analises?.length || 0,
+    tabAnalisesCount: tabAnalises?.length || 0,
+    activeTab,
+    searchTerm
+  });
 
   // Escutar evento para abrir modal de detalhes
   useEffect(() => {
@@ -64,6 +73,8 @@ const ListagemTarot = React.memo(() => {
 
         <div className="space-y-6">
           <TarotListingHeader />
+
+          <TarotCounterPriorityNotifications analises={analises} />
 
           <TarotStatsCards
             totalAnalises={tabAnalises.length}

@@ -1,3 +1,4 @@
+
 import React, { memo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
@@ -18,6 +19,12 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
   const { groupedPayments, markAsPaid, deleteNotification } = usePaymentNotifications();
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  console.log('TarotCounterPriorityNotifications - Renderizado com:', {
+    analisesCount: analises?.length || 0,
+    groupedPaymentsCount: groupedPayments?.length || 0,
+    currentPath: location.pathname
+  });
 
   // Adicionar sincronização com controle de pagamentos
   useEffect(() => {
@@ -41,12 +48,18 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
     };
   }, []);
 
-  // Se não há notificações pendentes, não mostrar o componente
-  if (groupedPayments.length === 0) {
-    return null;
-  }
-
-  const paymentsToShow = groupedPayments;
+  // Log para debug dos pagamentos agrupados
+  useEffect(() => {
+    if (groupedPayments.length > 0) {
+      console.log('TarotCounterPriorityNotifications - Pagamentos encontrados:', {
+        totalGroups: groupedPayments.length,
+        firstGroup: groupedPayments[0],
+        allGroups: groupedPayments
+      });
+    } else {
+      console.log('TarotCounterPriorityNotifications - Nenhum pagamento encontrado');
+    }
+  }, [groupedPayments]);
 
   const handleViewDetails = (payment: any) => {
     console.log('TarotCounterPriorityNotifications - handleViewDetails called with payment:', payment);
@@ -62,8 +75,35 @@ const TarotCounterPriorityNotifications: React.FC<TarotCounterPriorityNotificati
                       location.pathname.includes('relatorio-individual-tarot');
   
   if (!isTarotPage) {
+    console.log('TarotCounterPriorityNotifications - Não é página de tarot, não renderizando');
     return null;
   }
+
+  // Se não há notificações pendentes, mostrar mensagem de debug
+  if (groupedPayments.length === 0) {
+    console.log('TarotCounterPriorityNotifications - Nenhuma notificação pendente');
+    return (
+      <Card className="mb-6 border-tarot-primary bg-tarot-accent">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 tarot-primary">
+            <Bell className="h-5 w-5" />
+            Próximos Vencimentos - Análises de Tarot
+            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+              0 clientes
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500">
+            Nenhum vencimento de análises de tarot encontrado. 
+            {analises?.length === 0 && " (Nenhuma análise cadastrada)"}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const paymentsToShow = groupedPayments;
 
   return (
     <Card className="mb-6 border-tarot-primary bg-tarot-accent">

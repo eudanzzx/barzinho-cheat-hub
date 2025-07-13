@@ -14,8 +14,14 @@ const useUserDataService = () => {
   const tarotPlanoCreator = useTarotPlanoCreator();
 
   const saveTarotAnalysisWithPlan = (analysis: TarotAnalysis) => {
-    console.log('saveTarotAnalysisWithPlan - Salvando análise com planos:', analysis.id);
+    console.log('saveTarotAnalysisWithPlan - Salvando análise com planos:', {
+      id: analysis.id,
+      clientName: analysis.nomeCliente || analysis.clientName,
+      planoAtivo: analysis.planoAtivo,
+      semanalAtivo: analysis.semanalAtivo
+    });
     
+    // Salvar análise primeiro
     const analyses = tarotService.getTarotAnalyses();
     const existingIndex = analyses.findIndex(a => a.id === analysis.id);
     
@@ -26,12 +32,40 @@ const useUserDataService = () => {
     }
     
     tarotService.saveTarotAnalyses(analyses);
+    console.log('saveTarotAnalysisWithPlan - Análise salva');
     
-    // Criar planos automaticamente
-    tarotPlanoCreator.createTarotPlanos(analysis);
+    // Criar planos apenas se estiverem ativos
+    if (analysis.planoAtivo && analysis.planoData) {
+      console.log('saveTarotAnalysisWithPlan - Criando planos mensais:', analysis.planoData);
+      tarotPlanoCreator.createTarotPlanos(analysis);
+    }
     
-    // Disparar evento para notificar mudanças
-    window.dispatchEvent(new Event('tarotAnalysesUpdated'));
+    if (analysis.semanalAtivo && analysis.semanalData) {
+      console.log('saveTarotAnalysisWithPlan - Criando planos semanais:', analysis.semanalData);
+      tarotPlanoCreator.createTarotPlanos(analysis);
+    }
+    
+    // Disparar eventos de sincronização IMEDIATAMENTE
+    console.log('saveTarotAnalysisWithPlan - Disparando eventos de sincronização');
+    const events = [
+      'tarotAnalysesUpdated',
+      'planosUpdated',
+      'tarot-payment-updated',
+      'atendimentosUpdated',
+      'paymentStatusChanged'
+    ];
+    
+    events.forEach(eventName => {
+      window.dispatchEvent(new CustomEvent(eventName, {
+        detail: { 
+          analysisId: analysis.id,
+          timestamp: Date.now(),
+          action: 'analysis_saved'
+        }
+      }));
+    });
+    
+    console.log('saveTarotAnalysisWithPlan - Eventos disparados');
   };
 
   return {
