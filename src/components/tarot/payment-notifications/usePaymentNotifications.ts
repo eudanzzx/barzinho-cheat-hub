@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import useUserDataService from "@/services/userDataService";
 import { filterTarotPlans } from "./utils/tarotPlanFilters";
@@ -18,30 +17,43 @@ export const usePaymentNotifications = () => {
       console.log('usePaymentNotifications - Total de planos encontrados:', allPlanos.length);
       
       if (allPlanos.length > 0) {
-        console.log('usePaymentNotifications - Primeiros 3 planos:', allPlanos.slice(0, 3).map(p => ({
+        console.log('usePaymentNotifications - Todos os planos para debug:', allPlanos.map(p => ({
           id: p.id,
           type: p.type,
           active: p.active,
           analysisId: 'analysisId' in p ? p.analysisId : 'N/A',
-          dueDate: p.dueDate
+          clientName: p.clientName,
+          dueDate: p.dueDate,
+          amount: p.amount
         })));
       }
       
       const pendingNotifications = filterTarotPlans(allPlanos);
-      console.log('usePaymentNotifications - Notificações pendentes de tarot:', pendingNotifications.length);
+      console.log('usePaymentNotifications - Notificações pendentes filtradas:', pendingNotifications.length);
       
       if (pendingNotifications.length > 0) {
-        console.log('usePaymentNotifications - Primeiras notificações:', pendingNotifications.slice(0, 2).map(p => ({
+        console.log('usePaymentNotifications - Detalhes das notificações pendentes:', pendingNotifications.map(p => ({
           id: p.id,
           clientName: p.clientName,
           dueDate: p.dueDate,
           amount: p.amount,
-          type: p.type
+          type: p.type,
+          active: p.active
         })));
       }
       
       const grouped = groupPaymentsByClient(pendingNotifications);
       console.log('usePaymentNotifications - Grupos de pagamento criados:', grouped.length);
+      
+      if (grouped.length > 0) {
+        console.log('usePaymentNotifications - Detalhes dos grupos:', grouped.map(g => ({
+          clientName: g.clientName,
+          totalPayments: g.totalPayments,
+          mostUrgentDate: g.mostUrgent.dueDate,
+          mostUrgentAmount: g.mostUrgent.amount,
+          additionalCount: g.additionalPayments.length
+        })));
+      }
       
       setGroupedPayments(grouped);
       setLastUpdate(Date.now());
@@ -51,7 +63,7 @@ export const usePaymentNotifications = () => {
     }
   }, [getPlanos]);
 
-  const debouncedCheck = useDebounceCallback(checkTarotPaymentNotifications, 50);
+  const debouncedCheck = useDebounceCallback(checkTarotPaymentNotifications, 100);
 
   const markAsPaid = useCallback((notificationId: string) => {
     console.log('markAsPaid - Iniciando para ID:', notificationId);
@@ -63,7 +75,8 @@ export const usePaymentNotifications = () => {
         console.log('markAsPaid - Plano encontrado:', {
           id: planoToUpdate.id,
           clientName: planoToUpdate.clientName,
-          currentActive: planoToUpdate.active
+          currentActive: planoToUpdate.active,
+          dueDate: planoToUpdate.dueDate
         });
       }
       
@@ -200,7 +213,7 @@ export const usePaymentNotifications = () => {
     checkTarotPaymentNotifications();
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
-      console.log('handlePaymentUpdate - Evento de atualização recebido', event?.detail);
+      console.log('handlePaymentUpdate - Evento recebido:', event?.type, event?.detail);
       setTimeout(() => {
         debouncedCheck();
       }, 50);
@@ -221,11 +234,11 @@ export const usePaymentNotifications = () => {
       window.addEventListener(eventName, handlePaymentUpdate as EventListener);
     });
     
-    // Verificação periódica para garantir sincronização
+    // Verificação periódica mais frequente para garantir sincronização
     const intervalId = setInterval(() => {
-      console.log('usePaymentNotifications - Verificação periódica');
+      console.log('usePaymentNotifications - Verificação periódica automática');
       checkTarotPaymentNotifications();
-    }, 30000); // A cada 30 segundos
+    }, 15000); // A cada 15 segundos
     
     return () => {
       eventNames.forEach(eventName => {
@@ -237,9 +250,14 @@ export const usePaymentNotifications = () => {
 
   // Forçar atualização quando lastUpdate muda
   useEffect(() => {
-    console.log('usePaymentNotifications - Estado atualizado:', {
+    console.log('usePaymentNotifications - Estado final atualizado:', {
       groupedPaymentsCount: groupedPayments.length,
-      lastUpdate: new Date(lastUpdate).toISOString()
+      lastUpdate: new Date(lastUpdate).toISOString(),
+      groupedPayments: groupedPayments.map(g => ({
+        clientName: g.clientName,
+        mostUrgentDate: g.mostUrgent.dueDate,
+        totalPayments: g.totalPayments
+      }))
     });
   }, [groupedPayments, lastUpdate]);
 
