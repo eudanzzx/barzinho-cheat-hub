@@ -190,18 +190,13 @@ export const usePlanoMonths = ({
 
       console.log(`handlePaymentToggle - Mês ${month.month} marcado como ${newIsPaid ? 'pago' : 'pendente'}`);
     } else if (newIsPaid) {
-      const dueDay = planoData.diaVencimento ? parseInt(planoData.diaVencimento) : 5;
-      const actualDueDate = new Date(month.dueDate);
-      const lastDayOfMonth = new Date(actualDueDate.getFullYear(), actualDueDate.getMonth() + 1, 0).getDate();
-      const correctedDueDay = Math.min(dueDay, lastDayOfMonth);
-      actualDueDate.setDate(correctedDueDay);
-      
+      // Criar novo plano usando exatamente a data calculada no controle
       const newPlano = createNewPlano(
         analysisId,
         clientName,
         month.month,
         planoData,
-        actualDueDate.toISOString().split('T')[0]
+        month.dueDate // Usar a data já calculada no controle
       );
 
       const updatedPlanos = [...planos, newPlano];
@@ -210,10 +205,14 @@ export const usePlanoMonths = ({
       const updatedMonths = [...planoMonths];
       updatedMonths[monthIndex].planoId = newPlano.id;
       updatedMonths[monthIndex].isPaid = true;
-      updatedMonths[monthIndex].dueDate = actualDueDate.toISOString().split('T')[0];
+      // A data já está correta no month.dueDate
       setPlanoMonths(updatedMonths);
 
-      console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);
+      console.log('handlePaymentToggle - Novo plano criado com data correta:', {
+        planoId: newPlano.id,
+        dueDate: newPlano.dueDate,
+        month: newPlano.month
+      });
     }
 
     // Disparar eventos de sincronização imediatamente e múltiplas vezes

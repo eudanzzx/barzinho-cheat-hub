@@ -93,24 +93,33 @@ export const useSemanalWeeks = ({
     
     const newIsPaid = !week.isPaid;
     
+    console.log('handlePaymentToggle semanal - Iniciando:', {
+      weekIndex,
+      week: week.week,
+      currentIsPaid: week.isPaid,
+      newIsPaid,
+      dueDate: week.dueDate,
+      semanalId: week.semanalId
+    });
+    
     if (week.semanalId) {
-      // Mark as paid or unpaid
+      // Marcar como pago ou pendente
       const updatedPlanos = planos.map(plano => 
         plano.id === week.semanalId 
           ? { ...plano, active: !newIsPaid }
           : plano
       );
       
-      // If marking as paid, automatically create next week's payment
+      // Se marcando como pago, criar próxima semana automaticamente
       if (newIsPaid) {
         const totalWeeks = parseInt(semanalData.semanas);
         const nextWeekIndex = weekIndex + 1;
         
-        if (nextWeekIndex < totalWeeks) {
+        if (nextWeekIndex < totalWeeks && nextWeekIndex < semanalWeeks.length) {
           const nextWeek = semanalWeeks[nextWeekIndex];
           if (nextWeek && !nextWeek.semanalId) {
             const nextSemanal: PlanoSemanal = {
-              id: `${analysisId}-week-${nextWeek.week}-${Date.now()}`,
+              id: `${analysisId}-week-${nextWeek.week}-${Date.now() + 1}`,
               clientName: clientName,
               type: 'semanal',
               amount: parseFloat(semanalData.valorSemanal),
@@ -118,11 +127,12 @@ export const useSemanalWeeks = ({
               week: nextWeek.week,
               totalWeeks: totalWeeks,
               created: new Date().toISOString(),
-              active: true,
+              active: true, // Ativo para aparecer nos próximos vencimentos
               notificationTiming: 'on_due_date',
               analysisId: analysisId
             };
             
+            console.log('handlePaymentToggle - Criando próxima semana:', nextSemanal);
             updatedPlanos.push(nextSemanal);
           }
         }
@@ -130,36 +140,39 @@ export const useSemanalWeeks = ({
       
       savePlanos(updatedPlanos);
       
-      // Refresh the weeks display
+      // Refresh das semanas após salvar
       setTimeout(() => {
         initializeSemanalWeeks();
       }, 100);
     } else if (newIsPaid) {
+      // Criar novo plano usando exatamente a data calculada no controle
       const newSemanal: PlanoSemanal = {
         id: `${analysisId}-week-${week.week}-${Date.now()}`,
         clientName: clientName,
         type: 'semanal',
         amount: parseFloat(semanalData.valorSemanal),
-        dueDate: week.dueDate,
+        dueDate: week.dueDate, // Usar a data já calculada
         week: week.week,
         totalWeeks: parseInt(semanalData.semanas),
         created: new Date().toISOString(),
-        active: false,
+        active: false, // Marcado como pago (inativo)
         notificationTiming: 'on_due_date',
         analysisId: analysisId
       };
       
+      console.log('handlePaymentToggle - Criando novo plano semanal:', newSemanal);
+      
       let updatedPlanos = [...planos, newSemanal];
       
-      // Create next week's payment if not the last week
+      // Criar próxima semana automaticamente se não for a última
       const totalWeeks = parseInt(semanalData.semanas);
       const nextWeekIndex = weekIndex + 1;
       
-      if (nextWeekIndex < totalWeeks) {
+      if (nextWeekIndex < totalWeeks && nextWeekIndex < semanalWeeks.length) {
         const nextWeek = semanalWeeks[nextWeekIndex];
         if (nextWeek && !nextWeek.semanalId) {
           const nextSemanal: PlanoSemanal = {
-            id: `${analysisId}-week-${nextWeek.week}-${Date.now()}`,
+            id: `${analysisId}-week-${nextWeek.week}-${Date.now() + 1}`,
             clientName: clientName,
             type: 'semanal',
             amount: parseFloat(semanalData.valorSemanal),
@@ -167,28 +180,30 @@ export const useSemanalWeeks = ({
             week: nextWeek.week,
             totalWeeks: totalWeeks,
             created: new Date().toISOString(),
-            active: true,
+            active: true, // Ativo para aparecer nos próximos vencimentos
             notificationTiming: 'on_due_date',
             analysisId: analysisId
           };
           
+          console.log('handlePaymentToggle - Criando próxima semana automaticamente:', nextSemanal);
           updatedPlanos.push(nextSemanal);
         }
       }
       
       savePlanos(updatedPlanos);
       
-      // Refresh the weeks display
+      // Refresh das semanas após salvar
       setTimeout(() => {
         initializeSemanalWeeks();
       }, 100);
     } else {
+      // Apenas marcar como não pago
       const updatedWeeks = [...semanalWeeks];
       updatedWeeks[weekIndex].isPaid = false;
       setSemanalWeeks(updatedWeeks);
     }
     
-    // Disparar eventos de sincronização imediatamente e múltiplas vezes
+    // Disparar eventos de sincronização
     const triggerEvents = () => {
       const events = [
         'tarot-payment-updated',
@@ -211,7 +226,7 @@ export const useSemanalWeeks = ({
       });
     };
 
-    // Disparar eventos múltiplas vezes para garantir sincronização
+    // Disparar eventos múltiplas vezes
     triggerEvents();
     setTimeout(triggerEvents, 10);
     setTimeout(triggerEvents, 50);

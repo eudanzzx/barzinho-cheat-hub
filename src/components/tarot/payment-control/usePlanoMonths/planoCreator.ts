@@ -6,14 +6,23 @@ export const createNewPlano = (
   clientName: string,
   month: number,
   planoData: { meses: string; valorMensal: string; diaVencimento?: string },
-  dueDate: string
+  calculatedDueDate: string
 ): PlanoMensal => {
+  console.log('createNewPlano - Criando plano mensal:', {
+    analysisId,
+    clientName,
+    month,
+    totalMonths: parseInt(planoData.meses),
+    calculatedDueDate,
+    amount: parseFloat(planoData.valorMensal)
+  });
+
   return {
     id: `${analysisId}-month-${month}-${Date.now()}`,
     clientName: clientName,
     type: 'plano',
     amount: parseFloat(planoData.valorMensal),
-    dueDate: dueDate,
+    dueDate: calculatedDueDate, // Usar a data calculada exatamente como passada
     month: month,
     totalMonths: parseInt(planoData.meses),
     created: new Date().toISOString(),
