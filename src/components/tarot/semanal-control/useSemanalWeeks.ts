@@ -62,20 +62,35 @@ export const useSemanalWeeks = ({
       });
     });
     
-    // Corrigir datas dos planos existentes se necessário
+    // Corrigir datas dos planos existentes se necessário - FORÇAR correção para datas do weekDayCalculator
     const correctedPlanos = planos.map(plano => {
       if (plano.type === 'semanal' && 'analysisId' in plano && plano.analysisId === analysisId) {
-        const matchingWeek = weeks.find(w => w.semanalId === plano.id);
-        if (matchingWeek && plano.dueDate !== matchingWeek.dueDate) {
-          console.log(`Corrigindo data do plano semanal ${plano.id} de ${plano.dueDate} para ${matchingWeek.dueDate}`);
-          return { ...plano, dueDate: matchingWeek.dueDate };
+        const semanalPlano = plano as PlanoSemanal;
+        // Encontrar a semana correspondente baseada no número da semana
+        const weekNumber = semanalPlano.week || 
+          parseInt(semanalPlano.id.match(/-week-(\d+)/)?.[1] || '0');
+        
+        if (weekNumber > 0 && weekNumber <= weeks.length) {
+          const correctWeek = weeks[weekNumber - 1];
+          if (correctWeek && semanalPlano.dueDate !== correctWeek.dueDate) {
+            console.log(`CORRIGINDO data do plano semanal ${semanalPlano.id} de ${semanalPlano.dueDate} para ${correctWeek.dueDate}`);
+            return { ...semanalPlano, dueDate: correctWeek.dueDate };
+          }
         }
       }
       return plano;
     });
     
     if (correctedPlanos.some((p, i) => p !== planos[i])) {
+      console.log('useSemanalWeeks - Salvando planos com datas corrigidas');
       savePlanos(correctedPlanos);
+      
+      // Disparar eventos para atualizar próximos vencimentos
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
+          detail: { action: 'date_correction', analysisId }
+        }));
+      }, 100);
     }
     
     console.log('useSemanalWeeks - Semanas inicializadas:', {
