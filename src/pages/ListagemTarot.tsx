@@ -8,6 +8,7 @@ import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
 import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
+import DataCleanupButton from "@/components/DataCleanupButton";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 
@@ -49,10 +50,18 @@ const ListagemTarot = React.memo(() => {
       setIsPaymentModalOpen(true);
     };
 
+    const handleDataCleanup = () => {
+      console.log('ListagemTarot - Dados limpos, recarregando componente');
+      // Forçar atualização do componente
+      window.location.reload();
+    };
+
     window.addEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+    window.addEventListener('payment-notifications-cleared', handleDataCleanup as EventListener);
     
     return () => {
       window.removeEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+      window.removeEventListener('payment-notifications-cleared', handleDataCleanup as EventListener);
     };
   }, []);
 
@@ -75,7 +84,10 @@ const ListagemTarot = React.memo(() => {
         )}
 
         <div className="space-y-6">
-          <TarotListingHeader />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <TarotListingHeader />
+            <DataCleanupButton />
+          </div>
 
           <TarotStatsCards
             totalAnalises={tabAnalises.length}
