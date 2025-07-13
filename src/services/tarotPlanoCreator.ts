@@ -8,7 +8,15 @@ export const useTarotPlanoCreator = () => {
   const { getPlanos, savePlanos } = usePlanoService();
 
   const createTarotPlanos = (analysis: TarotAnalysis) => {
-    console.log('createTarotPlanos - Criando planos para análise:', analysis.id);
+    console.log('🚀 createTarotPlanos - INICIADO para análise:', analysis.id);
+    console.log('🚀 createTarotPlanos - Dados da análise:', {
+      id: analysis.id,
+      clientName: analysis.nomeCliente || analysis.clientName,
+      dataInicio: analysis.dataInicio,
+      analysisDate: analysis.analysisDate,
+      semanalAtivo: analysis.semanalAtivo,
+      semanalData: analysis.semanalData
+    });
     
     const currentPlanos = getPlanos();
     
@@ -19,6 +27,14 @@ export const useTarotPlanoCreator = () => {
     const newPlanos: Plano[] = [];
     const clientName = analysis.nomeCliente || analysis.clientName;
     const startDate = analysis.dataInicio || analysis.analysisDate || new Date().toISOString().split('T')[0];
+    
+    console.log('🚀 createTarotPlanos - Dados extraídos:', {
+      clientName,
+      startDate,
+      originalDataInicio: analysis.dataInicio,
+      originalAnalysisDate: analysis.analysisDate,
+      startDateType: typeof startDate
+    });
     
     // Criar plano mensal se ativo
     if (analysis.planoAtivo && analysis.planoData) {
@@ -68,11 +84,19 @@ export const useTarotPlanoCreator = () => {
       const diaVencimento = analysis.semanalData.diaVencimento || 'sexta';
       
       // USAR EXATAMENTE A MESMA LÓGICA QUE O CONTROLE DE PAGAMENTOS
-      // Garantir que a data de início seja tratada corretamente
-      const referenceDate = new Date(startDate);
-      console.log('createTarotPlanos - Data de referência inicial:', {
+      // IMPORTANTE: Verificar se a data está sendo tratada corretamente
+      console.log('🔍 INVESTIGAÇÃO - Antes da conversão:', {
         startDate,
-        referenceDate: referenceDate.toDateString(),
+        startDateType: typeof startDate,
+        isString: typeof startDate === 'string'
+      });
+      
+      const referenceDate = new Date(startDate);
+      console.log('🔍 INVESTIGAÇÃO - Após conversão:', {
+        referenceDate,
+        referenceDateString: referenceDate.toDateString(),
+        referenceDateISO: referenceDate.toISOString(),
+        isValidDate: !isNaN(referenceDate.getTime()),
         diaVencimento
       });
       
