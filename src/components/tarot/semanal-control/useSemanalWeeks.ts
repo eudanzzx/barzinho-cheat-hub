@@ -41,7 +41,23 @@ export const useSemanalWeeks = ({
     const totalWeeks = parseInt(semanalData.semanas);
     const diaVencimento = semanalData.diaVencimento || 'sexta';
     
+    console.log('DEBUG DATAS - Inicializando:', {
+      analysisId,
+      totalWeeks,
+      diaVencimento,
+      startDate: startDate,
+      startDateType: typeof startDate
+    });
+    
     const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(startDate));
+    
+    console.log('DEBUG DATAS - Datas calculadas pelo weekDayCalculator:', 
+      weekDays.map((date, index) => ({
+        week: index + 1,
+        date: date.toISOString().split('T')[0],
+        dateObject: date.toDateString()
+      }))
+    );
     const planos = getPlanos();
     
     const weeks: SemanalWeek[] = [];

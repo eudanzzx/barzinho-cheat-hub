@@ -60,7 +60,7 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     // Mostrar planos que vencem até 90 dias ou já venceram há até 30 dias
     const shouldShow = daysDiff <= 90 && daysDiff >= -30;
     
-    console.log(`filterTarotPlans - Plano ${plano.id} data (CORRIGIDO):`, {
+    console.log(`DEBUG NOTIFICAÇÕES - Plano ${plano.id} data:`, {
       originalDueDate: plano.dueDate,
       dueDateStr,
       todayStr,
@@ -68,7 +68,10 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
       shouldShow,
       timeDiff,
       clientName: plano.clientName,
-      amount: plano.amount
+      amount: plano.amount,
+      type: plano.type,
+      week: 'week' in plano ? plano.week : 'N/A',
+      analysisId: 'analysisId' in plano ? plano.analysisId : 'N/A'
     });
     
     return shouldShow;
