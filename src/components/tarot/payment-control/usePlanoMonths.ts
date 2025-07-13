@@ -216,8 +216,8 @@ export const usePlanoMonths = ({
       console.log('handlePaymentToggle - Novo plano criado e marcado como pago:', newPlano.id);
     }
 
-    // Disparar eventos de sincronização com delay múltiplo
-    setTimeout(() => {
+    // Disparar eventos de sincronização imediatamente e múltiplas vezes
+    const triggerEvents = () => {
       const events = [
         'tarot-payment-updated',
         'planosUpdated',
@@ -232,23 +232,19 @@ export const usePlanoMonths = ({
             action: 'toggle', 
             monthIndex, 
             newIsPaid,
-            timestamp: Date.now() 
+            timestamp: Date.now(),
+            analysisId 
           }
         }));
       });
-    }, 50);
+    };
 
-    // Segundo disparo para garantir sincronização
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
-        detail: { 
-          updated: true, 
-          action: 'toggle_sync', 
-          monthIndex, 
-          timestamp: Date.now() 
-        }
-      }));
-    }, 200);
+    // Disparar eventos múltiplas vezes para garantir sincronização
+    triggerEvents();
+    setTimeout(triggerEvents, 10);
+    setTimeout(triggerEvents, 50);
+    setTimeout(triggerEvents, 100);
+    setTimeout(triggerEvents, 200);
 
     toast.success(
       newIsPaid

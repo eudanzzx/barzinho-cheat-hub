@@ -188,8 +188,35 @@ export const useSemanalWeeks = ({
       setSemanalWeeks(updatedWeeks);
     }
     
-    // Force refresh of notification button by dispatching custom event
-    window.dispatchEvent(new CustomEvent('tarot-payment-updated'));
+    // Disparar eventos de sincronização imediatamente e múltiplas vezes
+    const triggerEvents = () => {
+      const events = [
+        'tarot-payment-updated',
+        'planosUpdated',
+        'paymentStatusChanged',
+        'monthlyPaymentsUpdated'
+      ];
+      
+      events.forEach(eventName => {
+        window.dispatchEvent(new CustomEvent(eventName, {
+          detail: { 
+            updated: true, 
+            action: 'semanal_toggle', 
+            weekIndex, 
+            newIsPaid,
+            timestamp: Date.now(),
+            analysisId 
+          }
+        }));
+      });
+    };
+
+    // Disparar eventos múltiplas vezes para garantir sincronização
+    triggerEvents();
+    setTimeout(triggerEvents, 10);
+    setTimeout(triggerEvents, 50);
+    setTimeout(triggerEvents, 100);
+    setTimeout(triggerEvents, 200);
     
     toast.success(
       newIsPaid 

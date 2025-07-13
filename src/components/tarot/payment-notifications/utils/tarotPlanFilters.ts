@@ -21,15 +21,19 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
       Boolean(plano.analysisId) || Boolean(plano.clientName) : 
       Boolean(plano.clientName);
     
-    console.log(`filterTarotPlans - Plano ${plano.id}:`, {
+    // Log para cada plano processado
+    console.log(`filterTarotPlans - Avaliando plano ${plano.id}:`, {
+      type: plano.type,
       isTarotPlan,
+      active: plano.active,
       isActive,
       hasValidIdentifier,
-      active: plano.active,
-      type: plano.type,
       analysisId: 'analysisId' in plano ? plano.analysisId : 'N/A',
       clientName: plano.clientName,
-      dueDate: plano.dueDate
+      dueDate: plano.dueDate,
+      amount: plano.amount,
+      month: 'month' in plano ? plano.month : 'N/A',
+      week: 'week' in plano ? plano.week : 'N/A'
     });
     
     return isTarotPlan && isActive && hasValidIdentifier;
@@ -47,8 +51,8 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     const timeDiff = planoDueDate.getTime() - today.getTime();
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     
-    // Mostrar planos que vencem até 30 dias ou já venceram (incluindo hoje)
-    const shouldShow = daysDiff <= 30;
+    // Mostrar planos que vencem até 90 dias ou já venceram há até 30 dias
+    const shouldShow = daysDiff <= 90 && daysDiff >= -30;
     
     console.log(`filterTarotPlans - Plano ${plano.id} data:`, {
       originalDueDate: plano.dueDate,
@@ -56,7 +60,9 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
       todayProcessed: today.toISOString().split('T')[0],
       daysDiff,
       shouldShow,
-      timeDiff
+      timeDiff,
+      clientName: plano.clientName,
+      amount: plano.amount
     });
     
     return shouldShow;
