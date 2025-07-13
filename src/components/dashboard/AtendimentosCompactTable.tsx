@@ -208,28 +208,6 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                           </div>
                         </Button>
                       )}
-                      {isMobile && hasWeeklyPayments && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => togglePaymentExpansion(atendimento.nome)}
-                          className="p-1 h-auto ml-1"
-                        >
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4 text-emerald-600" />
-                            <Badge 
-                              variant="secondary" 
-                              className="bg-emerald-600/10 text-emerald-600 border-emerald-600/20 text-xs px-1.5 py-0.5"
-                            >
-                              {clientWeeklyPlanos.length}
-                            </Badge>
-                            <ChevronDown className={cn(
-                              "h-4 w-4 text-emerald-600 transition-transform duration-300",
-                              isPaymentExpanded && "rotate-180"
-                            )} />
-                          </div>
-                        </Button>
-                      )}
                     </div>
                     <p className="text-sm text-gray-600">{atendimento.tipoServico}</p>
                   </div>
