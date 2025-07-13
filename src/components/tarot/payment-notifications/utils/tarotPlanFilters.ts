@@ -15,11 +15,22 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     // Deve estar ativo - normalizar para boolean
     const isActive = Boolean(plano.active === true || plano.active === 'true' || plano.active === '1');
     
-    // Para planos mensais, deve ter analysisId OU clientName
-    // Para planos semanais, pode não ter analysisId se foi criado diretamente
-    const hasValidIdentifier = 'analysisId' in plano ? 
-      Boolean(plano.analysisId) || Boolean(plano.clientName) : 
-      Boolean(plano.clientName);
+    // Para planos de tarot, DEVE ter analysisId válido
+    const hasValidAnalysisId = 'analysisId' in plano && Boolean(plano.analysisId) && plano.analysisId !== 'N/A';
+    
+    // Deve ter clientName válido
+    const hasValidClientName = Boolean(plano.clientName);
+    
+    // Para planos semanais, verificar se não é um plano órfão/duplicado
+    let isNotOrphan = true;
+    if (plano.type === 'semanal' && 'analysisId' in plano) {
+      // Se o ID não segue o padrão {analysisId}-week-{number}, é órfão
+      const semanalPlano = plano as PlanoSemanal;
+      if (semanalPlano.analysisId && !semanalPlano.id.startsWith(semanalPlano.analysisId)) {
+        isNotOrphan = false;
+        console.log(`REMOVENDO plano órfão/duplicado: ${semanalPlano.id} (analysisId: ${semanalPlano.analysisId})`);
+      }
+    }
     
     // Log para cada plano processado
     console.log(`filterTarotPlans - Avaliando plano ${plano.id}:`, {
@@ -27,7 +38,9 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
       isTarotPlan,
       active: plano.active,
       isActive,
-      hasValidIdentifier,
+      hasValidAnalysisId,
+      hasValidClientName,
+      isNotOrphan,
       analysisId: 'analysisId' in plano ? plano.analysisId : 'N/A',
       clientName: plano.clientName,
       dueDate: plano.dueDate,
@@ -36,7 +49,7 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
       week: 'week' in plano ? plano.week : 'N/A'
     });
     
-    return isTarotPlan && isActive && hasValidIdentifier;
+    return isTarotPlan && isActive && hasValidAnalysisId && hasValidClientName && isNotOrphan;
   }).filter((plano, index, array) => {
     // Remover planos duplicados baseado no id
     return array.findIndex(p => p.id === plano.id) === index;
