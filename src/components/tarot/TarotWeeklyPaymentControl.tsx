@@ -67,7 +67,8 @@ const TarotWeeklyPaymentControl: React.FC<TarotWeeklyPaymentControlProps> = ({
       
       const existingPlano = planos.find((plano): plano is PlanoSemanal => 
         plano.type === 'semanal' && 
-        plano.analysisId === analysisId && 
+        (plano.analysisId === analysisId || 
+         (plano.clientName === clientName && plano.week === i)) &&
         plano.week === i
       );
 

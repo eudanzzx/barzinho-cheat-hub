@@ -15,21 +15,28 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     // Deve estar ativo - normalizar para boolean
     const isActive = Boolean(plano.active === true || plano.active === 'true' || plano.active === '1');
     
-    // Para planos de tarot, DEVE ter analysisId válido
-    const hasValidAnalysisId = 'analysisId' in plano && Boolean(plano.analysisId) && plano.analysisId !== 'N/A';
-    
     // Deve ter clientName válido
     const hasValidClientName = Boolean(plano.clientName);
     
-    // Para planos semanais, verificar se não é um plano órfão/duplicado
+    // Para planos semanais, aceitar analysisId válido OU N/A (planos criados diretamente)
+    let hasValidAnalysisId = true;
     let isNotOrphan = true;
+    
     if (plano.type === 'semanal' && 'analysisId' in plano) {
-      // Se o ID não segue o padrão {analysisId}-week-{number}, é órfão
       const semanalPlano = plano as PlanoSemanal;
-      if (semanalPlano.analysisId && !semanalPlano.id.startsWith(semanalPlano.analysisId)) {
-        isNotOrphan = false;
-        console.log(`REMOVENDO plano órfão/duplicado: ${semanalPlano.id} (analysisId: ${semanalPlano.analysisId})`);
+      
+      // Se tem analysisId válido, verificar se o ID segue o padrão correto
+      if (semanalPlano.analysisId && semanalPlano.analysisId !== 'N/A') {
+        // ID deve começar com analysisId para não ser órfão
+        if (!semanalPlano.id.startsWith(semanalPlano.analysisId)) {
+          isNotOrphan = false;
+          console.log(`REMOVENDO plano órfão/duplicado: ${semanalPlano.id} (analysisId: ${semanalPlano.analysisId})`);
+        }
       }
+      // Se analysisId é N/A, aceitar (planos criados diretamente no controle)
+    } else if (plano.type === 'plano') {
+      // Para planos mensais, DEVE ter analysisId válido
+      hasValidAnalysisId = 'analysisId' in plano && Boolean(plano.analysisId) && plano.analysisId !== 'N/A';
     }
     
     // Log para cada plano processado
