@@ -105,11 +105,12 @@ const TarotWeeklyPaymentControl: React.FC<TarotWeeklyPaymentControlProps> = ({
         type: 'semanal',
         clientName,
         week: week.week,
+        totalWeeks: parseInt(semanalData.semanas),
         amount: parseFloat(semanalData.valorSemanal),
         dueDate: week.dueDate,
         active: false,
         analysisId,
-        createdAt: new Date().toISOString(),
+        created: new Date().toISOString(),
       };
 
       const updatedPlanos = [...planos, newPlano];

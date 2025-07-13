@@ -117,11 +117,12 @@ const TarotMonthlyPaymentControl: React.FC<TarotMonthlyPaymentControlProps> = ({
         type: 'plano',
         clientName,
         month: month.month,
+        totalMonths: parseInt(planoData.meses),
         amount: parseFloat(planoData.valorMensal),
         dueDate: month.dueDate,
         active: false,
         analysisId,
-        createdAt: new Date().toISOString(),
+        created: new Date().toISOString(),
       };
 
       const updatedPlanos = [...planos, newPlano];
