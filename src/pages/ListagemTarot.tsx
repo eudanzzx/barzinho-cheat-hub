@@ -65,6 +65,21 @@ const ListagemTarot = React.memo(() => {
     };
   }, []);
 
+  // Forçar atualização das datas após montagem do componente
+  useEffect(() => {
+    const triggerPaymentUpdate = () => {
+      console.log('ListagemTarot - Disparando atualização de pagamentos para corrigir datas');
+      window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
+        detail: { action: 'date_correction', timestamp: Date.now() }
+      }));
+    };
+
+    // Disparar evento após um pequeno delay
+    const timeoutId = setTimeout(triggerPaymentUpdate, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [analises, tabAnalises]);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab as 'todas' | 'finalizadas' | 'em-andamento');
   };

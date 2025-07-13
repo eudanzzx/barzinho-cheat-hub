@@ -41,23 +41,26 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
   
   console.log('filterTarotPlans - Planos ativos de tarot:', tarotPlans.length);
   
-  // Filtrar por data de vencimento - usar data exata do plano
+  // Filtrar por data de vencimento - usar data exata do plano sem processamento
   const validPlans = tarotPlans.filter(plano => {
-    // Usar a data exata do plano sem modificações
-    const planoDueDate = new Date(plano.dueDate);
-    planoDueDate.setHours(0, 0, 0, 0);
+    // Usar a data diretamente como string no formato YYYY-MM-DD para evitar problemas de timezone
+    const dueDateStr = plano.dueDate; // Formato: "YYYY-MM-DD"
+    const todayStr = today.toISOString().split('T')[0]; // Formato: "YYYY-MM-DD"
     
-    // Calcular diferença em dias de forma mais precisa
-    const timeDiff = planoDueDate.getTime() - today.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    // Calcular diferença usando apenas as strings de data
+    const dueDate = new Date(dueDateStr + 'T12:00:00.000Z'); // Meio-dia UTC para evitar timezone issues
+    const todayDate = new Date(todayStr + 'T12:00:00.000Z');
+    
+    const timeDiff = dueDate.getTime() - todayDate.getTime();
+    const daysDiff = Math.round(timeDiff / (1000 * 60 * 60 * 24));
     
     // Mostrar planos que vencem até 90 dias ou já venceram há até 30 dias
     const shouldShow = daysDiff <= 90 && daysDiff >= -30;
     
-    console.log(`filterTarotPlans - Plano ${plano.id} data:`, {
+    console.log(`filterTarotPlans - Plano ${plano.id} data (CORRIGIDO):`, {
       originalDueDate: plano.dueDate,
-      planoDueDateProcessed: planoDueDate.toISOString().split('T')[0],
-      todayProcessed: today.toISOString().split('T')[0],
+      dueDateStr,
+      todayStr,
       daysDiff,
       shouldShow,
       timeDiff,
