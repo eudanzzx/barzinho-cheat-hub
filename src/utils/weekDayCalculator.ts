@@ -3,12 +3,14 @@ export const getNextWeekDays = (totalWeeks: number, targetWeekDay: string, start
   const weekDays: Date[] = [];
   const today = startDate || new Date();
   
-  console.log('🔍 WeekDayCalculator - ENTRADA:', {
+  console.log('🔍 WeekDayCalculator - ENTRADA COMPLETA:', {
     totalWeeks,
     targetWeekDay,
+    targetWeekDayType: typeof targetWeekDay,
     startDate: startDate ? startDate.toDateString() : 'undefined',
     today: today.toDateString(),
-    usingStartDate: !!startDate
+    usingStartDate: !!startDate,
+    isValidTargetWeekDay: typeof targetWeekDay === 'string' && targetWeekDay.length > 0
   });
   
   // Mapear strings para números (0 = domingo, 1 = segunda, etc.) - padrão brasileiro

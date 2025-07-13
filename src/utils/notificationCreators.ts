@@ -51,11 +51,28 @@ export const createSemanalNotifications = (
   const notifications: PlanoSemanal[] = [];
   const totalWeeks = parseInt(semanas);
   
-  console.log('NotificationCreators - Criando notificações semanais para dia:', diaVencimento);
+  console.log('🚀 DEBUG ABSOLUTO - NotificationCreators.createSemanalNotifications:', {
+    nomeCliente,
+    semanas,
+    valorSemanal,
+    dataInicio,
+    diaVencimento,
+    diaVencimentoType: typeof diaVencimento,
+    totalWeeks,
+    timestamp: new Date().toISOString()
+  });
   
   const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(dataInicio));
   
-  console.log('NotificationCreators - Datas calculadas:', weekDays.map(d => d.toDateString()));
+  console.log('🚀 DEBUG ABSOLUTO - Datas calculadas por getNextWeekDays:', 
+    weekDays.map((d, i) => ({ 
+      semana: i + 1,
+      data: d.toDateString(),
+      dataISO: d.toISOString().split('T')[0],
+      diaDaSemana: d.getDay(),
+      diaDaSemanaNome: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][d.getDay()]
+    }))
+  );
   
   weekDays.forEach((weekDay, index) => {
     notifications.push({
