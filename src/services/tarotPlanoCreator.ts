@@ -130,12 +130,21 @@ export const useTarotPlanoCreator = () => {
           notificationTiming: 'on_due_date'
         });
         
-        console.log('createTarotPlanos - Primeiro plano semanal criado:', {
+        console.log('🚀 createTarotPlanos - Primeiro plano semanal criado:', {
           id: planoId,
           dueDate: firstDueDate,
           diaVencimento,
           totalWeeks,
-          calculatedFromDate: referenceDate.toDateString()
+          calculatedFromDate: referenceDate.toDateString(),
+          clientName,
+          analysisId: analysis.id
+        });
+      } else {
+        console.log('❌ createTarotPlanos - ERRO: Nenhuma data calculada para planos semanais!', {
+          weekDaysLength: weekDays.length,
+          totalWeeks,
+          diaVencimento,
+          referenceDate: referenceDate.toDateString()
         });
       }
     }

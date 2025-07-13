@@ -5,7 +5,7 @@ import { TarotAnalysis } from "@/services/tarotAnalysisService";
 import { toast } from "sonner";
 
 export const useTarotAnalises = () => {
-  const { getAllTarotAnalyses, deleteTarotAnalysis, saveTarotAnalyses, checkClientBirthday, getPlanos, savePlanos } = useUserDataService();
+  const { getAllTarotAnalyses, deleteTarotAnalysis, saveTarotAnalysisWithPlan, checkClientBirthday, getPlanos, savePlanos } = useUserDataService();
   
   const [analises, setAnalises] = useState<TarotAnalysis[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -141,19 +141,22 @@ export const useTarotAnalises = () => {
   };
 
   const handleToggleFinished = (id: string) => {
-    const updatedAnalises = analises.map(analise => 
-      analise.id === id 
-        ? { ...analise, finalizado: !analise.finalizado }
-        : analise
+    const analise = analises.find(a => a.id === id);
+    if (!analise) return;
+    
+    const updatedAnalise = { ...analise, finalizado: !analise.finalizado };
+    
+    // Usar saveTarotAnalysisWithPlan para garantir que os planos sejam criados/atualizados
+    console.log('🔧 handleToggleFinished - Usando saveTarotAnalysisWithPlan para:', updatedAnalise.id);
+    saveTarotAnalysisWithPlan(updatedAnalise);
+    
+    // Atualizar lista local
+    const updatedAnalises = analises.map(a => 
+      a.id === id ? updatedAnalise : a
     );
-    
     setAnalises(updatedAnalises);
-    saveTarotAnalyses(updatedAnalises);
     
-    const analise = updatedAnalises.find(a => a.id === id);
-    if (analise) {
-      toast.success(`Análise ${analise.finalizado ? 'finalizada' : 'reaberta'} com sucesso`);
-    }
+    toast.success(`Análise ${updatedAnalise.finalizado ? 'finalizada' : 'reaberta'} com sucesso`);
     
     window.dispatchEvent(new CustomEvent('tarotAnalysesUpdated'));
   };
