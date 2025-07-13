@@ -60,48 +60,65 @@ export const useTarotPlanoCreator = () => {
     
     // Criar planos semanais se ativo
     if (analysis.semanalAtivo && analysis.semanalData) {
-      console.log('createTarotPlanos - Criando planos semanais para:', clientName);
+      console.log('createTarotPlanos - Criando APENAS primeiro plano semanal para:', clientName);
       
       const totalWeeks = parseInt(analysis.semanalData.semanas);
       const weeklyAmount = parseFloat(analysis.semanalData.valorSemanal);
       
-      for (let week = 1; week <= totalWeeks; week++) {
-        const dueDate = new Date(startDate);
-        dueDate.setDate(dueDate.getDate() + (week - 1) * 7);
-        
-        // Ajustar para o dia da semana correto baseado no diaVencimento
-        const diaVencimento = analysis.semanalData.diaVencimento || 'sexta';
-        const dayOfWeekMap: { [key: string]: number } = {
-          'domingo': 0,
-          'segunda': 1,
-          'terca': 2,
-          'quarta': 3,
-          'quinta': 4,
-          'sexta': 5,
-          'sabado': 6
-        };
-        
-        const targetDay = dayOfWeekMap[diaVencimento] || 5; // sexta como padrão
-        const currentDay = dueDate.getDay();
-        const daysToAdd = (targetDay - currentDay + 7) % 7;
-        dueDate.setDate(dueDate.getDate() + daysToAdd);
-        
-        const planoId = `${analysis.id}-week-${week}`;
-        
-        newPlanos.push({
-          id: planoId,
-          clientName: clientName,
-          type: 'semanal',
-          amount: weeklyAmount,
-          dueDate: dueDate.toISOString().split('T')[0],
-          week: week,
-          totalWeeks: totalWeeks,
-          created: new Date().toISOString(),
-          active: true,
-          analysisId: analysis.id,
-          notificationTiming: 'on_due_date'
-        });
+      // Criar APENAS o primeiro plano semanal - os demais serão criados pelo controle
+      const week = 1;
+      const dueDate = new Date(startDate);
+      
+      // Usar o mesmo cálculo do weekDayCalculator para consistência
+      const diaVencimento = analysis.semanalData.diaVencimento || 'sexta';
+      const dayOfWeekMap: { [key: string]: number } = {
+        'domingo': 0,
+        'segunda': 1,
+        'terca': 2,
+        'quarta': 3,
+        'quinta': 4,
+        'sexta': 5,
+        'sabado': 6
+      };
+      
+      const targetDay = dayOfWeekMap[diaVencimento] || 5;
+      const currentDay = dueDate.getDay();
+      
+      // Calcular próximo vencimento usando a mesma lógica do weekDayCalculator
+      let daysToAdd;
+      if (currentDay === targetDay) {
+        daysToAdd = 0; // Se hoje é o dia, usar hoje
+      } else if (currentDay < targetDay) {
+        daysToAdd = targetDay - currentDay;
+      } else {
+        daysToAdd = 7 - currentDay + targetDay;
       }
+      
+      dueDate.setDate(dueDate.getDate() + daysToAdd);
+      
+      const planoId = `${analysis.id}-week-${week}`;
+      
+      newPlanos.push({
+        id: planoId,
+        clientName: clientName,
+        type: 'semanal',
+        amount: weeklyAmount,
+        dueDate: dueDate.toISOString().split('T')[0],
+        week: week,
+        totalWeeks: totalWeeks,
+        created: new Date().toISOString(),
+        active: true,
+        analysisId: analysis.id,
+        notificationTiming: 'on_due_date'
+      });
+      
+      console.log('createTarotPlanos - Primeiro plano semanal criado:', {
+        id: planoId,
+        dueDate: dueDate.toISOString().split('T')[0],
+        diaVencimento,
+        targetDay,
+        daysToAdd
+      });
     }
     
     // Salvar os planos atualizados (sem os antigos + os novos)

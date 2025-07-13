@@ -37,6 +37,9 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     });
     
     return isTarotPlan && isActive && hasValidIdentifier;
+  }).filter((plano, index, array) => {
+    // Remover planos duplicados baseado no id
+    return array.findIndex(p => p.id === plano.id) === index;
   });
   
   console.log('filterTarotPlans - Planos ativos de tarot:', tarotPlans.length);

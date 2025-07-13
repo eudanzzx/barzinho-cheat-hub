@@ -104,6 +104,14 @@ export const useTarotAnalises = () => {
           if ('analysisId' in plano && plano.analysisId === id) {
             return false;
           }
+          // Remover também planos semanais que começam com o id da análise
+          if (plano.type === 'semanal' && plano.id.startsWith(`${id}-week-`)) {
+            return false;
+          }
+          // Remover planos mensais que começam com o id da análise  
+          if (plano.type === 'plano' && plano.id.startsWith(`${id}-month-`)) {
+            return false;
+          }
           return true;
         });
         
