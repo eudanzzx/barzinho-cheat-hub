@@ -51,7 +51,7 @@ export const createSemanalNotifications = (
   const notifications: PlanoSemanal[] = [];
   const totalWeeks = parseInt(semanas);
   
-  console.log('🚀 DEBUG ABSOLUTO - NotificationCreators.createSemanalNotifications:', {
+  console.log('🚀 CRIAÇÃO SEMANAL - NotificationCreators.createSemanalNotifications ENTRADA:', {
     nomeCliente,
     semanas,
     valorSemanal,
@@ -62,31 +62,44 @@ export const createSemanalNotifications = (
     timestamp: new Date().toISOString()
   });
   
+  // USAR O MESMO CÁLCULO DO weekDayCalculator que está funcionando corretamente
   const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(dataInicio));
   
-  console.log('🚀 DEBUG ABSOLUTO - Datas calculadas por getNextWeekDays:', 
+  console.log('🚀 CRIAÇÃO SEMANAL - Datas calculadas por getNextWeekDays:', 
     weekDays.map((d, i) => ({ 
       semana: i + 1,
       data: d.toDateString(),
       dataISO: d.toISOString().split('T')[0],
       diaDaSemana: d.getDay(),
-      diaDaSemanaNome: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][d.getDay()]
+      diaDaSemanaNome: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][d.getDay()],
+      diaVencimentoSelecionado: diaVencimento
     }))
   );
   
   weekDays.forEach((weekDay, index) => {
-    notifications.push({
+    const notification = {
       id: `semanal-${Date.now()}-${index + 1}`,
       clientName: nomeCliente,
-      type: 'semanal',
+      type: 'semanal' as const,
       amount: parseFloat(valorSemanal),
       dueDate: weekDay.toISOString().split('T')[0],
       week: index + 1,
       totalWeeks: totalWeeks,
       created: new Date().toISOString(),
       active: true
+    };
+    
+    console.log(`🚀 CRIAÇÃO SEMANAL - Criando notificação semana ${index + 1}:`, {
+      data: weekDay.toDateString(),
+      dataISO: notification.dueDate,
+      diaDaSemanaNome: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][weekDay.getDay()],
+      diaVencimentoSelecionado: diaVencimento
     });
+    
+    notifications.push(notification);
   });
+  
+  console.log('🚀 CRIAÇÃO SEMANAL - Total de notificações criadas:', notifications.length);
   
   return notifications;
 };
