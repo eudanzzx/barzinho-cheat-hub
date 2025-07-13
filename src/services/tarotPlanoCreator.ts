@@ -67,8 +67,24 @@ export const useTarotPlanoCreator = () => {
       const weeklyAmount = parseFloat(analysis.semanalData.valorSemanal);
       const diaVencimento = analysis.semanalData.diaVencimento || 'sexta';
       
-      // Usar EXATAMENTE a mesma função que o controle de pagamentos usa
-      const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(startDate));
+      // USAR EXATAMENTE A MESMA LÓGICA QUE O CONTROLE DE PAGAMENTOS
+      // Garantir que a data de início seja tratada corretamente
+      const referenceDate = new Date(startDate);
+      console.log('createTarotPlanos - Data de referência inicial:', {
+        startDate,
+        referenceDate: referenceDate.toDateString(),
+        diaVencimento
+      });
+      
+      const weekDays = getNextWeekDays(totalWeeks, diaVencimento, referenceDate);
+      
+      console.log('createTarotPlanos - Datas calculadas:', 
+        weekDays.map((date, index) => ({
+          week: index + 1,
+          date: date.toISOString().split('T')[0],
+          dateObject: date.toDateString()
+        }))
+      );
       
       // Criar APENAS o primeiro plano semanal usando a primeira data calculada
       if (weekDays.length > 0) {
@@ -89,11 +105,12 @@ export const useTarotPlanoCreator = () => {
           notificationTiming: 'on_due_date'
         });
         
-        console.log('createTarotPlanos - Primeiro plano semanal criado com data do weekDayCalculator:', {
+        console.log('createTarotPlanos - Primeiro plano semanal criado:', {
           id: planoId,
           dueDate: firstDueDate,
           diaVencimento,
-          totalWeeks
+          totalWeeks,
+          calculatedFromDate: referenceDate.toDateString()
         });
       }
     }
