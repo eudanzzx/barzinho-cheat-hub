@@ -1,0 +1,213 @@
+
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check, X, Calendar, DollarSign } from "lucide-react";
+import { toast } from "sonner";
+import useUserDataService from "@/services/userDataService";
+import { PlanoSemanal } from "@/types/payment";
+
+interface TarotWeeklyPaymentControlProps {
+  analysisId: string;
+  clientName: string;
+  semanalData: {
+    semanas: string;
+    valorSemanal: string;
+    diaVencimento?: string;
+  };
+  startDate: string;
+}
+
+interface SemanalWeek {
+  week: number;
+  isPaid: boolean;
+  dueDate: string;
+  paymentDate?: string;
+  planoId?: string;
+}
+
+const TarotWeeklyPaymentControl: React.FC<TarotWeeklyPaymentControlProps> = ({
+  analysisId,
+  clientName,
+  semanalData,
+  startDate,
+}) => {
+  const { getPlanos, savePlanos } = useUserDataService();
+  const [semanalWeeks, setSemanalWeeks] = useState<SemanalWeek[]>([]);
+
+  useEffect(() => {
+    initializeSemanalWeeks();
+  }, [analysisId, semanalData, startDate]);
+
+  useEffect(() => {
+    const handlePlanosUpdated = () => {
+      initializeSemanalWeeks();
+    };
+
+    window.addEventListener('planosUpdated', handlePlanosUpdated);
+    window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    
+    return () => {
+      window.removeEventListener('planosUpdated', handlePlanosUpdated);
+      window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+    };
+  }, []);
+
+  const initializeSemanalWeeks = () => {
+    const totalWeeks = parseInt(semanalData.semanas);
+    const baseDate = new Date(startDate);
+    const planos = getPlanos();
+
+    const weeks: SemanalWeek[] = [];
+    
+    for (let i = 1; i <= totalWeeks; i++) {
+      const dueDate = new Date(baseDate);
+      dueDate.setDate(baseDate.getDate() + (i - 1) * 7);
+      
+      const existingPlano = planos.find((plano): plano is PlanoSemanal => 
+        plano.type === 'semanal' && 
+        plano.analysisId === analysisId && 
+        plano.week === i
+      );
+
+      weeks.push({
+        week: i,
+        isPaid: existingPlano ? !existingPlano.active : false,
+        dueDate: dueDate.toISOString().split('T')[0],
+        planoId: existingPlano?.id,
+      });
+    }
+    
+    setSemanalWeeks(weeks);
+  };
+
+  const handlePaymentToggle = (weekIndex: number) => {
+    const week = semanalWeeks[weekIndex];
+    const planos = getPlanos();
+    const newIsPaid = !week.isPaid;
+
+    if (week.planoId) {
+      const updatedPlanos = planos.map(plano =>
+        plano.id === week.planoId
+          ? { ...plano, active: !newIsPaid }
+          : plano
+      );
+
+      savePlanos(updatedPlanos);
+
+      const updatedWeeks = [...semanalWeeks];
+      updatedWeeks[weekIndex].isPaid = newIsPaid;
+      setSemanalWeeks(updatedWeeks);
+    } else if (newIsPaid) {
+      const newPlano: PlanoSemanal = {
+        id: `semanal-${Date.now()}-${Math.random()}`,
+        type: 'semanal',
+        clientName,
+        week: week.week,
+        amount: parseFloat(semanalData.valorSemanal),
+        dueDate: week.dueDate,
+        active: false,
+        analysisId,
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedPlanos = [...planos, newPlano];
+      savePlanos(updatedPlanos);
+
+      const updatedWeeks = [...semanalWeeks];
+      updatedWeeks[weekIndex].planoId = newPlano.id;
+      updatedWeeks[weekIndex].isPaid = true;
+      setSemanalWeeks(updatedWeeks);
+    }
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('planosUpdated'));
+    }, 100);
+
+    toast.success(
+      newIsPaid
+        ? `Semana ${week.week} marcada como paga`
+        : `Semana ${week.week} marcada como pendente`
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const paidCount = semanalWeeks.filter(w => w.isPaid).length;
+  const totalValue = semanalWeeks.length * parseFloat(semanalData.valorSemanal);
+  const paidValue = paidCount * parseFloat(semanalData.valorSemanal);
+
+  return (
+    <Card className="border-emerald-200 bg-emerald-50/30 shadow-sm">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="h-4 w-4 text-emerald-600" />
+          <span className="font-medium text-emerald-800">Controle de Pagamentos Semanais</span>
+          <Badge 
+            variant="secondary" 
+            className="bg-emerald-100 text-emerald-800"
+          >
+            {paidCount}/{semanalWeeks.length}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-green-600" />
+            <span>Pago: R$ {paidValue.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-gray-600" />
+            <span>Total: R$ {totalValue.toFixed(2)}</span>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          {semanalWeeks.map((week, index) => {
+            const isPaid = week.isPaid;
+            return (
+              <Button
+                key={week.week}
+                onClick={() => handlePaymentToggle(index)}
+                variant="outline"
+                className={`
+                  w-full p-4 h-auto flex items-center justify-between
+                  ${isPaid 
+                    ? 'bg-green-50 border-green-200 text-green-800' 
+                    : 'bg-red-50 border-red-200 text-red-800'
+                  }
+                `}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                    {isPaid ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <X className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-medium">
+                      {week.week}ª Semana
+                    </div>
+                    <div className="text-sm opacity-75">
+                      Vencimento: {formatDate(week.dueDate)}
+                    </div>
+                  </div>
+                </div>
+                <Badge variant={isPaid ? "default" : "destructive"}>
+                  {isPaid ? 'Pago' : 'Pendente'}
+                </Badge>
+              </Button>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default TarotWeeklyPaymentControl;

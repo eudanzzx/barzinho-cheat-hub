@@ -2,7 +2,8 @@
 import React from "react";
 import { Calendar, DollarSign, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import AtendimentoPaymentButtons from "@/components/dashboard/AtendimentoPaymentButtons";
+import TarotMonthlyPaymentButton from "../TarotMonthlyPaymentButton";
+import TarotWeeklyPaymentButton from "../TarotWeeklyPaymentButton";
 
 interface AnalysisHeaderProps {
   analise: any;
@@ -62,7 +63,27 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
       </div>
       
       {/* Botões de Pagamento - Exatamente como na dashboard principal */}
-      <AtendimentoPaymentButtons clientName={analise.nomeCliente} />
+      <div className="mt-3 space-y-2">
+        {/* Botão Pagamentos Mensais - apenas se plano mensal estiver ativo */}
+        {analise.planoAtivo && analise.planoData && (
+          <TarotMonthlyPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            planoData={analise.planoData}
+            startDate={analise.dataInicio}
+          />
+        )}
+
+        {/* Botão Pagamentos Semanais - apenas se plano semanal estiver ativo */}
+        {analise.semanalAtivo && analise.semanalData && (
+          <TarotWeeklyPaymentButton
+            analysisId={analise.id}
+            clientName={analise.nomeCliente}
+            semanalData={analise.semanalData}
+            startDate={analise.dataInicio}
+          />
+        )}
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-[#41226e] mt-3">
         <div className="flex items-center gap-2">
