@@ -72,7 +72,12 @@ export const useAtendimentoSave = () => {
     
     // Criar notificações semanais se ativo
     if (semanalAtivo && semanalData.semanas && semanalData.valorSemanal && semanalData.diaVencimento && formData.dataAtendimento) {
-      console.log('AtendimentoSave - Salvando com dia vencimento:', semanalData.diaVencimento);
+      console.log('🔧 CORRIGIDO - AtendimentoSave salvando com:', {
+        diaVencimento: semanalData.diaVencimento,
+        dataAtendimento: formData.dataAtendimento,
+        semanas: semanalData.semanas,
+        cliente: formData.nome
+      });
       
       const notifications = createSemanalNotifications(
         formData.nome,
@@ -80,6 +85,14 @@ export const useAtendimentoSave = () => {
         semanalData.valorSemanal,
         formData.dataAtendimento,
         semanalData.diaVencimento
+      );
+      
+      console.log('🔧 CORRIGIDO - Notificações semanais criadas:', 
+        notifications.map(n => ({ 
+          week: n.week, 
+          dueDate: n.dueDate,
+          dayOfWeek: new Date(n.dueDate).getDay() 
+        }))
       );
       
       const existingPlanos = getPlanos() || [];

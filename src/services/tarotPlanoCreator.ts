@@ -77,32 +77,23 @@ export const useTarotPlanoCreator = () => {
     
     // Criar planos semanais se ativo
     if (analysis.semanalAtivo && analysis.semanalData) {
-      console.log('createTarotPlanos - Criando APENAS primeiro plano semanal para:', clientName);
+      console.log('createTarotPlanos - Criando primeiro plano semanal para:', clientName);
       
       const totalWeeks = parseInt(analysis.semanalData.semanas);
       const weeklyAmount = parseFloat(analysis.semanalData.valorSemanal);
       const diaVencimento = analysis.semanalData.diaVencimento || 'sexta';
       
-      // USAR EXATAMENTE A MESMA LÓGICA QUE O CONTROLE DE PAGAMENTOS
-      // IMPORTANTE: Verificar se a data está sendo tratada corretamente
-      console.log('🔍 INVESTIGAÇÃO - Antes da conversão:', {
-        startDate,
-        startDateType: typeof startDate,
-        isString: typeof startDate === 'string'
-      });
-      
+      // USAR A MESMA LÓGICA DO useAtendimentoSave que funciona corretamente
       const referenceDate = new Date(startDate);
-      console.log('🔍 INVESTIGAÇÃO - Após conversão:', {
-        referenceDate,
-        referenceDateString: referenceDate.toDateString(),
-        referenceDateISO: referenceDate.toISOString(),
-        isValidDate: !isNaN(referenceDate.getTime()),
+      console.log('🔍 createTarotPlanos - Data de referência:', {
+        startDate,
+        referenceDate: referenceDate.toDateString(),
         diaVencimento
       });
       
       const weekDays = getNextWeekDays(totalWeeks, diaVencimento, referenceDate);
       
-      console.log('🔧 CORREÇÃO APLICADA - createTarotPlanos - Datas calculadas:', 
+      console.log('🔧 createTarotPlanos - Datas calculadas:', 
         weekDays.map((date, index) => ({
           week: index + 1,
           date: date.toISOString().split('T')[0],
@@ -111,7 +102,7 @@ export const useTarotPlanoCreator = () => {
         }))
       );
       
-      // Criar APENAS o primeiro plano semanal usando a primeira data calculada
+      // Criar APENAS o primeiro plano semanal
       if (weekDays.length > 0) {
         const firstDueDate = weekDays[0].toISOString().split('T')[0];
         const planoId = `${analysis.id}-week-1`;
@@ -130,22 +121,16 @@ export const useTarotPlanoCreator = () => {
           notificationTiming: 'on_due_date'
         });
         
-        console.log('🚀 createTarotPlanos - Primeiro plano semanal criado:', {
+        console.log('🚀 createTarotPlanos - Primeiro plano semanal criado com data correta:', {
           id: planoId,
           dueDate: firstDueDate,
           diaVencimento,
           totalWeeks,
-          calculatedFromDate: referenceDate.toDateString(),
           clientName,
           analysisId: analysis.id
         });
       } else {
-        console.log('❌ createTarotPlanos - ERRO: Nenhuma data calculada para planos semanais!', {
-          weekDaysLength: weekDays.length,
-          totalWeeks,
-          diaVencimento,
-          referenceDate: referenceDate.toDateString()
-        });
+        console.log('❌ createTarotPlanos - ERRO: Nenhuma data calculada para planos semanais!');
       }
     }
     
