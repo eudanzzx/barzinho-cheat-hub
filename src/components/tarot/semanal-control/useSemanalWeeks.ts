@@ -51,13 +51,37 @@ export const useSemanalWeeks = ({
         plano.id.startsWith(`${analysisId}-week-${index + 1}`) && plano.type === 'semanal'
       );
       
+      const correctDueDate = weekDay.toISOString().split('T')[0];
+      
       weeks.push({
         week: index + 1,
         isPaid: semanalForWeek ? !semanalForWeek.active : false,
-        dueDate: weekDay.toISOString().split('T')[0],
+        dueDate: correctDueDate,
         paymentDate: semanalForWeek?.created ? new Date(semanalForWeek.created).toISOString().split('T')[0] : undefined,
         semanalId: semanalForWeek?.id
       });
+    });
+    
+    // Corrigir datas dos planos existentes se necessário
+    const correctedPlanos = planos.map(plano => {
+      if (plano.type === 'semanal' && 'analysisId' in plano && plano.analysisId === analysisId) {
+        const matchingWeek = weeks.find(w => w.semanalId === plano.id);
+        if (matchingWeek && plano.dueDate !== matchingWeek.dueDate) {
+          console.log(`Corrigindo data do plano semanal ${plano.id} de ${plano.dueDate} para ${matchingWeek.dueDate}`);
+          return { ...plano, dueDate: matchingWeek.dueDate };
+        }
+      }
+      return plano;
+    });
+    
+    if (correctedPlanos.some((p, i) => p !== planos[i])) {
+      savePlanos(correctedPlanos);
+    }
+    
+    console.log('useSemanalWeeks - Semanas inicializadas:', {
+      totalWeeks: weeks.length,
+      paidWeeks: weeks.filter(w => w.isPaid).length,
+      datesGenerated: weeks.map(w => ({ week: w.week, dueDate: w.dueDate }))
     });
     
     setSemanalWeeks(weeks);

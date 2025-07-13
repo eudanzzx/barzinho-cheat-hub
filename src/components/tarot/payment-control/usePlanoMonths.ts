@@ -82,10 +82,27 @@ export const usePlanoMonths = ({
       clientName
     );
     
+    // Garantir que as datas dos planos existentes sejam corrigidas
+    const correctedPlanos = planos.map(plano => {
+      if (plano.type === 'plano' && 'analysisId' in plano && plano.analysisId === analysisId) {
+        const matchingMonth = months.find(m => m.month === plano.month);
+        if (matchingMonth && plano.dueDate !== matchingMonth.dueDate) {
+          console.log(`Corrigindo data do plano ${plano.id} de ${plano.dueDate} para ${matchingMonth.dueDate}`);
+          return { ...plano, dueDate: matchingMonth.dueDate };
+        }
+      }
+      return plano;
+    });
+    
+    if (correctedPlanos.some((p, i) => p !== planos[i])) {
+      savePlanos(correctedPlanos);
+    }
+    
     console.log('usePlanoMonths - Meses inicializados:', {
       totalMonths: months.length,
       paidMonths: months.filter(m => m.isPaid).length,
-      analysisId
+      analysisId,
+      datesGenerated: months.map(m => ({ month: m.month, dueDate: m.dueDate }))
     });
     
     setPlanoMonths(months);
