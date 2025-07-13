@@ -1,7 +1,6 @@
 
 import React, { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AnalysisCardsProps {
@@ -9,17 +8,13 @@ interface AnalysisCardsProps {
   analiseDepois: string;
   onAnaliseAntesChange: (value: string) => void;
   onAnaliseDepoisChange: (value: string) => void;
-  value?: string;
-  onChange?: (value: string) => void;
 }
 
 const AnalysisCards: React.FC<AnalysisCardsProps> = memo(({
   analiseAntes,
   analiseDepois,
   onAnaliseAntesChange,
-  onAnaliseDepoisChange,
-  value,
-  onChange
+  onAnaliseDepoisChange
 }) => {
   return (
     <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -50,23 +45,6 @@ const AnalysisCards: React.FC<AnalysisCardsProps> = memo(({
           />
         </CardContent>
       </Card>
-      
-      {value !== undefined && onChange && (
-        <Card className="bg-gradient-to-br from-green-50 to-white border-green-200 shadow-md">
-          <CardHeader className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-t-lg">
-            <CardTitle className="text-lg font-semibold">Valor da Consulta</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <Input
-              type="number"
-              placeholder="Ex: 150"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              className="bg-white/50 border-green-200 focus:border-green-400 focus:ring-green-200"
-            />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 });
