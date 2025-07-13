@@ -7,6 +7,7 @@ import { Check, X, Calendar, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { PlanoSemanal } from "@/types/payment";
+import { getNextWeekDays } from "@/utils/weekDayCalculator";
 
 interface TarotWeeklyPaymentControlProps {
   analysisId: string;
@@ -56,29 +57,57 @@ const TarotWeeklyPaymentControl: React.FC<TarotWeeklyPaymentControlProps> = ({
 
   const initializeSemanalWeeks = () => {
     const totalWeeks = parseInt(semanalData.semanas);
-    const baseDate = new Date(startDate);
+    const diaVencimento = semanalData.diaVencimento || 'sexta';
+    
+    console.log('🔍 TarotWeeklyPaymentControl - Inicializando:', {
+      analysisId,
+      totalWeeks,
+      diaVencimento,
+      startDate: startDate,
+      clientName
+    });
+    
+    // Usar getNextWeekDays para calcular as datas corretas - igual aos próximos vencimentos
+    const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(startDate));
+    
+    console.log('🔍 TarotWeeklyPaymentControl - Datas calculadas pelo weekDayCalculator:', 
+      weekDays.map((date, index) => ({
+        week: index + 1,
+        date: date.toISOString().split('T')[0],
+        dateObject: date.toDateString(),
+        dayOfWeek: date.getDay(),
+        dayName: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][date.getDay()]
+      }))
+    );
+    
     const planos = getPlanos();
-
     const weeks: SemanalWeek[] = [];
     
-    for (let i = 1; i <= totalWeeks; i++) {
-      const dueDate = new Date(baseDate);
-      dueDate.setDate(baseDate.getDate() + (i - 1) * 7);
+    // Usar as datas calculadas corretamente pelo weekDayCalculator
+    weekDays.forEach((weekDay, index) => {
+      const week = index + 1;
+      const correctDueDate = weekDay.toISOString().split('T')[0];
       
       const existingPlano = planos.find((plano): plano is PlanoSemanal => 
         plano.type === 'semanal' && 
         (plano.analysisId === analysisId || 
-         (plano.clientName === clientName && plano.week === i)) &&
-        plano.week === i
+         (plano.clientName === clientName && plano.week === week)) &&
+        plano.week === week
       );
 
       weeks.push({
-        week: i,
+        week: week,
         isPaid: existingPlano ? !existingPlano.active : false,
-        dueDate: dueDate.toISOString().split('T')[0],
+        dueDate: correctDueDate, // Usar a data calculada corretamente
         planoId: existingPlano?.id,
       });
-    }
+    });
+    
+    console.log('✅ TarotWeeklyPaymentControl - Semanas inicializadas com datas corretas:', {
+      totalWeeks: weeks.length,
+      paidWeeks: weeks.filter(w => w.isPaid).length,
+      datesGenerated: weeks.map(w => ({ week: w.week, dueDate: w.dueDate }))
+    });
     
     setSemanalWeeks(weeks);
   };
