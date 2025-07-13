@@ -25,6 +25,7 @@ import SemanalSelector from "@/components/tarot/SemanalSelector";
 import DailySemanalNotificationManager from "@/components/DailySemanalNotificationManager";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { getNextWeekDays } from "@/utils/weekDayCalculator";
+import { createPlanoNotifications, createSemanalNotifications } from "@/utils/notificationCreators";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Memoized reminder component to prevent unnecessary re-renders
@@ -254,51 +255,7 @@ const AnaliseFrequencial = () => {
     ));
   }, []);
 
-  const createPlanoNotifications = (nomeCliente: string, meses: string, valorMensal: string, dataInicio: string) => {
-    const notifications: PlanoMensal[] = [];
-    const startDate = new Date(dataInicio);
-    
-    for (let i = 1; i <= parseInt(meses); i++) {
-      const notificationDate = new Date(startDate);
-      notificationDate.setMonth(notificationDate.getMonth() + i);
-      
-      notifications.push({
-        id: `plano-${Date.now()}-${i}`,
-        clientName: nomeCliente,
-        type: 'plano',
-        amount: parseFloat(valorMensal),
-        dueDate: notificationDate.toISOString().split('T')[0],
-        month: i,
-        totalMonths: parseInt(meses),
-        created: new Date().toISOString(),
-        active: true
-      });
-    }
-    
-    return notifications;
-  };
 
-  const createSemanalNotifications = (nomeCliente: string, semanas: string, valorSemanal: string, dataInicio: string, diaVencimento: string = 'sexta') => {
-    const notifications: PlanoSemanal[] = [];
-    const totalWeeks = parseInt(semanas);
-    const weekDays = getNextWeekDays(totalWeeks, diaVencimento, new Date(dataInicio));
-    
-    weekDays.forEach((weekDay, index) => {
-      notifications.push({
-        id: `semanal-${Date.now()}-${index + 1}`,
-        clientName: nomeCliente,
-        type: 'semanal',
-        amount: parseFloat(valorSemanal),
-        dueDate: weekDay.toISOString().split('T')[0],
-        week: index + 1,
-        totalWeeks: totalWeeks,
-        created: new Date().toISOString(),
-        active: true
-      });
-    });
-    
-    return notifications;
-  };
 
   const handlePlanoDataChange = useCallback((field: string, value: string) => {
     setPlanoData(prev => ({

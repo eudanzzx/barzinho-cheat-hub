@@ -72,11 +72,12 @@ export const useAtendimentoSave = () => {
     
     // Criar notificações semanais se ativo
     if (semanalAtivo && semanalData.semanas && semanalData.valorSemanal && semanalData.diaVencimento && formData.dataAtendimento) {
-      console.log('🔧 CORRIGIDO - AtendimentoSave salvando com:', {
+      console.log('🚀 TESTE CORREÇÃO - useAtendimentoSave criando planos semanais:', {
         diaVencimento: semanalData.diaVencimento,
         dataAtendimento: formData.dataAtendimento,
         semanas: semanalData.semanas,
-        cliente: formData.nome
+        cliente: formData.nome,
+        timestamp: new Date().toISOString()
       });
       
       const notifications = createSemanalNotifications(
