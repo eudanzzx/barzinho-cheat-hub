@@ -73,12 +73,13 @@ export const usePlanoMonths = ({
       ? planos.find((plano) => plano.id === month.planoId)
       : undefined;
 
-    const isCurrentPendingPlano = currentPlano && currentPlano.active;
+    // Normalize active to boolean for comparison
+    const isCurrentPendingPlano = currentPlano && Boolean(currentPlano.active === true || currentPlano.active === 'true');
 
     const allActivePlanos = planoMonths
       .filter((pm) => pm.planoId)
       .map((pm) => planos.find((plano) => plano.id === pm.planoId))
-      .filter((plano): plano is PlanoMensal => !!plano && plano.active);
+      .filter((plano): plano is PlanoMensal => !!plano && Boolean(plano.active === true || plano.active === 'true'));
 
     let nextDuePlano;
     if (allActivePlanos.length > 0) {
@@ -101,7 +102,7 @@ export const usePlanoMonths = ({
     if (month.planoId) {
       const updatedPlanos = planos.map(plano =>
         plano.id === month.planoId
-          ? { ...plano, active: !newIsPaid }
+          ? { ...plano, active: !newIsPaid as boolean }
           : plano
       );
 
