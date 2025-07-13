@@ -77,7 +77,7 @@ export const useTarotPlanoCreator = () => {
     
     // Criar planos semanais se ativo
     if (analysis.semanalAtivo && analysis.semanalData) {
-      console.log('createTarotPlanos - Criando primeiro plano semanal para:', clientName);
+      console.log('🚀 createTarotPlanos - Criando planos semanais para:', clientName);
       
       const totalWeeks = parseInt(analysis.semanalData.semanas);
       const weeklyAmount = parseFloat(analysis.semanalData.valorSemanal);
@@ -88,32 +88,35 @@ export const useTarotPlanoCreator = () => {
       console.log('🔍 createTarotPlanos - Data de referência:', {
         startDate,
         referenceDate: referenceDate.toDateString(),
-        diaVencimento
+        diaVencimento,
+        totalWeeks
       });
       
       const weekDays = getNextWeekDays(totalWeeks, diaVencimento, referenceDate);
       
-      console.log('🔧 createTarotPlanos - Datas calculadas:', 
+      console.log('🔧 createTarotPlanos - Datas calculadas para TODOS os planos semanais:', 
         weekDays.map((date, index) => ({
           week: index + 1,
           date: date.toISOString().split('T')[0],
           dateObject: date.toDateString(),
-          dayOfWeek: date.getDay()
+          dayOfWeek: date.getDay(),
+          dayName: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][date.getDay()]
         }))
       );
       
-      // Criar APENAS o primeiro plano semanal
-      if (weekDays.length > 0) {
-        const firstDueDate = weekDays[0].toISOString().split('T')[0];
-        const planoId = `${analysis.id}-week-1`;
+      // Criar TODOS os planos semanais (não apenas o primeiro)
+      weekDays.forEach((weekDay, index) => {
+        const week = index + 1;
+        const dueDate = weekDay.toISOString().split('T')[0];
+        const planoId = `${analysis.id}-week-${week}`;
         
         newPlanos.push({
           id: planoId,
           clientName: clientName,
           type: 'semanal',
           amount: weeklyAmount,
-          dueDate: firstDueDate,
-          week: 1,
+          dueDate: dueDate,
+          week: week,
           totalWeeks: totalWeeks,
           created: new Date().toISOString(),
           active: true,
@@ -121,17 +124,16 @@ export const useTarotPlanoCreator = () => {
           notificationTiming: 'on_due_date'
         });
         
-        console.log('🚀 createTarotPlanos - Primeiro plano semanal criado com data correta:', {
+        console.log(`🚀 createTarotPlanos - Plano semanal ${week}/${totalWeeks} criado:`, {
           id: planoId,
-          dueDate: firstDueDate,
-          diaVencimento,
-          totalWeeks,
-          clientName,
-          analysisId: analysis.id
+          dueDate: dueDate,
+          dayOfWeek: weekDay.getDay(),
+          dayName: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][weekDay.getDay()],
+          diaVencimentoSelecionado: diaVencimento
         });
-      } else {
-        console.log('❌ createTarotPlanos - ERRO: Nenhuma data calculada para planos semanais!');
-      }
+      });
+      
+      console.log(`✅ createTarotPlanos - Criados ${weekDays.length} planos semanais com datas corretas!`);
     }
     
     // Salvar os planos atualizados (sem os antigos + os novos)
