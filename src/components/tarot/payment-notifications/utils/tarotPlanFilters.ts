@@ -12,11 +12,11 @@ export const filterTarotPlans = (allPlanos: Plano[]): (PlanoMensal | PlanoSemana
     // Deve ser plano mensal ou semanal
     const isTarotPlan = plano.type === 'plano' || plano.type === 'semanal';
     
-    // Deve estar ativo - converter para boolean de forma segura
-    const isActive = plano.active === true || (typeof plano.active === 'string' && plano.active === 'true');
+    // Deve estar ativo - normalizar para boolean
+    const isActive = Boolean(plano.active === true || plano.active === 'true');
     
     // Deve ter analysisId (indicando que é de análise de tarot)
-    const hasAnalysisId = 'analysisId' in plano && plano.analysisId;
+    const hasAnalysisId = 'analysisId' in plano && Boolean(plano.analysisId);
     
     return isTarotPlan && isActive && hasAnalysisId;
   });
