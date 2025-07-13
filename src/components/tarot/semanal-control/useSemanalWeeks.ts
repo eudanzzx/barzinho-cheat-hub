@@ -62,7 +62,7 @@ export const useSemanalWeeks = ({
       });
     });
     
-    // Corrigir datas dos planos existentes se necessário - FORÇAR correção para datas do weekDayCalculator
+    // Corrigir TODAS as datas dos planos semanais para garantir consistência com weekDayCalculator
     const correctedPlanos = planos.map(plano => {
       if (plano.type === 'semanal' && 'analysisId' in plano && plano.analysisId === analysisId) {
         const semanalPlano = plano as PlanoSemanal;
@@ -72,8 +72,12 @@ export const useSemanalWeeks = ({
         
         if (weekNumber > 0 && weekNumber <= weeks.length) {
           const correctWeek = weeks[weekNumber - 1];
-          if (correctWeek && semanalPlano.dueDate !== correctWeek.dueDate) {
-            console.log(`CORRIGINDO data do plano semanal ${semanalPlano.id} de ${semanalPlano.dueDate} para ${correctWeek.dueDate}`);
+          if (correctWeek) {
+            // SEMPRE corrigir a data para garantir consistência
+            const needsCorrection = semanalPlano.dueDate !== correctWeek.dueDate;
+            if (needsCorrection) {
+              console.log(`FORÇANDO correção de data do plano semanal ${semanalPlano.id} de ${semanalPlano.dueDate} para ${correctWeek.dueDate}`);
+            }
             return { ...semanalPlano, dueDate: correctWeek.dueDate };
           }
         }
@@ -81,17 +85,27 @@ export const useSemanalWeeks = ({
       return plano;
     });
     
-    if (correctedPlanos.some((p, i) => p !== planos[i])) {
-      console.log('useSemanalWeeks - Salvando planos com datas corrigidas');
+    // SEMPRE salvar as correções para garantir sincronização
+    const hasChanges = correctedPlanos.some((p, i) => p !== planos[i]);
+    if (hasChanges) {
+      console.log('useSemanalWeeks - Salvando planos com datas corrigidas para sincronização');
       savePlanos(correctedPlanos);
-      
-      // Disparar eventos para atualizar próximos vencimentos
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
-          detail: { action: 'date_correction', analysisId }
-        }));
-      }, 100);
     }
+    
+    // SEMPRE disparar eventos para atualizar próximos vencimentos
+    const triggerSyncEvents = () => {
+      window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
+        detail: { action: 'date_sync', analysisId, hasChanges }
+      }));
+      window.dispatchEvent(new CustomEvent('planosUpdated', {
+        detail: { action: 'semanal_date_sync', analysisId }
+      }));
+    };
+    
+    // Disparar imediatamente e com delay
+    triggerSyncEvents();
+    setTimeout(triggerSyncEvents, 50);
+    setTimeout(triggerSyncEvents, 200);
     
     console.log('useSemanalWeeks - Semanas inicializadas:', {
       totalWeeks: weeks.length,

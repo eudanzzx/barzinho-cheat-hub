@@ -214,9 +214,16 @@ export const usePaymentNotifications = () => {
     
     const handlePaymentUpdate = (event?: CustomEvent) => {
       console.log('handlePaymentUpdate - Evento recebido:', event?.type, event?.detail);
-      setTimeout(() => {
-        debouncedCheck();
-      }, 50);
+      
+      // Para eventos de sincronização de data, forçar verificação imediata
+      if (event?.detail?.action === 'date_sync' || event?.detail?.action === 'semanal_date_sync') {
+        console.log('usePaymentNotifications - Sincronização de data detectada, atualizando imediatamente');
+        checkTarotPaymentNotifications();
+      } else {
+        setTimeout(() => {
+          debouncedCheck();
+        }, 50);
+      }
     };
     
     // Escuta múltiplos eventos para capturar todas as atualizações
