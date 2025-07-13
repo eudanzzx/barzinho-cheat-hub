@@ -8,8 +8,8 @@ import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
 import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
-import MonthlyPaymentButton from "@/components/dashboard/MonthlyPaymentButton";
-import WeeklyPaymentButton from "@/components/dashboard/WeeklyPaymentButton";
+import MonthlyPaymentExpandedControl from "@/components/dashboard/MonthlyPaymentExpandedControl";
+import WeeklyPaymentExpandedControl from "@/components/dashboard/WeeklyPaymentExpandedControl";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 
@@ -80,10 +80,10 @@ const ListagemTarot = React.memo(() => {
             variant="tarot"
           />
 
-          {/* Controles de Pagamento */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <MonthlyPaymentButton />
-            <WeeklyPaymentButton />
+          {/* Controles de Pagamento Expandidos - Igual à Dashboard Principal */}
+          <div className="space-y-6">
+            <MonthlyPaymentExpandedControl />
+            <WeeklyPaymentExpandedControl />
           </div>
 
           <TarotListingSearch
