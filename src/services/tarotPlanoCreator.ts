@@ -78,11 +78,12 @@ export const useTarotPlanoCreator = () => {
       
       const weekDays = getNextWeekDays(totalWeeks, diaVencimento, referenceDate);
       
-      console.log('createTarotPlanos - Datas calculadas:', 
+      console.log('🔧 CORREÇÃO APLICADA - createTarotPlanos - Datas calculadas:', 
         weekDays.map((date, index) => ({
           week: index + 1,
           date: date.toISOString().split('T')[0],
-          dateObject: date.toDateString()
+          dateObject: date.toDateString(),
+          dayOfWeek: date.getDay()
         }))
       );
       

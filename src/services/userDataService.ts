@@ -34,14 +34,12 @@ const useUserDataService = () => {
     tarotService.saveTarotAnalyses(analyses);
     console.log('saveTarotAnalysisWithPlan - Análise salva');
     
-    // Criar planos apenas se estiverem ativos
-    if (analysis.planoAtivo && analysis.planoData) {
-      console.log('saveTarotAnalysisWithPlan - Criando planos mensais:', analysis.planoData);
-      tarotPlanoCreator.createTarotPlanos(analysis);
-    }
-    
-    if (analysis.semanalAtivo && analysis.semanalData) {
-      console.log('saveTarotAnalysisWithPlan - Criando planos semanais:', analysis.semanalData);
+    // Criar planos de uma só vez (não separadamente)
+    if ((analysis.planoAtivo && analysis.planoData) || (analysis.semanalAtivo && analysis.semanalData)) {
+      console.log('saveTarotAnalysisWithPlan - Criando planos:', {
+        mensal: analysis.planoAtivo && analysis.planoData ? analysis.planoData : null,
+        semanal: analysis.semanalAtivo && analysis.semanalData ? analysis.semanalData : null
+      });
       tarotPlanoCreator.createTarotPlanos(analysis);
     }
     
