@@ -93,8 +93,8 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
         
-        // Verificação mais robusta do valor
-        const textContent = value && typeof value === 'string' && value.trim() !== '' ? value.trim() : 'Nao informado';
+        // Sempre mostrar o campo, mesmo que vazio
+        const textContent = value && typeof value === 'string' && value.trim() !== '' ? value.trim() : 'N/A';
         
         console.log(`Processando campo ${label}:`, textContent);
         
@@ -199,12 +199,14 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       yPosition += 10;
       
       // Detalhes da Sessão - campo de texto maior
-      addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes);
+      addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes || '');
       
       // Tratamento - tentar diferentes variações do nome do campo
       const tratamentoValue = ultimoAtendimento.tratamento || 
                              ultimoAtendimento.Tratamento || 
                              ultimoAtendimento.TRATAMENTO || 
+                             ultimoAtendimento.analysis_treatment ||
+                             ultimoAtendimento.treatment ||
                              '';
       console.log('Valor final do tratamento para PDF:', tratamentoValue);
       addLongTextField('Tratamento', tratamentoValue);
@@ -214,7 +216,9 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
                             ultimoAtendimento.indicação || 
                             ultimoAtendimento.Indicacao || 
                             ultimoAtendimento.Indicação || 
-                            ultimoAtendimento.INDICACAO || 
+                            ultimoAtendimento.INDICACAO ||
+                            ultimoAtendimento.analysis_indication ||
+                            ultimoAtendimento.indication ||
                             '';
       console.log('Valor final da indicação para PDF:', indicacaoValue);
       addLongTextField('Indicacao', indicacaoValue);
