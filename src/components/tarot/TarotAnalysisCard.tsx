@@ -108,7 +108,7 @@ const TarotAnalysisCard = React.memo(({
   return (
     <>
       <Card
-        className="bg-white/80 border border-[#ede9fe] hover:bg-white/90 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] animate-fade-in group"
+        className="bg-white/80 border border-[#ede9fe] animate-fade-in group"
       >
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row justify-between items-start gap-3">
