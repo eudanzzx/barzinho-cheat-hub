@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
@@ -17,17 +18,17 @@ interface IndividualTarotReportGeneratorProps {
 const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorProps> = ({ cliente, className }) => {
   const formatarDataSegura = (data: string) => {
     if (!data || data.trim() === '') {
-      return '';
+      return 'N/A';
     }
     
     try {
       const dataObj = new Date(data);
       if (isNaN(dataObj.getTime())) {
-        return '';
+        return 'N/A';
       }
       return format(dataObj, 'dd/MM/yyyy', { locale: ptBR });
     } catch (error) {
-      return '';
+      return 'N/A';
     }
   };
 
@@ -36,146 +37,150 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
       const margin = 20;
-      let yPos = 25;
-
-      // Header
-      doc.setFontSize(16);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont(undefined, 'bold');
-      doc.text('RELATÓRIO INDIVIDUAL - TAROT', pageWidth / 2, yPos, { align: 'center' });
-      yPos += 20;
+      let yPos = 30;
 
       const ultimaAnalise = cliente.analises[cliente.analises.length - 1];
 
-      // Debug: Log dos dados para verificar o que está disponível
-      console.log('Dados da análise para PDF:', ultimaAnalise);
-      console.log('Campo analiseAntes:', ultimaAnalise?.analiseAntes);
-      console.log('Campo analiseDepois:', ultimaAnalise?.analiseDepois);
-      console.log('Campo lembretes:', ultimaAnalise?.lembretes);
+      // Cores elegantes
+      const primaryColor = { r: 103, g: 49, b: 147 }; // #673193
+      const textColor = { r: 45, g: 45, b: 45 };
+      const sectionColor = { r: 79, g: 70, b: 229 };
 
-      // Informações básicas do cliente
-      doc.setFontSize(11);
-      doc.setFont(undefined, 'normal');
+      // Função para adicionar campo com espaçamento correto
+      const addField = (label: string, value: string) => {
+        if (yPos > 260) return;
+        
+        doc.setFontSize(10);
+        doc.setTextColor(textColor.r, textColor.g, textColor.b);
+        doc.setFont('helvetica', 'normal');
+        
+        const labelText = `${label}:`;
+        const labelWidth = doc.getTextWidth(labelText);
+        const spaceWidth = doc.getTextWidth(' ');
+        
+        doc.text(labelText, margin, yPos);
+        doc.text(value || 'N/A', margin + labelWidth + spaceWidth, yPos);
+        
+        yPos += 8;
+      };
 
-      // Nome do Cliente
-      doc.text(`Nome do Cliente: ${cliente.nome}`, margin, yPos);
-      yPos += 8;
+      // Função para adicionar seção
+      const addSection = (title: string) => {
+        if (yPos > 260) return;
+        
+        yPos += 8;
+        doc.setFontSize(12);
+        doc.setTextColor(sectionColor.r, sectionColor.g, sectionColor.b);
+        doc.setFont('helvetica', 'bold');
+        doc.text(title, margin, yPos);
+        yPos += 12;
+      };
 
-      // Data de Nascimento
-      const dataNasc = ultimaAnalise?.dataNascimento ? formatarDataSegura(ultimaAnalise.dataNascimento) : '';
-      doc.text(`Data de Nascimento: ${dataNasc}`, margin, yPos);
-      yPos += 8;
+      // Header
+      doc.setFontSize(16);
+      doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
+      doc.setFont('helvetica', 'bold');
+      doc.text('RELATÓRIO INDIVIDUAL - TAROT', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 20;
 
-      // Signo
-      doc.text(`Signo: ${ultimaAnalise?.signo || ''}`, margin, yPos);
-      yPos += 8;
+      // INFORMAÇÕES DO CLIENTE
+      addSection('INFORMAÇÕES DO CLIENTE');
 
-      // Data de Início
-      const dataInicio = ultimaAnalise?.dataInicio ? formatarDataSegura(ultimaAnalise.dataInicio) : '';
-      doc.text(`Data de Início: ${dataInicio}`, margin, yPos);
-      yPos += 8;
-
-      // Preço
+      addField('Nome do Cliente', cliente.nome);
+      addField('Data de Nascimento', formatarDataSegura(ultimaAnalise?.dataNascimento));
+      addField('Signo', ultimaAnalise?.signo || 'N/A');
+      addField('Data da Análise', formatarDataSegura(ultimaAnalise?.dataInicio));
+      
       const preco = parseFloat(ultimaAnalise?.preco || "150").toFixed(2);
-      doc.text(`Preço (R$): ${preco}`, margin, yPos);
-      yPos += 15;
-
-      // ANÁLISE - ANTES
-      doc.setFont(undefined, 'bold');
-      doc.text('ANÁLISE - ANTES', margin, yPos);
-      yPos += 10;
-
-      doc.setFont(undefined, 'normal');
-      // Usar o campo analiseAntes que contém o texto real
-      const analiseAntes = ultimaAnalise?.analiseAntes || '';
-      if (analiseAntes && analiseAntes.trim() !== '') {
-        const analiseAntesLines = doc.splitTextToSize(analiseAntes.trim(), pageWidth - 2 * margin);
-        doc.text(analiseAntesLines, margin, yPos);
-        yPos += analiseAntesLines.length * 6 + 10;
-      } else {
-        yPos += 10;
-      }
-
-      // ANÁLISE - DEPOIS
-      doc.setFont(undefined, 'bold');
-      doc.text('ANÁLISE - DEPOIS', margin, yPos);
-      yPos += 10;
-
-      doc.setFont(undefined, 'normal');
-      // Usar o campo analiseDepois que contém o texto real
-      const analiseDepois = ultimaAnalise?.analiseDepois || '';
-      if (analiseDepois && analiseDepois.trim() !== '') {
-        const analiseDepoisLines = doc.splitTextToSize(analiseDepois.trim(), pageWidth - 2 * margin);
-        doc.text(analiseDepoisLines, margin, yPos);
-        yPos += analiseDepoisLines.length * 6 + 10;
-      } else {
-        yPos += 10;
-      }
+      addField('Valor', `R$ ${preco}`);
+      addField('Status', ultimaAnalise?.finalizado ? 'Finalizada' : 'Em andamento');
 
       // PLANO
-      doc.setFont(undefined, 'bold');
-      doc.text('PLANO', margin, yPos);
-      yPos += 10;
-
-      doc.setFont(undefined, 'normal');
+      const semanas = ultimaAnalise?.semanalData?.semanas || ultimaAnalise?.semanas || 'N/A';
+      const valorSemanal = ultimaAnalise?.semanalData?.valorSemanal || ultimaAnalise?.valorSemanal || 'N/A';
       
-      // Meses
-      const meses = ultimaAnalise?.planoData?.meses || '';
-      doc.text(`Meses: ${meses}`, margin, yPos);
-      yPos += 8;
-
-      // Valor Mensal
-      const valorMensal = ultimaAnalise?.planoData?.valorMensal || '';
-      doc.text(`Valor Mensal (R$): ${valorMensal}`, margin, yPos);
-      yPos += 8;
-
-      // Dia de Vencimento (Plano)
-      const diaVencimentoPlano = ultimaAnalise?.planoData?.diaVencimento || '';
-      doc.text(`Dia de Vencimento: ${diaVencimentoPlano}`, margin, yPos);
-      yPos += 15;
-
-      // SEMANAL
-      doc.setFont(undefined, 'bold');
-      doc.text('SEMANAL', margin, yPos);
-      yPos += 10;
-
-      doc.setFont(undefined, 'normal');
+      addField('Tipo de Plano', 'PLANO SEMANAL');
+      addField('Duração', `${semanas} semanas`);
       
-      // Semanas
-      const semanas = ultimaAnalise?.semanalData?.semanas || '';
-      doc.text(`Semanas: ${semanas}`, margin, yPos);
-      yPos += 8;
-
-      // Valor Semanal
-      const valorSemanal = ultimaAnalise?.semanalData?.valorSemanal || '';
-      doc.text(`Valor Semanal (R$): ${valorSemanal}`, margin, yPos);
-      yPos += 8;
-
-      // Dia de Vencimento (Semanal)
-      const diaVencimentoSemanal = ultimaAnalise?.semanalData?.diaVencimento || '';
-      doc.text(`Dia de Vencimento: ${diaVencimentoSemanal}`, margin, yPos);
-      yPos += 15;
-
-      // Tratamento
-      doc.setFont(undefined, 'bold');
-      doc.text('Tratamento:', margin, yPos);
-      yPos += 10;
-
-      doc.setFont(undefined, 'normal');
-      
-      // Contador (extrair dos lembretes)
-      if (ultimaAnalise?.lembretes && ultimaAnalise.lembretes.length > 0) {
-        const contadores = ultimaAnalise.lembretes.map((lembrete: any, index: number) => 
-          `${index + 1}. ${lembrete.texto} (${lembrete.dias} dias)`
-        ).join('\n');
-        doc.text('Contador:', margin, yPos);
-        yPos += 8;
-        const contadorLines = doc.splitTextToSize(contadores, pageWidth - 2 * margin);
-        doc.text(contadorLines, margin, yPos);
-        yPos += contadorLines.length * 6 + 8;
+      if (valorSemanal !== 'N/A' && semanas !== 'N/A') {
+        const valorTotal = parseFloat(valorSemanal) * parseInt(semanas);
+        addField('Valor Total', `R$ ${valorTotal.toFixed(2)}`);
       } else {
-        doc.text('Contador:', margin, yPos);
+        addField('Valor Total', 'N/A');
+      }
+      
+      addField('Valor por Semana', valorSemanal !== 'N/A' ? `R$ ${parseFloat(valorSemanal).toFixed(2)}` : 'N/A');
+
+      // ANÁLISE – ANTES
+      addSection('ANÁLISE – ANTES');
+      
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.setFont('helvetica', 'italic');
+      doc.text('(Descreva os resultados antes do tratamento)', margin, yPos);
+      yPos += 8;
+
+      const analiseAntes = ultimaAnalise?.analiseAntes || ultimaAnalise?.pergunta || '';
+      if (analiseAntes && analiseAntes.trim() !== '') {
+        doc.setFontSize(10);
+        doc.setTextColor(textColor.r, textColor.g, textColor.b);
+        doc.setFont('helvetica', 'normal');
+        const analiseAntesLines = doc.splitTextToSize(analiseAntes.trim(), pageWidth - 2 * margin);
+        doc.text(analiseAntesLines, margin, yPos);
+        yPos += analiseAntesLines.length * 5 + 8;
+      } else {
         yPos += 8;
+      }
+
+      // ANÁLISE – DEPOIS
+      addSection('ANÁLISE – DEPOIS');
+      
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.setFont('helvetica', 'italic');
+      doc.text('(Descreva os resultados após o tratamento)', margin, yPos);
+      yPos += 8;
+
+      const analiseDepois = ultimaAnalise?.analiseDepois || ultimaAnalise?.resposta || ultimaAnalise?.leitura || '';
+      if (analiseDepois && analiseDepois.trim() !== '') {
+        doc.setFontSize(10);
+        doc.setTextColor(textColor.r, textColor.g, textColor.b);
+        doc.setFont('helvetica', 'normal');
+        const analiseDepoisLines = doc.splitTextToSize(analiseDepois.trim(), pageWidth - 2 * margin);
+        doc.text(analiseDepoisLines, margin, yPos);
+        yPos += analiseDepoisLines.length * 5 + 8;
+      } else {
+        yPos += 8;
+      }
+
+      // TRATAMENTO
+      addSection('TRATAMENTO');
+
+      if (ultimaAnalise?.lembretes && ultimaAnalise.lembretes.length > 0) {
+        ultimaAnalise.lembretes.forEach((lembrete: any, index: number) => {
+          if (yPos > 260) return;
+          
+          doc.setFontSize(10);
+          doc.setTextColor(textColor.r, textColor.g, textColor.b);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Contador ${index + 1}`, margin, yPos);
+          yPos += 6;
+          
+          doc.setFont('helvetica', 'normal');
+          const tratamentoText = `${lembrete.texto} (${lembrete.dias} dias)`;
+          const tratamentoLines = doc.splitTextToSize(tratamentoText, pageWidth - 2 * margin);
+          doc.text(tratamentoLines, margin, yPos);
+          yPos += tratamentoLines.length * 5 + 6;
+        });
+      } else {
+        doc.setFontSize(10);
+        doc.setTextColor(textColor.r, textColor.g, textColor.b);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Contador 1', margin, yPos);
+        yPos += 6;
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text('(Descrição do tratamento) (dias)', margin, yPos);
       }
 
       // Footer
