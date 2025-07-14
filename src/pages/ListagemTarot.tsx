@@ -10,7 +10,7 @@ import TarotListingContent from "@/components/tarot/listing/TarotListingContent"
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
 import DataCleanupButton from "@/components/DataCleanupButton";
 import { useNavigate } from "react-router-dom";
-import { useTarotAnalises } from "@/hooks/useTarotAnalises";
+import { useOptimizedTarotAnalises } from "@/hooks/useOptimizedTarotAnalises";
 
 const ListagemTarot = React.memo(() => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const ListagemTarot = React.memo(() => {
     getStatusCounts,
     handleDelete,
     handleToggleFinished,
-  } = useTarotAnalises();
+  } = useOptimizedTarotAnalises();
 
   const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
 

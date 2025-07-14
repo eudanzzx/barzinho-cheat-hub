@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
-import AtendimentosTable from "@/components/dashboard/AtendimentosTable";
+import AtendimentosTableOptimized from "@/components/dashboard/AtendimentosTableOptimized";
 import AtendimentosCompactTable from "@/components/dashboard/AtendimentosCompactTable";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -46,10 +46,10 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
           onDeleteAtendimento={onDeleteAtendimento}
         />
       ) : (
-        <AtendimentosTable 
-          atendimentos={filteredAtendimentos}
-          onDeleteAtendimento={onDeleteAtendimento}
-        />
+      <AtendimentosTableOptimized 
+        atendimentos={filteredAtendimentos} 
+        onDeleteAtendimento={onDeleteAtendimento}
+      />
       )}
     </div>
   );

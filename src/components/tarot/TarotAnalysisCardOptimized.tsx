@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,67 +12,46 @@ import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import AnalysisHeader from "./TarotAnalysisCard/AnalysisHeader";
 import AnalysisActions from "./TarotAnalysisCard/AnalysisActions";
 
-const TarotAnalysisCard = React.memo(({
-    analise,
-    formattedTime,
-    timeRemaining,
-    onToggleFinished,
-    onEdit,
-    onDelete
-  }: {
-    analise: any;
-    formattedTime: string | null;
-    timeRemaining: any;
-    onToggleFinished: (id: string) => void;
-    onEdit: (id: string) => void;
-    onDelete: (id: string) => void;
-  }) => {
+const TarotAnalysisCardOptimized = memo(({
+  analise,
+  formattedTime,
+  timeRemaining,
+  onToggleFinished,
+  onEdit,
+  onDelete
+}: {
+  analise: any;
+  formattedTime: string | null;
+  timeRemaining: any;
+  onToggleFinished: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}) => {
   const isMobile = useIsMobile();
   const { getPlanos, savePlanos } = useUserDataService();
   const [planos, setPlanos] = useState<(PlanoMensal | PlanoSemanal)[]>([]);
   const [isPaymentExpanded, setIsPaymentExpanded] = useState(false);
 
-  useEffect(() => {
-    loadPlanos();
-  }, []);
-
-  useEffect(() => {
-    const handlePlanosUpdated = () => {
-      loadPlanos();
-    };
-
-    window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
-    
-    return () => {
-      window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
-    };
-  }, []);
-
-  const loadPlanos = () => {
+  const loadPlanos = useCallback(() => {
     const allPlanos = getPlanos();
-    console.log('TarotAnalysisCard - loadPlanos:', { 
-      analiseId: analise.id, 
-      clientName: analise.nome,
-      totalPlanos: allPlanos.length 
-    });
-    
-    // CARREGAR TODOS OS PLANOS DE TAROT - MENSAIS E SEMANAIS
     const filteredPlanos = allPlanos.filter((plano) => 
       (plano.type === 'plano' || plano.type === 'semanal') && 
       plano.analysisId === analise.id
     );
-
-    console.log('TarotAnalysisCard - filteredPlanos:', { 
-      count: filteredPlanos.length, 
-      planos: filteredPlanos,
-      mensais: filteredPlanos.filter(p => p.type === 'plano').length,
-      semanais: filteredPlanos.filter(p => p.type === 'semanal').length
-    });
-    
     setPlanos(filteredPlanos);
-  };
+  }, [getPlanos, analise.id]);
 
-  const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
+  useEffect(() => {
+    loadPlanos();
+  }, [loadPlanos]);
+
+  useEffect(() => {
+    const handlePlanosUpdated = () => loadPlanos();
+    window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    return () => window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+  }, [loadPlanos]);
+
+  const handlePaymentToggle = useCallback((planoId: string, clientName: string, isPaid: boolean) => {
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isPaid } : plano
@@ -88,28 +66,21 @@ const TarotAnalysisCard = React.memo(({
     
     window.dispatchEvent(new Event('atendimentosUpdated'));
     loadPlanos();
-  };
+  }, [getPlanos, savePlanos, loadPlanos]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
-  };
+  }, []);
 
   const hasMonthlyPayments = planos.length > 0;
 
-  const togglePaymentExpansion = () => {
-    console.log('TarotAnalysisCard - togglePaymentExpansion:', { 
-      current: isPaymentExpanded, 
-      planos: planos.length,
-      analise: analise.nome 
-    });
+  const togglePaymentExpansion = useCallback(() => {
     setIsPaymentExpanded(prev => !prev);
-  };
+  }, []);
 
   return (
     <>
-      <Card
-        className="bg-white/80 border border-[#ede9fe] group"
-      >
+      <Card className="bg-white/80 border border-[#ede9fe] group">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row justify-between items-start gap-3">
             <div className="flex-1">
@@ -123,12 +94,7 @@ const TarotAnalysisCard = React.memo(({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('TarotAnalysisCard - Button clicked:', { isMobile, hasMonthlyPayments, planos: planos.length });
-                      togglePaymentExpansion();
-                    }}
+                    onClick={togglePaymentExpansion}
                     className="p-1 h-auto ml-1"
                   >
                     <div className="flex items-center gap-1">
@@ -160,10 +126,7 @@ const TarotAnalysisCard = React.memo(({
 
       {hasMonthlyPayments && isMobile && (
         <div className="mt-2">
-          <Collapsible open={isPaymentExpanded} onOpenChange={(open) => {
-            console.log('TarotAnalysisCard - Collapsible onOpenChange:', { open, analise: analise.nome });
-            setIsPaymentExpanded(open);
-          }}>
+          <Collapsible open={isPaymentExpanded} onOpenChange={setIsPaymentExpanded}>
             <CollapsibleContent>
               <Card className="border-purple-200 mb-4 bg-white shadow-sm">
                 <CardContent className="p-4">
@@ -232,6 +195,6 @@ const TarotAnalysisCard = React.memo(({
   );
 });
 
-TarotAnalysisCard.displayName = 'TarotAnalysisCard';
+TarotAnalysisCardOptimized.displayName = 'TarotAnalysisCardOptimized';
 
-export default TarotAnalysisCard;
+export default TarotAnalysisCardOptimized;
