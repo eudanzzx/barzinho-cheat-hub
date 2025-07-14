@@ -48,72 +48,53 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       
       const doc = new jsPDF();
       
-      // Configurações de cores
+      // Configurações de cores mais elegantes
       const primaryColor = { r: 30, g: 64, b: 175 }; // #1E40AF
-      const textColor = { r: 60, g: 60, b: 60 };
+      const textColor = { r: 45, g: 45, b: 45 };
       const lightGray = { r: 120, g: 120, b: 120 };
+      const accentColor = { r: 79, g: 70, b: 229 }; // #4F46E5
       
-      let yPosition = 30;
-      const leftMargin = 25;
+      let yPosition = 25;
+      const leftMargin = 20;
       const pageWidth = doc.internal.pageSize.width;
       
-      // Header elegante
-      doc.setFontSize(20);
+      // Header mais elegante
+      doc.setFontSize(18);
       doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
       doc.setFont('helvetica', 'bold');
       doc.text('Libertá Espaço Terapêutico', pageWidth / 2, yPosition, { align: 'center' });
       
-      // Linha decorativa
-      yPosition += 10;
+      // Linha decorativa com gradiente visual
+      yPosition += 8;
       doc.setDrawColor(primaryColor.r, primaryColor.g, primaryColor.b);
-      doc.setLineWidth(0.8);
+      doc.setLineWidth(1);
       doc.line(leftMargin, yPosition, pageWidth - leftMargin, yPosition);
       
-      yPosition += 25;
+      yPosition += 15;
       
-      // Função para adicionar campo no formato Pergunta: Resposta
+      // Função para adicionar campo com estilo elegante
       const addField = (label: string, value: string) => {
-        if (yPosition > 250) return; // Evitar overflow da página
+        if (yPosition > 260) return; // Garantir que caiba em uma página
         
-        doc.setFontSize(11);
-        doc.setTextColor(textColor.r, textColor.g, textColor.b);
-        doc.setFont('helvetica', 'normal');
-        
-        const text = `${label}: ${value || 'Nao informado'}`;
-        doc.text(text, leftMargin, yPosition);
-        
-        yPosition += 14;
-      };
-      
-      // Função para adicionar campos de texto longo com verificação mais robusta
-      const addLongTextField = (label: string, value: string) => {
-        if (yPosition > 240) return; // Evitar overflow da página
-        
-        doc.setFontSize(12);
-        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
+        doc.setFontSize(10);
+        doc.setTextColor(accentColor.r, accentColor.g, accentColor.b);
         doc.setFont('helvetica', 'bold');
         doc.text(`${label}:`, leftMargin, yPosition);
-        yPosition += 10;
         
         doc.setFontSize(10);
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
+        doc.text(value || 'Não informado', leftMargin + 50, yPosition);
         
-        // Sempre mostrar o campo, mesmo que vazio
-        const textContent = value && typeof value === 'string' && value.trim() !== '' ? value.trim() : 'N/A';
-        
-        console.log(`Processando campo ${label}:`, textContent);
-        
-        const textLines = doc.splitTextToSize(textContent, pageWidth - leftMargin * 2);
-        doc.text(textLines, leftMargin, yPosition);
-        yPosition += Math.max(textLines.length * 5, 10) + 10;
+        yPosition += 12;
       };
+      
       
       // Informações do Cliente
       addField('Nome do Cliente', cliente.nome);
       
       // Formatar data de nascimento
-      let dataNascimento = 'Nao informada';
+      let dataNascimento = 'Não informada';
       if (ultimoAtendimento.dataNascimento) {
         try {
           const date = new Date(ultimoAtendimento.dataNascimento);
@@ -127,13 +108,11 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       addField('Data de Nascimento', dataNascimento);
       addField('Signo', ultimoAtendimento.signo);
       
-      yPosition += 5;
-      
       // Informações do Atendimento
       addField('Tipo de Servico', ultimoAtendimento.tipoServico);
       
       // Formatar data do atendimento
-      let dataAtendimento = 'Nao informada';
+      let dataAtendimento = 'Não informada';
       if (ultimoAtendimento.dataAtendimento) {
         try {
           const date = new Date(ultimoAtendimento.dataAtendimento);
@@ -146,16 +125,14 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       }
       addField('Data do Atendimento', dataAtendimento);
       
-      const valorFormatado = ultimoAtendimento.valor ? `R$ ${parseFloat(ultimoAtendimento.valor).toFixed(2)}` : 'Nao informado';
+      const valorFormatado = ultimoAtendimento.valor ? `R$ ${parseFloat(ultimoAtendimento.valor).toFixed(2)}` : 'Não informado';
       addField('Valor Cobrado', valorFormatado);
       addField('Status de Pagamento', ultimoAtendimento.statusPagamento);
       addField('Destino', ultimoAtendimento.destino);
       addField('Ano', ultimoAtendimento.ano);
       
-      yPosition += 5;
-      
       // Plano Mensal - verificação corrigida
-      let planoMensalTexto = 'Nao cont­ratado';
+      let planoMensalTexto = 'Não contratado';
       
       console.log('Verificando plano mensal - planoAtivo:', ultimoAtendimento.planoAtivo);
       console.log('Verificando plano mensal - planoData:', ultimoAtendimento.planoData);
@@ -173,7 +150,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       addField('PLANO MENSAL', planoMensalTexto);
       
       // Plano Semanal - verificação corrigida
-      let planoSemanalTexto = 'Nao contratado';
+      let planoSemanalTexto = 'Não contratado';
       
       console.log('Verificando plano semanal - semanalAtivo:', ultimoAtendimento.semanalAtivo);
       console.log('Verificando plano semanal - semanalData:', ultimoAtendimento.semanalData);
@@ -202,11 +179,6 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       
       addField('PLANO SEMANAL', planoSemanalTexto);
       
-      yPosition += 10;
-      
-      // Detalhes da Sessão - campo de texto maior
-      addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes || '');
-      
       // Tratamento - buscar em todos os campos possíveis
       let tratamentoValue = '';
       
@@ -234,7 +206,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         );
       }
       
-      addLongTextField('Tratamento', tratamentoValue || 'N/A');
+      addField('Tratamento', tratamentoValue || 'N/A');
       
       // Indicação - buscar em todos os campos possíveis
       let indicacaoValue = '';
@@ -263,7 +235,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         );
       }
       
-      addLongTextField('Indicacao', indicacaoValue || 'N/A');
+      addField('Indicacao', indicacaoValue || 'N/A');
       
       // Footer
       yPosition = doc.internal.pageSize.height - 20;
