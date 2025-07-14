@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
@@ -72,19 +73,27 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       
       yPosition += 15;
       
-      // Função para adicionar campo com estilo elegante
+      // Função para adicionar campo com estilo elegante e espaçamento correto
       const addField = (label: string, value: string) => {
         if (yPosition > 260) return; // Garantir que caiba em uma página
         
         doc.setFontSize(10);
         doc.setTextColor(accentColor.r, accentColor.g, accentColor.b);
         doc.setFont('helvetica', 'bold');
-        doc.text(`${label}:`, leftMargin, yPosition);
+        
+        // Medir a largura do label para posicionar o valor corretamente
+        const labelText = `${label}:`;
+        const labelWidth = doc.getTextWidth(labelText);
+        
+        doc.text(labelText, leftMargin, yPosition);
         
         doc.setFontSize(10);
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
-        doc.text(value || 'Não informado', leftMargin + 50, yPosition);
+        
+        // Posicionar o valor com apenas um espaço após o ":"
+        const spaceWidth = doc.getTextWidth(' ');
+        doc.text(value || 'Não informado', leftMargin + labelWidth + spaceWidth, yPosition);
         
         yPosition += 12;
       };
