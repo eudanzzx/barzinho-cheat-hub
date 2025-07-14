@@ -87,7 +87,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       
       // Função para adicionar campos de texto longo com verificação mais robusta
       const addLongTextField = (label: string, value: string) => {
-        if (yPosition > 200) return; // Evitar overflow da página
+        if (yPosition > 240) return; // Evitar overflow da página
         
         doc.setFontSize(12);
         doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
