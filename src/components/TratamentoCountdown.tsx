@@ -86,11 +86,11 @@ const TratamentoCountdown = ({ analises }) => {
   };
   
   return (
-    <Card className="mb-6 border-yellow-200 bg-yellow-50 overflow-hidden shadow-lg">
+    <Card className="mb-6 border-yellow-200 bg-yellow-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardContent className="py-4">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-medium flex items-center gap-2">
-            <BellRing className="h-5 w-5 text-yellow-600" />
+            <BellRing className="h-5 w-5 text-yellow-600 animate-pulse" />
             <span className="text-yellow-800">Tratamentos em andamento</span>
           </h3>
           {dismissedTreatments.length > 0 && (
@@ -98,7 +98,7 @@ const TratamentoCountdown = ({ analises }) => {
               variant="ghost" 
               size="sm"
               onClick={handleReset}
-              className="text-xs text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100"
+              className="text-xs text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100 transition-all duration-300"
             >
               Mostrar todos
             </Button>
@@ -110,17 +110,18 @@ const TratamentoCountdown = ({ analises }) => {
             <div 
               key={index} 
               onClick={() => handleCardClick(tratamento.clienteId)}
-              className={`p-3 rounded-md border flex justify-between items-center cursor-pointer group ${
+              className={`p-3 rounded-md border flex justify-between items-center cursor-pointer transform transition-all duration-300 hover:scale-[1.02] group ${
                 tratamento.diasRestantes <= 0 ? "bg-red-100 border-red-300 hover:bg-red-200" : 
                 tratamento.diasRestantes <= 1 ? "bg-orange-100 border-orange-300 hover:bg-orange-200" : 
                 "bg-white border-gray-200 hover:bg-gray-50"
-              }`}
+              } animate-fade-in`}
+              style={{animationDelay: `${index * 100}ms`}}
             >
               <div className="flex-grow">
-                <p className="font-medium">{tratamento.clienteNome}</p>
-                <p className="text-sm text-gray-600 mt-1">{tratamento.tratamento}</p>
+                <p className="font-medium group-hover:text-blue-700 transition-colors">{tratamento.clienteNome}</p>
+                <p className="text-sm text-gray-600 mt-1 group-hover:text-gray-800 transition-colors">{tratamento.tratamento}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <Calendar className="h-4 w-4 text-gray-500" />
+                  <Calendar className="h-4 w-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
                   <p className="text-xs text-gray-500">
                     {tratamento.dataExpiracao.toLocaleDateString('pt-BR')}
                   </p>
@@ -131,12 +132,12 @@ const TratamentoCountdown = ({ analises }) => {
                 <div className="flex items-center gap-2">
                   {tratamento.diasRestantes <= 0 ? (
                     <span className="text-red-600 font-medium flex items-center">
-                      <AlertTriangle className="h-4 w-4 mr-1" />
+                      <AlertTriangle className="h-4 w-4 mr-1 animate-pulse" />
                       Expirado!
                     </span>
                   ) : tratamento.diasRestantes <= 1 ? (
                     <span className="text-orange-600 font-medium flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
+                      <Clock className="h-4 w-4 mr-1 animate-pulse" />
                       {tratamento.horasRestantes} horas restantes
                     </span>
                   ) : (
@@ -147,7 +148,7 @@ const TratamentoCountdown = ({ analises }) => {
                   
                   <button 
                     onClick={(e) => handleDismiss(e, tratamento.treatmentKey)}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-full hover:bg-gray-200"
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded-full hover:bg-gray-200 transition-all duration-300"
                     aria-label="Descartar notificação"
                   >
                     <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
@@ -158,7 +159,7 @@ const TratamentoCountdown = ({ analises }) => {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="text-xs hover:bg-blue-50 group-hover:bg-blue-100 group-hover:text-blue-700"
+                    className="text-xs hover:bg-blue-50 transition-colors group-hover:bg-blue-100 group-hover:text-blue-700"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/editar-analise-frequencial/${tratamento.clienteId}`);
@@ -172,7 +173,7 @@ const TratamentoCountdown = ({ analises }) => {
           ))}
           
           {tratamentosAtivos.length > 5 && (
-            <p className="text-sm text-center text-gray-600">
+            <p className="text-sm text-center text-gray-600 animate-fade-in" style={{animationDelay: '500ms'}}>
               + {tratamentosAtivos.length - 5} outros tratamentos em andamento
             </p>
           )}

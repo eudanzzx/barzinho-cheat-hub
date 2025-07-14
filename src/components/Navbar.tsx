@@ -32,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = ({ username, onLogout }) => {
               variant="ghost"
               size="sm"
               onClick={onLogout}
-              className="text-slate-600 hover:text-red-500 hover:bg-red-50 border border-slate-200 hover:border-red-200"
+              className="text-slate-600 hover:text-red-500 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-all duration-200"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

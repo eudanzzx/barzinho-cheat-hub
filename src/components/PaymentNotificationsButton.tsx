@@ -144,7 +144,7 @@ const PaymentNotificationsButton = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="relative text-slate-600 hover:text-[#1E40AF] hover:bg-[#1E40AF]/10"
+          className="relative text-slate-600 hover:text-[#1E40AF] hover:bg-[#1E40AF]/10 transition-all duration-200"
           data-notification-button
         >
           <Bell className="h-4 w-4" />
