@@ -23,22 +23,24 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       const ultimoAtendimento = cliente.atendimentos[cliente.atendimentos.length - 1];
       
       // Debug logs mais detalhados para verificar a estrutura dos dados
+      console.log('=== DEBUG PDF GENERATOR ===');
+      console.log('Cliente:', cliente.nome);
+      console.log('Total de atendimentos:', cliente.atendimentos.length);
       console.log('Último atendimento completo:', ultimoAtendimento);
       console.log('Todos os campos do último atendimento:', Object.keys(ultimoAtendimento));
-      console.log('Tratamento encontrado:', ultimoAtendimento.tratamento);
-      console.log('Indicacao encontrada:', ultimoAtendimento.indicacao);
-      console.log('Detalhes encontrados:', ultimoAtendimento.detalhes);
       
-      // Verificar diferentes possíveis nomes dos campos
-      console.log('Verificando possíveis variações dos campos:');
-      console.log('- tratamento:', ultimoAtendimento.tratamento);
-      console.log('- Tratamento:', ultimoAtendimento.Tratamento);
-      console.log('- TRATAMENTO:', ultimoAtendimento.TRATAMENTO);
-      console.log('- indicacao:', ultimoAtendimento.indicacao);
-      console.log('- indicação:', ultimoAtendimento.indicação);
-      console.log('- Indicacao:', ultimoAtendimento.Indicacao);
-      console.log('- Indicação:', ultimoAtendimento.Indicação);
-      console.log('- INDICACAO:', ultimoAtendimento.INDICACAO);
+      // Verificação específica dos campos problemáticos
+      console.log('=== CAMPOS ESPECÍFICOS ===');
+      console.log('Tratamento direto:', ultimoAtendimento.tratamento);
+      console.log('Indicacao direta:', ultimoAtendimento.indicacao);
+      console.log('Detalhes diretos:', ultimoAtendimento.detalhes);
+      
+      // Verificar todos os campos que contêm "trat" ou "indic"
+      Object.keys(ultimoAtendimento).forEach(key => {
+        if (key.toLowerCase().includes('trat') || key.toLowerCase().includes('indic')) {
+          console.log(`Campo encontrado - ${key}:`, ultimoAtendimento[key]);
+        }
+      });
       
       const doc = new jsPDF();
       
