@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
@@ -29,6 +28,17 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       console.log('Tratamento encontrado:', ultimoAtendimento.tratamento);
       console.log('Indicacao encontrada:', ultimoAtendimento.indicacao);
       console.log('Detalhes encontrados:', ultimoAtendimento.detalhes);
+      
+      // Verificar diferentes possíveis nomes dos campos
+      console.log('Verificando possíveis variações dos campos:');
+      console.log('- tratamento:', ultimoAtendimento.tratamento);
+      console.log('- Tratamento:', ultimoAtendimento.Tratamento);
+      console.log('- TRATAMENTO:', ultimoAtendimento.TRATAMENTO);
+      console.log('- indicacao:', ultimoAtendimento.indicacao);
+      console.log('- indicação:', ultimoAtendimento.indicação);
+      console.log('- Indicacao:', ultimoAtendimento.Indicacao);
+      console.log('- Indicação:', ultimoAtendimento.Indicação);
+      console.log('- INDICACAO:', ultimoAtendimento.INDICACAO);
       
       const doc = new jsPDF();
       
@@ -139,7 +149,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       yPosition += 5;
       
       // Plano Mensal - verificação corrigida
-      let planoMensalTexto = 'Nao contratado';
+      let planoMensalTexto = 'Nao cont­ratado';
       
       console.log('Verificando plano mensal - planoAtivo:', ultimoAtendimento.planoAtivo);
       console.log('Verificando plano mensal - planoData:', ultimoAtendimento.planoData);
@@ -191,11 +201,23 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       // Detalhes da Sessão - campo de texto maior
       addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes);
       
-      // Tratamento - campo de texto maior
-      addLongTextField('Tratamento', ultimoAtendimento.tratamento);
+      // Tratamento - tentar diferentes variações do nome do campo
+      const tratamentoValue = ultimoAtendimento.tratamento || 
+                             ultimoAtendimento.Tratamento || 
+                             ultimoAtendimento.TRATAMENTO || 
+                             '';
+      console.log('Valor final do tratamento para PDF:', tratamentoValue);
+      addLongTextField('Tratamento', tratamentoValue);
       
-      // Indicação - campo de texto maior
-      addLongTextField('Indicacao', ultimoAtendimento.indicacao);
+      // Indicação - tentar diferentes variações do nome do campo  
+      const indicacaoValue = ultimoAtendimento.indicacao || 
+                            ultimoAtendimento.indicação || 
+                            ultimoAtendimento.Indicacao || 
+                            ultimoAtendimento.Indicação || 
+                            ultimoAtendimento.INDICACAO || 
+                            '';
+      console.log('Valor final da indicação para PDF:', indicacaoValue);
+      addLongTextField('Indicacao', indicacaoValue);
       
       // Footer
       yPosition = doc.internal.pageSize.height - 20;
