@@ -23,10 +23,12 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       // Usar o último atendimento como base
       const ultimoAtendimento = cliente.atendimentos[cliente.atendimentos.length - 1];
       
-      // Debug logs para verificar a estrutura dos dados
+      // Debug logs mais detalhados para verificar a estrutura dos dados
       console.log('Último atendimento completo:', ultimoAtendimento);
-      console.log('Tratamento:', ultimoAtendimento.tratamento);
-      console.log('Indicação:', ultimoAtendimento.indicacao);
+      console.log('Todos os campos do último atendimento:', Object.keys(ultimoAtendimento));
+      console.log('Tratamento encontrado:', ultimoAtendimento.tratamento);
+      console.log('Indicacao encontrada:', ultimoAtendimento.indicacao);
+      console.log('Detalhes encontrados:', ultimoAtendimento.detalhes);
       
       const doc = new jsPDF();
       
@@ -67,24 +69,28 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         yPosition += 14;
       };
       
-      // Função para adicionar campos de texto longo
+      // Função para adicionar campos de texto longo com verificação mais robusta
       const addLongTextField = (label: string, value: string) => {
-        if (yPosition > 220) return; // Evitar overflow da página
+        if (yPosition > 200) return; // Evitar overflow da página
         
-        doc.setFontSize(11);
+        doc.setFontSize(12);
+        doc.setTextColor(primaryColor.r, primaryColor.g, primaryColor.b);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${label}:`, leftMargin, yPosition);
+        yPosition += 10;
+        
+        doc.setFontSize(10);
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
-        doc.text(`${label}:`, leftMargin, yPosition);
-        yPosition += 8;
         
-        if (value && value.trim() !== '') {
-          const textLines = doc.splitTextToSize(value, pageWidth - leftMargin * 2);
-          doc.text(textLines, leftMargin, yPosition);
-          yPosition += textLines.length * 6 + 8;
-        } else {
-          doc.text('Nao informado', leftMargin, yPosition);
-          yPosition += 14;
-        }
+        // Verificação mais robusta do valor
+        const textContent = value && typeof value === 'string' && value.trim() !== '' ? value.trim() : 'Nao informado';
+        
+        console.log(`Processando campo ${label}:`, textContent);
+        
+        const textLines = doc.splitTextToSize(textContent, pageWidth - leftMargin * 2);
+        doc.text(textLines, leftMargin, yPosition);
+        yPosition += Math.max(textLines.length * 5, 10) + 10;
       };
       
       // Informações do Cliente
@@ -180,7 +186,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       
       addField('PLANO SEMANAL', planoSemanalTexto);
       
-      yPosition += 5;
+      yPosition += 10;
       
       // Detalhes da Sessão - campo de texto maior
       addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes);
