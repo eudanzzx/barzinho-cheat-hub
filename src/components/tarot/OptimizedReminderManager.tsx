@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, BellRing } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useOptimizedDebounce } from "@/hooks/useOptimizedDebounce";
+import { useOptimizedDebouncedCallback } from "@/hooks/useOptimizedDebounce";
 
 interface OptimizedReminderProps {
   lembretes: Array<{id: number; texto: string; dias: number}>;
@@ -19,18 +19,13 @@ const ReminderItem = memo(({ lembrete, onUpdate, onRemove }: {
   onUpdate: (id: number, campo: string, valor: any) => void;
   onRemove: (id: number) => void;
 }) => {
-  const [localTexto, setLocalTexto] = useState(lembrete.texto);
-  const debouncedText = useOptimizedDebounce(localTexto, 300);
-
-  React.useEffect(() => {
-    if (debouncedText !== lembrete.texto) {
-      onUpdate(lembrete.id, 'texto', debouncedText);
-    }
-  }, [debouncedText, lembrete.id, lembrete.texto, onUpdate]);
+  const debouncedTextUpdate = useOptimizedDebouncedCallback((texto: string) => {
+    onUpdate(lembrete.id, 'texto', texto);
+  }, 300);
 
   const handleTextoChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLocalTexto(e.target.value);
-  }, []);
+    debouncedTextUpdate(e.target.value);
+  }, [debouncedTextUpdate]);
 
   const handleDiasChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate(lembrete.id, 'dias', parseInt(e.target.value) || 0);

@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOptimizedDebounce } from "@/hooks/useOptimizedDebounce";
+import { useOptimizedDebouncedCallback } from "@/hooks/useOptimizedDebounce";
 
 interface OptimizedAnalysisFieldsProps {
   analiseAntes: string;
@@ -17,19 +17,19 @@ const OptimizedAnalysisFields: React.FC<OptimizedAnalysisFieldsProps> = memo(({
   analiseDepois,
   setAnaliseDepois
 }) => {
-  const debouncedAnaliseAntes = useOptimizedDebounce(analiseAntes, 400);
-  const debouncedAnaliseDepois = useOptimizedDebounce(analiseDepois, 400);
+  const debouncedAnaliseAntes = useOptimizedDebouncedCallback(setAnaliseAntes, 400);
+  const debouncedAnaliseDepois = useOptimizedDebouncedCallback(setAnaliseDepois, 400);
 
   const handleAnaliseAntesChange = useMemo(() => 
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setAnaliseAntes(e.target.value);
-    }, [setAnaliseAntes]
+      debouncedAnaliseAntes(e.target.value);
+    }, [debouncedAnaliseAntes]
   );
 
   const handleAnaliseDepoisChange = useMemo(() => 
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setAnaliseDepois(e.target.value);
-    }, [setAnaliseDepois]
+      debouncedAnaliseDepois(e.target.value);
+    }, [debouncedAnaliseDepois]
   );
 
   return (
