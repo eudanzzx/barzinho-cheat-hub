@@ -1,21 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function useOptimizedDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    // Limpar timeout anterior
+    // Clear the previous timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Configurar novo timeout
+    // Set a new timeout
     timeoutRef.current = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
 
-    // Cleanup
+    // Cleanup function
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -23,7 +23,7 @@ export function useOptimizedDebounce<T>(value: T, delay: number): T {
     };
   }, [value, delay]);
 
-  // Cleanup no unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -33,41 +33,4 @@ export function useOptimizedDebounce<T>(value: T, delay: number): T {
   }, []);
 
   return debouncedValue;
-}
-
-export function useOptimizedDebouncedCallback<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const callbackRef = useRef(callback);
-
-  // Manter callback atualizado
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  const debouncedCallback = useCallback(
-    (...args: Parameters<T>) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      timeoutRef.current = setTimeout(() => {
-        callbackRef.current(...args);
-      }, delay);
-    },
-    [delay]
-  ) as T;
-
-  // Cleanup no unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  return debouncedCallback;
 }

@@ -17,8 +17,6 @@ import TarotPriorityPaymentsModal from "@/components/TarotPriorityPaymentsModal"
 import useUserDataService from "@/services/userDataService";
 import TratamentoContadoresModal from "@/components/tarot/TratamentoContadoresModal";
 import MainPriorityPaymentsModal from "./MainPriorityPaymentsModal";
-import MainNotificationButton from "@/components/notifications/MainNotificationButton";
-import TarotNotificationButton from "@/components/notifications/TarotNotificationButton";
 
 const DashboardHeader = () => {
   const [openTratamentoContadores, setOpenTratamentoContadores] = useState(false);
@@ -56,16 +54,12 @@ const DashboardHeader = () => {
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               {/* Botão de próximos vencimentos - apenas na página principal */}
               {isDashboardPage && (
-                <div className="flex items-center gap-1">
-                  <MainNotificationButton />
-                  <MainPriorityPaymentsModal atendimentos={atendimentos} />
-                </div>
+                <MainPriorityPaymentsModal atendimentos={atendimentos} />
               )}
 
               {/* Botões específicos do tarot */}
               {isTarotListagem && (
                 <div className="flex items-center gap-1">
-                  <TarotNotificationButton />
                   <Button
                     variant="ghost"
                     size={isMobile ? "sm" : "default"}
