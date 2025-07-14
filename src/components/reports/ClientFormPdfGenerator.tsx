@@ -26,8 +26,12 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       console.log('=== DEBUG PDF GENERATOR ===');
       console.log('Cliente:', cliente.nome);
       console.log('Total de atendimentos:', cliente.atendimentos.length);
-      console.log('Último atendimento completo:', ultimoAtendimento);
+      console.log('Último atendimento completo:', JSON.stringify(ultimoAtendimento, null, 2));
       console.log('Todos os campos do último atendimento:', Object.keys(ultimoAtendimento));
+      
+      // Verificar diretamente os campos tratamento e indicacao
+      console.log('TRATAMENTO direto:', ultimoAtendimento.tratamento);
+      console.log('INDICACAO direta:', ultimoAtendimento.indicacao);
       
       // Verificação específica dos campos problemáticos
       console.log('=== CAMPOS ESPECÍFICOS ===');
