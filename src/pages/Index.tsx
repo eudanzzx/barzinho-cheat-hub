@@ -10,7 +10,7 @@ import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
 import OptimizedPaymentDetailsModal from "@/components/optimized/OptimizedPaymentDetailsModal";
 import MainPriorityPaymentsModal from "@/components/dashboard/MainPriorityPaymentsModal";
 import { useOptimizedIndexStats } from "@/hooks/useOptimizedIndexStats";
-import { useOptimizedIndexFiltering } from "@/hooks/useOptimizedIndexFiltering";
+import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
 
 const Index: React.FC = () => {
@@ -22,7 +22,7 @@ const Index: React.FC = () => {
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  const filteredAtendimentos = useOptimizedIndexFiltering(atendimentos, periodoVisualizacao, searchTerm);
+  const filteredAtendimentos = useIndexFiltering(atendimentos, periodoVisualizacao, searchTerm);
   const calculateStats = useOptimizedIndexStats(atendimentos);
 
   const loadAtendimentos = useCallback(() => {

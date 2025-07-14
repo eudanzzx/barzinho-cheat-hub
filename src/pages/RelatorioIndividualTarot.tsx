@@ -2,8 +2,6 @@
 import React, { useState, useMemo } from 'react';
 import useUserDataService from "@/services/userDataService";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import Logo from "@/components/Logo";
-import { toast } from "sonner";
 import TarotReportHeader from "@/components/tarot/reports/TarotReportHeader";
 import TarotReportStats from "@/components/tarot/reports/TarotReportStats";
 import TarotClientsList from "@/components/tarot/reports/TarotClientsList";
@@ -15,9 +13,13 @@ const RelatorioIndividualTarot = () => {
   const [analises] = useState(getAllTarotAnalyses());
 
   const clientesUnicos = useMemo(() => {
+    if (!analises.length) return [];
+    
     const clientesMap = new Map();
     
     analises.forEach(analise => {
+      if (!analise.nomeCliente) return; // Skip if no client name
+      
       const clienteKey = analise.nomeCliente.toLowerCase();
       if (!clientesMap.has(clienteKey)) {
         clientesMap.set(clienteKey, {
@@ -28,20 +30,27 @@ const RelatorioIndividualTarot = () => {
       clientesMap.get(clienteKey).analises.push(analise);
     });
 
-    return Array.from(clientesMap.values());
+    return Array.from(clientesMap.values()).sort((a, b) => 
+      a.nome.localeCompare(b.nome)
+    );
   }, [analises]);
 
   const clientesFiltrados = useMemo(() => {
+    if (!searchTerm) return clientesUnicos;
+    
+    const searchLower = searchTerm.toLowerCase();
     return clientesUnicos.filter(cliente =>
-      cliente.nome.toLowerCase().includes(searchTerm.toLowerCase())
+      cliente.nome.toLowerCase().includes(searchLower)
     );
   }, [clientesUnicos, searchTerm]);
 
   const totalReceita = useMemo(() => {
+    if (!clientesUnicos.length) return 0;
+    
     return clientesUnicos.reduce((total, cliente) => {
       const clienteTotal = cliente.analises.reduce((sum, analise) => {
-        const preco = parseFloat(analise.preco || "150");
-        return sum + preco;
+        const preco = parseFloat(analise.preco || analise.valor || "150");
+        return sum + (isNaN(preco) ? 150 : preco);
       }, 0);
       return total + clienteTotal;
     }, 0);
