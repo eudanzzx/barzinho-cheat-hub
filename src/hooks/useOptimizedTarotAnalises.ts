@@ -13,8 +13,8 @@ export const useOptimizedTarotAnalises = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
   const [aniversarianteHoje, setAniversarianteHoje] = useState<{ nome: string; dataNascimento: string } | null>(null);
 
-  // Debounced search para otimizar performance
-  const debouncedSearchTerm = useThrottledDebounce(searchTerm, 300);
+  // Debounced search ultra otimizado
+  const debouncedSearchTerm = useThrottledDebounce(searchTerm, 100);
 
   const loadAnalises = useCallback(() => {
     const allAnalises = getAllTarotAnalyses();
@@ -49,23 +49,24 @@ export const useOptimizedTarotAnalises = () => {
     return () => window.removeEventListener('tarotAnalysesUpdated', handleDataUpdated);
   }, [loadAnalises]);
 
-  // Memoização otimizada das análises filtradas
+  // Super memoização com filtro combinado otimizado
   const tabAnalises = useMemo(() => {
-    let filtered = analises;
+    if (!analises.length) return [];
     
-    // Filtrar por tab
-    if (activeTab === 'finalizadas') filtered = filtered.filter(analise => analise.finalizado);
-    else if (activeTab === 'em-andamento') filtered = filtered.filter(analise => !analise.finalizado);
-    
-    // Filtrar por search term se houver
-    if (debouncedSearchTerm.trim()) {
-      const searchLower = debouncedSearchTerm.toLowerCase();
-      filtered = filtered.filter(analise => 
-        (analise.nomeCliente || analise.clientName || '').toLowerCase().includes(searchLower)
-      );
-    }
-    
-    return filtered;
+    return analises.filter(analise => {
+      // Filtro por tab (early return para performance)
+      if (activeTab === 'finalizadas' && !analise.finalizado) return false;
+      if (activeTab === 'em-andamento' && analise.finalizado) return false;
+      
+      // Filtro por busca (só se necessário)
+      if (debouncedSearchTerm.trim()) {
+        const searchLower = debouncedSearchTerm.toLowerCase();
+        const clientName = (analise.nomeCliente || analise.clientName || '').toLowerCase();
+        return clientName.includes(searchLower);
+      }
+      
+      return true;
+    });
   }, [analises, activeTab, debouncedSearchTerm]);
 
   // Estatísticas com cálculo otimizado

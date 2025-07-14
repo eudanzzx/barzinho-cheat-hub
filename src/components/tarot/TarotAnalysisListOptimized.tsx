@@ -2,7 +2,7 @@
 import React, { memo, useMemo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import TarotAnalysisCard from "./TarotAnalysisCard";
+import TarotAnalysisCardOptimized from "./TarotAnalysisCardOptimized";
 import VirtualizedListOptimized from "@/components/VirtualizedListOptimized";
 
 const TarotAnalysisListOptimized = memo(
@@ -49,7 +49,7 @@ const TarotAnalysisListOptimized = memo(
     const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 15); // Limitar contagem
     
     const renderAnaliseItem = useCallback((analise: any) => (
-      <TarotAnalysisCard
+      <TarotAnalysisCardOptimized
         key={analise.id}
         analise={analise}
         formattedTime={null}

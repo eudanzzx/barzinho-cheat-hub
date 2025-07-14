@@ -148,7 +148,7 @@ const TarotAnalysisCardOptimized = memo(({
                     return (
                       <Button
                         key={plano.id}
-                        onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
+                        onClick={() => handlePaymentToggle(plano.id, analise.nomeCliente || analise.clientName, !isPaid)}
                         variant="outline"
                         className={`
                           w-full p-4 h-auto flex items-center justify-between
