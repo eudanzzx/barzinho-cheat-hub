@@ -91,21 +91,56 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       addField('Valor', `R$ ${preco}`);
       addField('Status', ultimaAnalise?.finalizado ? 'Finalizada' : 'Em andamento');
 
-      // PLANO
-      const semanas = ultimaAnalise?.semanalData?.semanas || ultimaAnalise?.semanas || 'N/A';
-      const valorSemanal = ultimaAnalise?.semanalData?.valorSemanal || ultimaAnalise?.valorSemanal || 'N/A';
-      
-      addField('Tipo de Plano', 'PLANO SEMANAL');
-      addField('Duração', semanas !== 'N/A' ? `${semanas} semanas` : 'N/A');
-      
-      if (valorSemanal !== 'N/A' && semanas !== 'N/A') {
-        const valorTotal = parseFloat(valorSemanal) * parseInt(semanas);
-        addField('Valor Total', `R$ ${valorTotal.toFixed(2)}`);
+      // PLANO - Verificar qual tipo de plano está ativo
+      if (ultimaAnalise?.planoAtivo && ultimaAnalise?.planoData) {
+        // Plano Mensal
+        const meses = ultimaAnalise.planoData.meses || 'N/A';
+        const valorMensal = ultimaAnalise.planoData.valorMensal || 'N/A';
+        
+        addField('Tipo de Plano', 'PLANO MENSAL');
+        addField('Duração', meses !== 'N/A' ? `${meses} meses` : 'N/A');
+        
+        if (valorMensal !== 'N/A' && meses !== 'N/A') {
+          const valorTotal = parseFloat(valorMensal) * parseInt(meses);
+          addField('Valor Total', `R$ ${valorTotal.toFixed(2)}`);
+        } else {
+          addField('Valor Total', 'N/A');
+        }
+        
+        addField('Valor por Mês', valorMensal !== 'N/A' ? `R$ ${parseFloat(valorMensal).toFixed(2)}` : 'N/A');
+      } else if (ultimaAnalise?.semanalAtivo && ultimaAnalise?.semanalData) {
+        // Plano Semanal
+        const semanas = ultimaAnalise.semanalData.semanas || 'N/A';
+        const valorSemanal = ultimaAnalise.semanalData.valorSemanal || 'N/A';
+        
+        addField('Tipo de Plano', 'PLANO SEMANAL');
+        addField('Duração', semanas !== 'N/A' ? `${semanas} semanas` : 'N/A');
+        
+        if (valorSemanal !== 'N/A' && semanas !== 'N/A') {
+          const valorTotal = parseFloat(valorSemanal) * parseInt(semanas);
+          addField('Valor Total', `R$ ${valorTotal.toFixed(2)}`);
+        } else {
+          addField('Valor Total', 'N/A');
+        }
+        
+        addField('Valor por Semana', valorSemanal !== 'N/A' ? `R$ ${parseFloat(valorSemanal).toFixed(2)}` : 'N/A');
       } else {
-        addField('Valor Total', 'N/A');
+        // Caso não tenha plano ativo, mostrar valores padrão/legados
+        const semanas = ultimaAnalise?.semanas || 'N/A';
+        const valorSemanal = ultimaAnalise?.valorSemanal || 'N/A';
+        
+        addField('Tipo de Plano', 'PLANO SEMANAL');
+        addField('Duração', semanas !== 'N/A' ? `${semanas} semanas` : 'N/A');
+        
+        if (valorSemanal !== 'N/A' && semanas !== 'N/A') {
+          const valorTotal = parseFloat(valorSemanal) * parseInt(semanas);
+          addField('Valor Total', `R$ ${valorTotal.toFixed(2)}`);
+        } else {
+          addField('Valor Total', 'N/A');
+        }
+        
+        addField('Valor por Semana', valorSemanal !== 'N/A' ? `R$ ${parseFloat(valorSemanal).toFixed(2)}` : 'N/A');
       }
-      
-      addField('Valor por Semana', valorSemanal !== 'N/A' ? `R$ ${parseFloat(valorSemanal).toFixed(2)}` : 'N/A');
 
       // ANÁLISE – ANTES
       addSection('ANÁLISE – ANTES');
