@@ -5,18 +5,8 @@ import { usePlanoService } from "./planoService";
 import { useTarotPlanoCreator } from "./tarotPlanoCreator";
 import { checkClientBirthday } from "./utils/birthdayUtils";
 
-// Cache global para evitar re-inicializações desnecessárias
-const serviceCache = new Map();
-const CACHE_TTL = 5000; // 5 segundos
-
 const useUnifiedDataService = () => {
-  const cacheKey = 'unified-service';
-  const cached = serviceCache.get(cacheKey);
-  
-  if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
-    return cached.service;
-  }
-
+  // Always call hooks in the same order
   const atendimentoService = useAtendimentoService();
   const tarotService = useTarotAnalysisService();
   const planoService = usePlanoService();
@@ -89,12 +79,6 @@ const useUnifiedDataService = () => {
     checkClientBirthday,
     batchUpdate,
   }), [atendimentoService, tarotService, planoService, tarotPlanoCreator, saveTarotAnalysisWithPlan, batchUpdate]);
-
-  // Update cache
-  serviceCache.set(cacheKey, {
-    service,
-    timestamp: Date.now()
-  });
 
   return service;
 };
