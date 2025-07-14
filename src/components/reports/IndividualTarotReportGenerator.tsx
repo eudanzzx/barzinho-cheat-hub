@@ -109,12 +109,6 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
 
       // ANÁLISE – ANTES
       addSection('ANÁLISE – ANTES');
-      
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.setFont('helvetica', 'italic');
-      doc.text('(Descreva os resultados antes do tratamento)', margin, yPos);
-      yPos += 12;
 
       const analiseAntes = ultimaAnalise?.analiseAntes || ultimaAnalise?.pergunta || '';
       if (analiseAntes && analiseAntes.trim() !== '') {
@@ -130,12 +124,6 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
 
       // ANÁLISE – DEPOIS
       addSection('ANÁLISE – DEPOIS');
-      
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.setFont('helvetica', 'italic');
-      doc.text('(Descreva os resultados após o tratamento)', margin, yPos);
-      yPos += 12;
 
       const analiseDepois = ultimaAnalise?.analiseDepois || ultimaAnalise?.resposta || ultimaAnalise?.leitura || ultimaAnalise?.orientacao || '';
       if (analiseDepois && analiseDepois.trim() !== '') {
@@ -149,9 +137,7 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
         yPos += 12;
       }
 
-      // TRATAMENTO
-      addSection('TRATAMENTO');
-
+      // Contadores (sem título "TRATAMENTO")
       if (ultimaAnalise?.lembretes && ultimaAnalise.lembretes.length > 0) {
         ultimaAnalise.lembretes.forEach((lembrete: any, index: number) => {
           if (yPos > 250) return;
