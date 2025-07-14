@@ -203,27 +203,63 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       // Detalhes da Sessão - campo de texto maior
       addLongTextField('Detalhes da Sessao', ultimoAtendimento.detalhes || '');
       
-      // Tratamento - tentar diferentes variações do nome do campo
-      const tratamentoValue = ultimoAtendimento.tratamento || 
-                             ultimoAtendimento.Tratamento || 
-                             ultimoAtendimento.TRATAMENTO || 
-                             ultimoAtendimento.analysis_treatment ||
-                             ultimoAtendimento.treatment ||
-                             '';
-      console.log('Valor final do tratamento para PDF:', tratamentoValue);
-      addLongTextField('Tratamento', tratamentoValue);
+      // Tratamento - buscar em todos os campos possíveis
+      let tratamentoValue = '';
       
-      // Indicação - tentar diferentes variações do nome do campo  
-      const indicacaoValue = ultimoAtendimento.indicacao || 
-                            ultimoAtendimento.indicação || 
-                            ultimoAtendimento.Indicacao || 
-                            ultimoAtendimento.Indicação || 
-                            ultimoAtendimento.INDICACAO ||
-                            ultimoAtendimento.analysis_indication ||
-                            ultimoAtendimento.indication ||
-                            '';
-      console.log('Valor final da indicação para PDF:', indicacaoValue);
-      addLongTextField('Indicacao', indicacaoValue);
+      // Lista de possíveis campos onde o tratamento pode estar
+      const tratamentoCandidates = [
+        'tratamento', 'Tratamento', 'TRATAMENTO', 
+        'analysis_treatment', 'treatment', 'terapia',
+        'recomendacao', 'recomendação', 'prescricao', 'prescrição'
+      ];
+      
+      for (const field of tratamentoCandidates) {
+        if (ultimoAtendimento[field] && typeof ultimoAtendimento[field] === 'string' && ultimoAtendimento[field].trim() !== '') {
+          tratamentoValue = ultimoAtendimento[field].trim();
+          console.log(`Tratamento encontrado no campo '${field}':`, tratamentoValue);
+          break;
+        }
+      }
+      
+      // Se não encontrou, mostrar debug completo
+      if (!tratamentoValue) {
+        console.log('=== CAMPOS DE TRATAMENTO NÃO ENCONTRADOS ===');
+        console.log('Campos disponíveis:', Object.keys(ultimoAtendimento));
+        console.log('Valores dos campos que contêm "trat":', 
+          Object.entries(ultimoAtendimento).filter(([key]) => key.toLowerCase().includes('trat'))
+        );
+      }
+      
+      addLongTextField('Tratamento', tratamentoValue || 'Nenhum tratamento informado');
+      
+      // Indicação - buscar em todos os campos possíveis
+      let indicacaoValue = '';
+      
+      // Lista de possíveis campos onde a indicação pode estar
+      const indicacaoCandidates = [
+        'indicacao', 'indicação', 'Indicacao', 'Indicação', 
+        'INDICACAO', 'INDICAÇÃO', 'analysis_indication', 
+        'indication', 'orientacao', 'orientação', 'conselho'
+      ];
+      
+      for (const field of indicacaoCandidates) {
+        if (ultimoAtendimento[field] && typeof ultimoAtendimento[field] === 'string' && ultimoAtendimento[field].trim() !== '') {
+          indicacaoValue = ultimoAtendimento[field].trim();
+          console.log(`Indicação encontrada no campo '${field}':`, indicacaoValue); 
+          break;
+        }
+      }
+      
+      // Se não encontrou, mostrar debug completo
+      if (!indicacaoValue) {
+        console.log('=== CAMPOS DE INDICAÇÃO NÃO ENCONTRADOS ===');
+        console.log('Campos disponíveis:', Object.keys(ultimoAtendimento));
+        console.log('Valores dos campos que contêm "indic":', 
+          Object.entries(ultimoAtendimento).filter(([key]) => key.toLowerCase().includes('indic'))
+        );
+      }
+      
+      addLongTextField('Indicacao', indicacaoValue || 'Nenhuma indicação informada');
       
       // Footer
       yPosition = doc.internal.pageSize.height - 20;
