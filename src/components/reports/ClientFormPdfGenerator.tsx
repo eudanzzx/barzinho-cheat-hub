@@ -234,7 +234,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         );
       }
       
-      addLongTextField('Tratamento', tratamentoValue || 'Nenhum tratamento informado');
+      addLongTextField('Tratamento', tratamentoValue || 'N/A');
       
       // Indicação - buscar em todos os campos possíveis
       let indicacaoValue = '';
@@ -263,7 +263,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
         );
       }
       
-      addLongTextField('Indicacao', indicacaoValue || 'Nenhuma indicação informada');
+      addLongTextField('Indicacao', indicacaoValue || 'N/A');
       
       // Footer
       yPosition = doc.internal.pageSize.height - 20;
