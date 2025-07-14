@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,47 +33,30 @@ const TarotAnalysisCard = React.memo(({
   const [planos, setPlanos] = useState<(PlanoMensal | PlanoSemanal)[]>([]);
   const [isPaymentExpanded, setIsPaymentExpanded] = useState(false);
 
+  // Otimizar carregamento de planos
   useEffect(() => {
-    loadPlanos();
-  }, []);
-
-  useEffect(() => {
-    const handlePlanosUpdated = () => {
-      loadPlanos();
+    const loadPlanosForAnalise = () => {
+      const allPlanos = getPlanos();
+      const filteredPlanos = allPlanos.filter((plano) => 
+        (plano.type === 'plano' || plano.type === 'semanal') && 
+        plano.analysisId === analise.id
+      );
+      setPlanos(filteredPlanos);
     };
 
+    loadPlanosForAnalise();
+
+    const handlePlanosUpdated = () => loadPlanosForAnalise();
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
     };
-  }, []);
+  }, [analise.id, getPlanos]);
 
-  const loadPlanos = () => {
-    const allPlanos = getPlanos();
-    console.log('TarotAnalysisCard - loadPlanos:', { 
-      analiseId: analise.id, 
-      clientName: analise.nome,
-      totalPlanos: allPlanos.length 
-    });
-    
-    // CARREGAR TODOS OS PLANOS DE TAROT - MENSAIS E SEMANAIS
-    const filteredPlanos = allPlanos.filter((plano) => 
-      (plano.type === 'plano' || plano.type === 'semanal') && 
-      plano.analysisId === analise.id
-    );
+  // Removido função loadPlanos duplicada - otimização
 
-    console.log('TarotAnalysisCard - filteredPlanos:', { 
-      count: filteredPlanos.length, 
-      planos: filteredPlanos,
-      mensais: filteredPlanos.filter(p => p.type === 'plano').length,
-      semanais: filteredPlanos.filter(p => p.type === 'semanal').length
-    });
-    
-    setPlanos(filteredPlanos);
-  };
-
-  const handlePaymentToggle = (planoId: string, clientName: string, isPaid: boolean) => {
+  const handlePaymentToggle = useCallback((planoId: string, clientName: string, isPaid: boolean) => {
     const allPlanos = getPlanos();
     const updatedPlanos = allPlanos.map(plano => 
       plano.id === planoId ? { ...plano, active: !isPaid } : plano
@@ -87,23 +70,17 @@ const TarotAnalysisCard = React.memo(({
     );
     
     window.dispatchEvent(new Event('atendimentosUpdated'));
-    loadPlanos();
-  };
+  }, [getPlanos, savePlanos]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
-  };
+  }, []);
 
-  const hasMonthlyPayments = planos.length > 0;
+  const hasMonthlyPayments = useMemo(() => planos.length > 0, [planos.length]);
 
-  const togglePaymentExpansion = () => {
-    console.log('TarotAnalysisCard - togglePaymentExpansion:', { 
-      current: isPaymentExpanded, 
-      planos: planos.length,
-      analise: analise.nome 
-    });
+  const togglePaymentExpansion = useCallback(() => {
     setIsPaymentExpanded(prev => !prev);
-  };
+  }, []);
 
   return (
     <>
@@ -185,7 +162,7 @@ const TarotAnalysisCard = React.memo(({
                     return (
                       <Button
                         key={plano.id}
-                        onClick={() => handlePaymentToggle(plano.id, analise.nome, !isPaid)}
+                        onClick={() => handlePaymentToggle(plano.id, analise.nomeCliente || analise.clientName, !isPaid)}
                         variant="outline"
                         className={`
                           w-full p-4 h-auto flex items-center justify-between

@@ -35,24 +35,16 @@ const ListagemTarot = React.memo(() => {
 
   const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
 
-  console.log('ListagemTarot - Renderizada com:', {
-    analisesCount: analises?.length || 0,
-    tabAnalisesCount: tabAnalises?.length || 0,
-    activeTab,
-    searchTerm
-  });
+  // Remover console.log para melhor performance
 
   // Escutar evento para abrir modal de detalhes
   useEffect(() => {
     const handleOpenPaymentDetailsModal = (event: CustomEvent) => {
-      console.log('ListagemTarot - Abrindo modal de detalhes para pagamento:', event.detail.payment);
       setSelectedPayment(event.detail.payment);
       setIsPaymentModalOpen(true);
     };
 
     const handleDataCleanup = () => {
-      console.log('ListagemTarot - Dados limpos, recarregando componente');
-      // Forçar atualização do componente
       window.location.reload();
     };
 
@@ -65,20 +57,7 @@ const ListagemTarot = React.memo(() => {
     };
   }, []);
 
-  // Forçar atualização das datas após montagem do componente
-  useEffect(() => {
-    const triggerPaymentUpdate = () => {
-      console.log('ListagemTarot - Disparando atualização de pagamentos para corrigir datas');
-      window.dispatchEvent(new CustomEvent('tarot-payment-updated', {
-        detail: { action: 'date_correction', timestamp: Date.now() }
-      }));
-    };
-
-    // Disparar evento após um pequeno delay
-    const timeoutId = setTimeout(triggerPaymentUpdate, 500);
-    
-    return () => clearTimeout(timeoutId);
-  }, [analises, tabAnalises]);
+  // Remover atualização forçada que causa re-renders desnecessários
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab as 'todas' | 'finalizadas' | 'em-andamento');

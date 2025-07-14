@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import useUserDataService from "@/services/userDataService";
 import { TarotAnalysis } from "@/services/tarotAnalysisService";
 import { toast } from "sonner";
-import { useOptimizedDebounce } from "./useOptimizedDebounce";
+import { useThrottledDebounce } from "./useThrottledDebounce";
 
 export const useOptimizedTarotAnalises = () => {
   const { getAllTarotAnalyses, deleteTarotAnalysis, saveTarotAnalysisWithPlan, checkClientBirthday, getPlanos, savePlanos } = useUserDataService();
@@ -14,7 +14,7 @@ export const useOptimizedTarotAnalises = () => {
   const [aniversarianteHoje, setAniversarianteHoje] = useState<{ nome: string; dataNascimento: string } | null>(null);
 
   // Debounced search para otimizar performance
-  const debouncedSearchTerm = useOptimizedDebounce(searchTerm, 200);
+  const debouncedSearchTerm = useThrottledDebounce(searchTerm, 300);
 
   const loadAnalises = useCallback(() => {
     const allAnalises = getAllTarotAnalyses();
@@ -71,28 +71,40 @@ export const useOptimizedTarotAnalises = () => {
   // Estatísticas com cálculo otimizado
   const recebidoStats = useMemo(() => {
     const now = new Date();
-    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    const filteredAnalises = tabAnalises.filter(analise => {
-      if (selectedPeriod === 'total') return true;
-      
-      const analiseDate = new Date(analise.dataAtendimento);
-      if (selectedPeriod === 'semana') return analiseDate >= startOfWeek;
-      if (selectedPeriod === 'mes') return analiseDate >= startOfMonth;
-      if (selectedPeriod === 'ano') return analiseDate >= startOfYear;
-      
-      return true;
-    });
+    let total = 0;
+    let semana = 0;
+    let mes = 0;
+    let ano = 0;
 
-    return {
-      total: filteredAnalises.reduce((sum, analise) => sum + (Number(analise.valor) || 0), 0),
-      semana: analises.filter(a => new Date(a.dataAtendimento) >= startOfWeek).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
-      mes: analises.filter(a => new Date(a.dataAtendimento) >= startOfMonth).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
-      ano: analises.filter(a => new Date(a.dataAtendimento) >= startOfYear).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
-    };
-  }, [tabAnalises, selectedPeriod, analises]);
+    // Single loop para performance
+    for (const analise of analises) {
+      const valor = Number(analise.valor) || 0;
+      const analiseDate = new Date(analise.dataAtendimento);
+      
+      // Aplicar filtro de período apenas para total
+      if (selectedPeriod !== 'total') {
+        let includeInTotal = false;
+        if (selectedPeriod === 'semana' && analiseDate >= startOfWeek) includeInTotal = true;
+        else if (selectedPeriod === 'mes' && analiseDate >= startOfMonth) includeInTotal = true;
+        else if (selectedPeriod === 'ano' && analiseDate >= startOfYear) includeInTotal = true;
+        
+        if (includeInTotal) total += valor;
+      } else {
+        total += valor;
+      }
+      
+      // Calcular outras estatísticas
+      if (analiseDate >= startOfWeek) semana += valor;
+      if (analiseDate >= startOfMonth) mes += valor;
+      if (analiseDate >= startOfYear) ano += valor;
+    }
+
+    return { total, semana, mes, ano };
+  }, [analises, selectedPeriod]);
 
   const getStatusCounts = useMemo(() => ({
     finalizados: analises.filter(a => a.finalizado).length,

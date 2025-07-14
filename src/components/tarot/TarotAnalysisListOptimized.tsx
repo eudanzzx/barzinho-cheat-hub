@@ -3,7 +3,7 @@ import React, { memo, useMemo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import TarotAnalysisCard from "./TarotAnalysisCard";
-import VirtualizedList from "@/components/VirtualizedList";
+import VirtualizedListOptimized from "@/components/VirtualizedListOptimized";
 
 const TarotAnalysisListOptimized = memo(
   ({
@@ -18,12 +18,12 @@ const TarotAnalysisListOptimized = memo(
     onDelete: (id: string) => void;
   }) => {
     const [showAll, setShowAll] = useState(false);
-    const ITEMS_PER_PAGE = 8; // Reduzir para 8 para performance máxima
+    const ITEMS_PER_PAGE = 6; // Reduzir ainda mais para máxima performance
     
     // Super otimizar renderização limitando itens visíveis
     const visibleAnalises = useMemo(() => {
       if (showAll) {
-        return analises.slice(0, 20); // Máximo 20 quando "mostrar todos"
+        return analises.slice(0, 15); // Reduzir máximo para 15
       }
       return analises.slice(0, ITEMS_PER_PAGE);
     }, [analises, showAll]);
@@ -46,7 +46,7 @@ const TarotAnalysisListOptimized = memo(
     }, []);
     
     const hasMoreItems = analises.length > ITEMS_PER_PAGE;
-    const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 20); // Limitar contagem
+    const hiddenCount = Math.min(analises.length - ITEMS_PER_PAGE, 15); // Limitar contagem
     
     const renderAnaliseItem = useCallback((analise: any) => (
       <TarotAnalysisCard
@@ -62,11 +62,12 @@ const TarotAnalysisListOptimized = memo(
 
     return (
       <div className="space-y-3">
-        <VirtualizedList
+        <VirtualizedListOptimized
           items={visibleAnalises}
           renderItem={renderAnaliseItem}
-          maxVisibleItems={showAll ? 20 : ITEMS_PER_PAGE}
-          containerHeight="500px"
+          maxVisibleItems={showAll ? 15 : ITEMS_PER_PAGE}
+          itemHeight={120}
+          containerHeight="600px"
         />
         
         {hasMoreItems && (
