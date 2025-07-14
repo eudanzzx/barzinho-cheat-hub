@@ -1,20 +1,20 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import useUserDataService from "@/services/userDataService";
+import useUnifiedDataService from "@/services/unifiedDataService";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import IndexSearchSection from "@/components/dashboard/IndexSearchSection";
 import IndexMainContent from "@/components/dashboard/IndexMainContent";
 import IndexStats from "@/components/dashboard/IndexStats";
 import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
-import PaymentDetailsModal from "@/components/PaymentDetailsModal";
+import OptimizedPaymentDetailsModal from "@/components/optimized/OptimizedPaymentDetailsModal";
 import MainPriorityPaymentsModal from "@/components/dashboard/MainPriorityPaymentsModal";
-import { useIndexStats } from "@/hooks/useIndexStats";
-import { useIndexFiltering } from "@/hooks/useIndexFiltering";
+import { useOptimizedIndexStats } from "@/hooks/useOptimizedIndexStats";
+import { useOptimizedIndexFiltering } from "@/hooks/useOptimizedIndexFiltering";
 import { toast } from "sonner";
 
 const Index: React.FC = () => {
-  const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useUserDataService();
+  const { getAtendimentos, checkClientBirthday, saveAtendimentos } = useUnifiedDataService();
   const [atendimentos, setAtendimentos] = useState<any[]>([]);
   const [periodoVisualizacao, setPeriodoVisualizacao] = useState<'semana' | 'mes' | 'ano' | 'total'>('mes');
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,8 +22,8 @@ const Index: React.FC = () => {
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  const filteredAtendimentos = useIndexFiltering(atendimentos, periodoVisualizacao, searchTerm);
-  const calculateStats = useIndexStats(atendimentos);
+  const filteredAtendimentos = useOptimizedIndexFiltering(atendimentos, periodoVisualizacao, searchTerm);
+  const calculateStats = useOptimizedIndexStats(atendimentos);
 
   const loadAtendimentos = useCallback(() => {
     const allAtendimentos = getAtendimentos();
@@ -70,21 +70,25 @@ const Index: React.FC = () => {
       loadAtendimentos();
     };
 
+    window.addEventListener('dataUpdated', handleDataUpdated);
     window.addEventListener('atendimentosUpdated', handleDataUpdated);
     window.addEventListener('planosUpdated', handleDataUpdated);
 
     return () => {
+      window.removeEventListener('dataUpdated', handleDataUpdated);
       window.removeEventListener('atendimentosUpdated', handleDataUpdated);
       window.removeEventListener('planosUpdated', handleDataUpdated);
     };
   }, [loadAtendimentos]);
 
-  const handleDeleteAtendimento = (id: string) => {
+  const handleDeleteAtendimento = useCallback((id: string) => {
     const updatedAtendimentos = atendimentos.filter(a => a.id !== id);
     saveAtendimentos(updatedAtendimentos);
     toast.success('Atendimento excluído com sucesso!');
-    window.dispatchEvent(new Event('atendimentosUpdated'));
-  };
+    window.dispatchEvent(new CustomEvent('dataUpdated', {
+      detail: { type: 'atendimento', action: 'delete', id }
+    }));
+  }, [atendimentos, saveAtendimentos]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,24 +132,20 @@ const Index: React.FC = () => {
         </div>
       </main>
       
-      <PaymentDetailsModal
+      <OptimizedPaymentDetailsModal
         payment={selectedPayment}
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         onMarkAsPaid={(id: string) => {
-          // Disparar evento para marcar como pago
-          const event = new CustomEvent('mark-payment-as-paid', {
+          window.dispatchEvent(new CustomEvent('mark-payment-as-paid', {
             detail: { id }
-          });
-          window.dispatchEvent(event);
+          }));
           setIsPaymentModalOpen(false);
         }}
         onDeleteNotification={(id: string) => {
-          // Disparar evento para excluir notificação
-          const event = new CustomEvent('delete-payment-notification', {
+          window.dispatchEvent(new CustomEvent('delete-payment-notification', {
             detail: { id }
-          });
-          window.dispatchEvent(event);
+          }));
           setIsPaymentModalOpen(false);
         }}
       />
