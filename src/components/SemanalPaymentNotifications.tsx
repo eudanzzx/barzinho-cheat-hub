@@ -183,12 +183,12 @@ const SemanalPaymentNotifications = () => {
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="relative bg-orange-500 hover:bg-orange-600 text-white shadow-lg rounded-full h-12 w-12 p-0 animate-pulse"
+            className="relative bg-orange-500 hover:bg-orange-600 text-white shadow-lg rounded-full h-12 w-12 p-0"
           >
             <Bell className="h-6 w-6" />
             {criticalPayments.length > 0 && (
               <Badge 
-                className="absolute -top-2 -right-2 bg-red-500 text-white min-w-[20px] h-5 rounded-full p-0 flex items-center justify-center text-xs animate-bounce"
+                className="absolute -top-2 -right-2 bg-red-500 text-white min-w-[20px] h-5 rounded-full p-0 flex items-center justify-center text-xs"
               >
                 {criticalPayments.length}
               </Badge>
@@ -223,12 +223,12 @@ const SemanalPaymentNotifications = () => {
                     <div className="flex flex-col items-end gap-2">
                       <Badge 
                         variant={payment.daysUntilDue === 0 ? "destructive" : "secondary"}
-                        className={`${payment.daysUntilDue === 0 ? "bg-red-500 animate-pulse" : "bg-orange-500"} text-white`}
+                        className={`${payment.daysUntilDue === 0 ? "bg-red-500" : "bg-orange-500"} text-white`}
                       >
                         {payment.daysUntilDue === 0 ? "HOJE!" : "AMANHÃ"}
                       </Badge>
                       {payment.daysUntilDue === 0 && (
-                        <span className="text-xs text-red-600 font-medium animate-pulse">
+                        <span className="text-xs text-red-600 font-medium">
                           🔥 Vence hoje!
                         </span>
                       )}

@@ -41,7 +41,7 @@ const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full bg-white/10 hover:bg-white/20">
           <Avatar className="h-8 w-8 border border-white/20">
             <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-black text-xs font-semibold">
               {getInitials()}

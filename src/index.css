@@ -181,8 +181,7 @@
   }
   
   .payment-control-visible {
-    @apply block w-full opacity-100 transform scale-100;
-    transition: all 0.3s ease-in-out;
+    @apply block w-full opacity-100;
     display: block !important;
     visibility: visible !important;
   }
@@ -206,27 +205,19 @@
   }
 }
 
-/* Simplified tarot styles */
+/* Simplified tarot styles - removed animations for performance */
 .tarot-card {
   @apply relative w-20 h-32 sm:w-24 sm:h-36 md:w-32 md:h-48 rounded-md shadow-sm cursor-pointer;
-  @apply transition-all duration-300 ease-in-out;
   @apply bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800;
   @apply border border-slate-300;
-  perspective: 1000px;
 }
 
 .tarot-card-inner {
-  @apply relative w-full h-full transition-transform duration-500;
-  transform-style: preserve-3d;
-}
-
-.tarot-card.flipped .tarot-card-inner {
-  transform: rotateY(180deg);
+  @apply relative w-full h-full;
 }
 
 .tarot-card-face {
   @apply absolute inset-0 w-full h-full rounded-md;
-  backface-visibility: hidden;
 }
 
 .tarot-card-back {
@@ -239,27 +230,9 @@
   @apply bg-gradient-to-br from-white to-slate-50;
   @apply border border-slate-300;
   @apply flex flex-col items-center justify-center p-2;
-  transform: rotateY(180deg);
 }
 
-/* Clean animations */
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes shimmer {
-  0% { opacity: 0.7; }
-  100% { opacity: 1; }
-}
+/* Removed unnecessary animations for performance */
 
   /* Better touch targets for mobile and performance optimizations */
 button, a, input, select, textarea {
@@ -277,10 +250,7 @@ button, a, input, select, textarea {
   contain: layout;
 }
 
-/* Optimize transitions for better performance */
-button, a, .interactive {
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
+/* Removed performance-heavy transitions */
 
 /* Reduce expensive operations */
 input, textarea, select {
