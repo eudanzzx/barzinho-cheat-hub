@@ -2,13 +2,8 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Calendar, FileText, ChevronDown } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import IndividualTarotFormGenerator from "@/components/reports/IndividualTarotFormGenerator";
+import { DollarSign, Calendar } from "lucide-react";
+import IndividualTarotReportGenerator from "@/components/reports/IndividualTarotReportGenerator";
 import TarotAnalysisDetails from "./TarotAnalysisDetails";
 
 interface TarotClientCardProps {
@@ -72,38 +67,10 @@ const TarotClientCard: React.FC<TarotClientCardProps> = ({
                 {expandedClient === cliente.nome ? 'Ocultar' : 'Ver'} Detalhes
               </Button>
               
-              {cliente.analises.length > 1 ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-[#673193]/30 text-[#673193] hover:bg-[#673193]/10 text-xs sm:text-sm w-full sm:w-auto"
-                    >
-                      <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                      <span>Gerar Formulário</span>
-                      <ChevronDown className="h-3 w-3 ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-200 shadow-lg">
-                    {cliente.analises.map((analise: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50">
-                        <IndividualTarotFormGenerator
-                          analise={analise}
-                          clientName={cliente.nome}
-                          className="flex-1 justify-start text-left text-xs"
-                        />
-                      </div>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <IndividualTarotFormGenerator
-                  analise={cliente.analises[0]}
-                  clientName={cliente.nome}
-                  className="text-xs sm:text-sm w-full sm:w-auto"
-                />
-              )}
+              <IndividualTarotReportGenerator
+                cliente={cliente}
+                className="text-xs sm:text-sm w-full sm:w-auto"
+              />
             </div>
           </div>
 

@@ -46,7 +46,7 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       const textColor = { r: 45, g: 45, b: 45 };
       const sectionColor = { r: 79, g: 70, b: 229 };
 
-      // Função para adicionar campo com espaçamento correto
+      // Função para adicionar campo com espaçamento correto (apenas um espaço após o :)
       const addField = (label: string, value: string) => {
         if (yPos > 260) return;
         
@@ -54,12 +54,8 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
         
-        const labelText = `${label}:`;
-        const labelWidth = doc.getTextWidth(labelText);
-        const spaceWidth = doc.getTextWidth(' ');
-        
-        doc.text(labelText, margin, yPos);
-        doc.text(value || 'N/A', margin + labelWidth + spaceWidth, yPos);
+        const fieldText = `${label}: ${value || 'N/A'}`;
+        doc.text(fieldText, margin, yPos);
         
         yPos += 8;
       };
@@ -87,9 +83,9 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       addSection('INFORMAÇÕES DO CLIENTE');
 
       addField('Nome do Cliente', cliente.nome);
-      addField('Data de Nascimento', formatarDataSegura(ultimaAnalise?.dataNascimento));
-      addField('Signo', ultimaAnalise?.signo || 'N/A');
-      addField('Data da Análise', formatarDataSegura(ultimaAnalise?.dataInicio));
+      addField('Data de Nascimento', formatarDataSegura(ultimaAnalise?.dataNascimento || ultimaAnalise?.nascimento));
+      addField('Signo', ultimaAnalise?.signo);
+      addField('Data da Análise', formatarDataSegura(ultimaAnalise?.dataInicio || ultimaAnalise?.createdAt));
       
       const preco = parseFloat(ultimaAnalise?.preco || "150").toFixed(2);
       addField('Valor', `R$ ${preco}`);
@@ -100,7 +96,7 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       const valorSemanal = ultimaAnalise?.semanalData?.valorSemanal || ultimaAnalise?.valorSemanal || 'N/A';
       
       addField('Tipo de Plano', 'PLANO SEMANAL');
-      addField('Duração', `${semanas} semanas`);
+      addField('Duração', semanas !== 'N/A' ? `${semanas} semanas` : 'N/A');
       
       if (valorSemanal !== 'N/A' && semanas !== 'N/A') {
         const valorTotal = parseFloat(valorSemanal) * parseInt(semanas);
@@ -118,7 +114,7 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       doc.setTextColor(120, 120, 120);
       doc.setFont('helvetica', 'italic');
       doc.text('(Descreva os resultados antes do tratamento)', margin, yPos);
-      yPos += 8;
+      yPos += 12;
 
       const analiseAntes = ultimaAnalise?.analiseAntes || ultimaAnalise?.pergunta || '';
       if (analiseAntes && analiseAntes.trim() !== '') {
@@ -127,9 +123,9 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
         doc.setFont('helvetica', 'normal');
         const analiseAntesLines = doc.splitTextToSize(analiseAntes.trim(), pageWidth - 2 * margin);
         doc.text(analiseAntesLines, margin, yPos);
-        yPos += analiseAntesLines.length * 5 + 8;
+        yPos += analiseAntesLines.length * 5 + 12;
       } else {
-        yPos += 8;
+        yPos += 12;
       }
 
       // ANÁLISE – DEPOIS
@@ -139,18 +135,18 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
       doc.setTextColor(120, 120, 120);
       doc.setFont('helvetica', 'italic');
       doc.text('(Descreva os resultados após o tratamento)', margin, yPos);
-      yPos += 8;
+      yPos += 12;
 
-      const analiseDepois = ultimaAnalise?.analiseDepois || ultimaAnalise?.resposta || ultimaAnalise?.leitura || '';
+      const analiseDepois = ultimaAnalise?.analiseDepois || ultimaAnalise?.resposta || ultimaAnalise?.leitura || ultimaAnalise?.orientacao || '';
       if (analiseDepois && analiseDepois.trim() !== '') {
         doc.setFontSize(10);
         doc.setTextColor(textColor.r, textColor.g, textColor.b);
         doc.setFont('helvetica', 'normal');
         const analiseDepoisLines = doc.splitTextToSize(analiseDepois.trim(), pageWidth - 2 * margin);
         doc.text(analiseDepoisLines, margin, yPos);
-        yPos += analiseDepoisLines.length * 5 + 8;
+        yPos += analiseDepoisLines.length * 5 + 12;
       } else {
-        yPos += 8;
+        yPos += 12;
       }
 
       // TRATAMENTO
@@ -158,7 +154,7 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
 
       if (ultimaAnalise?.lembretes && ultimaAnalise.lembretes.length > 0) {
         ultimaAnalise.lembretes.forEach((lembrete: any, index: number) => {
-          if (yPos > 260) return;
+          if (yPos > 250) return;
           
           doc.setFontSize(10);
           doc.setTextColor(textColor.r, textColor.g, textColor.b);
@@ -167,10 +163,10 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
           yPos += 6;
           
           doc.setFont('helvetica', 'normal');
-          const tratamentoText = `${lembrete.texto} (${lembrete.dias} dias)`;
+          const tratamentoText = `(${lembrete.texto || 'Descrição do tratamento'}) (${lembrete.dias || 'N/A'} dias)`;
           const tratamentoLines = doc.splitTextToSize(tratamentoText, pageWidth - 2 * margin);
           doc.text(tratamentoLines, margin, yPos);
-          yPos += tratamentoLines.length * 5 + 6;
+          yPos += tratamentoLines.length * 5 + 8;
         });
       } else {
         doc.setFontSize(10);

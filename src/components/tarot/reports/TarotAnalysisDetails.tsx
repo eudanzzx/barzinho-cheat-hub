@@ -1,6 +1,5 @@
 
 import React from 'react';
-import IndividualTarotFormGenerator from "@/components/reports/IndividualTarotFormGenerator";
 
 interface TarotAnalysisDetailsProps {
   cliente: any;
@@ -41,13 +40,6 @@ const TarotAnalysisDetails: React.FC<TarotAnalysisDetailsProps> = ({ cliente }) 
                     </span>
                   </div>
                 )}
-              </div>
-              <div className="w-full sm:w-auto">
-                <IndividualTarotFormGenerator
-                  analise={analise}
-                  clientName={cliente.nome}
-                  className="text-xs w-full sm:w-auto"
-                />
               </div>
             </div>
 
