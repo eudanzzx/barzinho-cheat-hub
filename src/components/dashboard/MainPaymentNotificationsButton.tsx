@@ -3,20 +3,24 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Bell, BellOff, Sparkles } from "lucide-react";
-import { ClientPaymentGroup } from "./payment-notifications/ClientPaymentGroup";
-import { usePaymentNotifications } from "./payment-notifications/usePaymentNotifications";
+import { Bell, BellOff, Home, Eye } from "lucide-react";
+import { MainClientPaymentGroupNew } from "@/components/main-payment-notifications/MainClientPaymentGroupNew";
+import { useMainPaymentNotifications } from "@/hooks/useMainPaymentNotifications";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
-const TarotPaymentNotificationsButton = () => {
+interface MainPaymentNotificationsButtonProps {
+  atendimentos: any[];
+}
+
+const MainPaymentNotificationsButton: React.FC<MainPaymentNotificationsButtonProps> = ({ atendimentos }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { groupedPayments, markAsPaid, postponePayment, deleteNotification } = usePaymentNotifications();
-  const { tarotNotificationsMuted, toggleTarotNotifications } = useNotificationSettings();
+  const { groupedPayments, markAsPaid, deleteNotification } = useMainPaymentNotifications();
+  const { mainNotificationsMuted, toggleMainNotifications } = useNotificationSettings();
 
   const totalPayments = groupedPayments.reduce((acc, group) => acc + group.totalPayments, 0);
 
   const handleViewDetails = (payment: any) => {
-    console.log('TarotPaymentNotificationsButton - Abrindo detalhes para pagamento:', payment);
+    console.log('MainPaymentNotificationsButton - Abrindo detalhes para pagamento:', payment);
     const event = new CustomEvent('open-payment-details-modal', {
       detail: { payment }
     });
@@ -30,55 +34,55 @@ const TarotPaymentNotificationsButton = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="relative text-slate-600 hover:text-[#6B21A8] hover:bg-[#6B21A8]/10 transition-all duration-200"
+          className="relative text-slate-600 hover:text-[#0553C7] hover:bg-[#0553C7]/10 transition-all duration-200"
           data-notification-button
         >
-          {tarotNotificationsMuted ? (
+          {mainNotificationsMuted ? (
             <BellOff className="h-4 w-4" />
           ) : (
             <Bell className="h-4 w-4" />
           )}
-          {!tarotNotificationsMuted && totalPayments > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-purple-500 text-white text-xs">
+          {!mainNotificationsMuted && totalPayments > 0 && (
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs">
               {totalPayments}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-sky-50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#6B21A8]" />
-              <h3 className="font-semibold text-slate-800">Pagamentos do Tarot</h3>
+              <Home className="h-4 w-4 text-[#0553C7]" />
+              <h3 className="font-semibold text-slate-800">Pagamentos Principais</h3>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleTarotNotifications}
+              onClick={toggleMainNotifications}
               className="h-8 w-8 p-0"
-              title={tarotNotificationsMuted ? "Ativar notificações" : "Silenciar notificações"}
+              title={mainNotificationsMuted ? "Ativar notificações" : "Silenciar notificações"}
             >
-              {tarotNotificationsMuted ? (
+              {mainNotificationsMuted ? (
                 <BellOff className="h-4 w-4 text-slate-500" />
               ) : (
-                <Bell className="h-4 w-4 text-[#6B21A8]" />
+                <Bell className="h-4 w-4 text-[#0553C7]" />
               )}
             </Button>
           </div>
           <p className="text-sm text-slate-600">
-            {tarotNotificationsMuted 
+            {mainNotificationsMuted 
               ? "Notificações silenciadas" 
               : `${groupedPayments.length} cliente(s) com ${totalPayments} pendencia(s)`
             }
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {tarotNotificationsMuted ? (
+          {mainNotificationsMuted ? (
             <div className="p-4 text-center text-slate-500">
               <div className="flex justify-center items-center gap-2 mb-2">
                 <BellOff className="h-6 w-6 opacity-30" />
-                <Sparkles className="h-6 w-6 opacity-30" />
+                <Home className="h-6 w-6 opacity-30" />
               </div>
               <p>Notificações silenciadas</p>
               <p className="text-xs mt-1">Clique no sino acima para reativar</p>
@@ -86,15 +90,15 @@ const TarotPaymentNotificationsButton = () => {
           ) : groupedPayments.length === 0 ? (
             <div className="p-4 text-center text-slate-500">
               <div className="flex justify-center items-center gap-2 mb-2">
-                <Sparkles className="h-6 w-6 opacity-30" />
+                <Home className="h-6 w-6 opacity-30" />
                 <Bell className="h-6 w-6 opacity-30" />
               </div>
-              <p>Nenhuma notificação ativa do tarot</p>
+              <p>Nenhuma notificação ativa</p>
             </div>
           ) : (
             <div className="space-y-4 p-4">
               {groupedPayments.map((group) => (
-                <ClientPaymentGroup 
+                <MainClientPaymentGroupNew 
                   key={group.clientName}
                   group={group}
                   onMarkAsPaid={markAsPaid}
@@ -110,4 +114,4 @@ const TarotPaymentNotificationsButton = () => {
   );
 };
 
-export default TarotPaymentNotificationsButton;
+export default MainPaymentNotificationsButton;
