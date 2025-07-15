@@ -8,7 +8,6 @@ import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
 import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
 import PaymentDetailsModal from "@/components/PaymentDetailsModal";
-import DataCleanupButton from "@/components/DataCleanupButton";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
 
@@ -35,9 +34,6 @@ const ListagemTarot = React.memo(() => {
 
   const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
 
-  // Remover console.log para melhor performance
-
-  // Escutar evento para abrir modal de detalhes
   useEffect(() => {
     const handleOpenPaymentDetailsModal = (event: CustomEvent) => {
       setSelectedPayment(event.detail.payment);
@@ -56,8 +52,6 @@ const ListagemTarot = React.memo(() => {
       window.removeEventListener('payment-notifications-cleared', handleDataCleanup as EventListener);
     };
   }, []);
-
-  // Remover atualização forçada que causa re-renders desnecessários
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab as 'todas' | 'finalizadas' | 'em-andamento');
@@ -118,7 +112,6 @@ const ListagemTarot = React.memo(() => {
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         onMarkAsPaid={(id: string) => {
-          // Disparar evento para marcar como pago
           const event = new CustomEvent('mark-payment-as-paid', {
             detail: { id }
           });
@@ -126,7 +119,6 @@ const ListagemTarot = React.memo(() => {
           setIsPaymentModalOpen(false);
         }}
         onDeleteNotification={(id: string) => {
-          // Disparar evento para excluir notificação
           const event = new CustomEvent('delete-payment-notification', {
             detail: { id }
           });

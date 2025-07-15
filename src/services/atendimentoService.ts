@@ -35,11 +35,8 @@ export const useAtendimentoService = () => {
   const getAtendimentos = (): AtendimentoData[] => {
     try {
       const data = localStorage.getItem("atendimentos");
-      const atendimentos = data ? JSON.parse(data) : [];
-      console.log('getAtendimentos - Retornando:', atendimentos.length, 'atendimentos');
-      return atendimentos;
+      return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('getAtendimentos - Erro ao buscar atendimentos:', error);
       return [];
     }
   };
@@ -47,9 +44,8 @@ export const useAtendimentoService = () => {
   const saveAtendimentos = (atendimentos: AtendimentoData[]) => {
     try {
       localStorage.setItem("atendimentos", JSON.stringify(atendimentos));
-      console.log('saveAtendimentos - Salvos:', atendimentos.length, 'atendimentos');
     } catch (error) {
-      console.error('saveAtendimentos - Erro ao salvar atendimentos:', error);
+      // Silent fail
     }
   };
 

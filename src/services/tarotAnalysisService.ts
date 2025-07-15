@@ -63,11 +63,8 @@ export const useTarotAnalysisService = () => {
   const getTarotAnalyses = (): TarotAnalysis[] => {
     try {
       const data = localStorage.getItem("analises");
-      const analyses = data ? JSON.parse(data) : [];
-      console.log('getTarotAnalyses - Retornando:', analyses.length, 'análises');
-      return analyses;
+      return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('getTarotAnalyses - Erro ao buscar análises:', error);
       return [];
     }
   };
@@ -75,9 +72,8 @@ export const useTarotAnalysisService = () => {
   const saveTarotAnalyses = (analyses: TarotAnalysis[]) => {
     try {
       localStorage.setItem("analises", JSON.stringify(analyses));
-      console.log('saveTarotAnalyses - Salvos:', analyses.length, 'análises');
     } catch (error) {
-      console.error('saveTarotAnalyses - Erro ao salvar análises:', error);
+      // Silent fail
     }
   };
 

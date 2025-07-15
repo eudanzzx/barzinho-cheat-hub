@@ -5,9 +5,6 @@ export const useDataCleanupService = () => {
   
   const clearAllData = () => {
     try {
-      console.log('Iniciando limpeza completa dos dados...');
-      
-      // Limpar localStorage
       const keysToRemove = [
         'atendimentos',
         'analises', 
@@ -21,10 +18,8 @@ export const useDataCleanupService = () => {
       
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
-        console.log(`Removido: ${key}`);
       });
       
-      // Disparar todos os eventos de sincronização para atualizar a UI
       const syncEvents = [
         'tarotAnalysesUpdated',
         'planosUpdated', 
@@ -46,19 +41,15 @@ export const useDataCleanupService = () => {
           }
         });
         window.dispatchEvent(event);
-        console.log(`Evento disparado: ${eventName}`);
       });
       
-      // Forçar reload da página após um pequeno delay para garantir sincronização
       setTimeout(() => {
         window.location.reload();
       }, 500);
       
       toast.success('Todos os dados foram removidos com sucesso!');
-      console.log('Limpeza completa finalizada');
       
     } catch (error) {
-      console.error('Erro durante limpeza dos dados:', error);
       toast.error('Erro ao limpar os dados');
     }
   };

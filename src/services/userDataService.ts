@@ -6,22 +6,12 @@ import { useTarotPlanoCreator } from "./tarotPlanoCreator";
 import { checkClientBirthday } from "./utils/birthdayUtils";
 
 const useUserDataService = () => {
-  console.log('useUserDataService - Inicializando serviço');
-
   const atendimentoService = useAtendimentoService();
   const tarotService = useTarotAnalysisService();
   const planoService = usePlanoService();
   const tarotPlanoCreator = useTarotPlanoCreator();
 
   const saveTarotAnalysisWithPlan = (analysis: TarotAnalysis) => {
-    console.log('saveTarotAnalysisWithPlan - Salvando análise com planos:', {
-      id: analysis.id,
-      clientName: analysis.nomeCliente || analysis.clientName,
-      planoAtivo: analysis.planoAtivo,
-      semanalAtivo: analysis.semanalAtivo
-    });
-    
-    // Salvar análise primeiro
     const analyses = tarotService.getTarotAnalyses();
     const existingIndex = analyses.findIndex(a => a.id === analysis.id);
     
@@ -32,19 +22,11 @@ const useUserDataService = () => {
     }
     
     tarotService.saveTarotAnalyses(analyses);
-    console.log('saveTarotAnalysisWithPlan - Análise salva');
     
-    // Criar planos de uma só vez (não separadamente)
     if ((analysis.planoAtivo && analysis.planoData) || (analysis.semanalAtivo && analysis.semanalData)) {
-      console.log('saveTarotAnalysisWithPlan - Criando planos:', {
-        mensal: analysis.planoAtivo && analysis.planoData ? analysis.planoData : null,
-        semanal: analysis.semanalAtivo && analysis.semanalData ? analysis.semanalData : null
-      });
       tarotPlanoCreator.createTarotPlanos(analysis);
     }
     
-    // Disparar eventos de sincronização IMEDIATAMENTE
-    console.log('saveTarotAnalysisWithPlan - Disparando eventos de sincronização');
     const events = [
       'tarotAnalysesUpdated',
       'planosUpdated',
@@ -62,8 +44,6 @@ const useUserDataService = () => {
         }
       }));
     });
-    
-    console.log('saveTarotAnalysisWithPlan - Eventos disparados');
   };
 
   return {
