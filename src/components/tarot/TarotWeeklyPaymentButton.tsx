@@ -23,23 +23,27 @@ const TarotWeeklyPaymentButton: React.FC<TarotWeeklyPaymentButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleClick = () => {
+  console.log('TarotWeeklyPaymentButton rendered:', { analysisId, clientName, isOpen });
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsOpen(!isOpen);
   };
 
   return (
-    <div>
+    <div className="w-full sm:w-auto">
       <Button
         variant="outline"
         size="sm"
         onClick={handleClick}
-        className="border-emerald-600/30 text-emerald-600 hover:bg-emerald-600/10 hover:border-emerald-600 transition-colors duration-200 flex items-center gap-2 rounded-lg bg-emerald-50/50"
+        className="w-full sm:w-auto border-emerald-600/30 text-emerald-600 hover:bg-emerald-600/10 hover:border-emerald-600 transition-colors duration-200 flex items-center gap-2 rounded-lg bg-emerald-50/50"
       >
         <Calendar className="h-4 w-4" />
-        Pagamentos Semanais
+        <span className="text-xs sm:text-sm">Pagamentos Semanais</span>
       </Button>
       {isOpen && (
-        <div className="mt-2">
+        <div className="mt-2 w-full">
           <TarotWeeklyPaymentControl
             analysisId={analysisId}
             clientName={clientName}

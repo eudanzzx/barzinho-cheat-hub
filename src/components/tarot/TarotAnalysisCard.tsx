@@ -69,45 +69,72 @@ const TarotAnalysisCard = React.memo(({
     [planos]
   );
 
+  // Debug logs to check conditions
+  console.log('TarotAnalysisCard Debug:', {
+    analiseId: analise.id,
+    hasMonthlyPayments,
+    hasWeeklyPayments,
+    planoAtivo: analise.planoAtivo,
+    semanalAtivo: analise.semanalAtivo,
+    planoData: analise.planoData,
+    semanalData: analise.semanalData,
+    isMobile
+  });
+
   return (
     <Card className="bg-white/80 border border-[#ede9fe] group">
       <CardContent className="p-4">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+            <div className="flex-1 w-full">
               <AnalysisHeader 
                 analise={analise}
                 formattedTime={formattedTime}
                 timeRemaining={timeRemaining}
               />
-              
-              {/* Botão de Pagamentos Mensais */}
-              {hasMonthlyPayments && analise.planoAtivo && analise.planoData && (
-                <TarotMonthlyPaymentButton
-                  analysisId={analise.id}
-                  clientName={analise.nomeCliente || analise.clientName}
-                  planoData={analise.planoData}
-                  startDate={analise.dataAtendimento || analise.created}
-                />
-              )}
-
-              {/* Botão de Pagamentos Semanais */}
-              {hasWeeklyPayments && analise.semanalAtivo && analise.semanalData && (
-                <TarotWeeklyPaymentButton
-                  analysisId={analise.id}
-                  clientName={analise.nomeCliente || analise.clientName}
-                  semanalData={analise.semanalData}
-                  startDate={analise.dataAtendimento || analise.created}
-                />
-              )}
+            </div>
+            <div className="flex sm:hidden">
+              <AnalysisActions
+                analise={analise}
+                onToggleFinished={onToggleFinished}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             </div>
           </div>
-          <AnalysisActions
-            analise={analise}
-            onToggleFinished={onToggleFinished}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          
+          {/* Payment buttons - Always show on mobile if conditions are met */}
+          <div className="flex flex-wrap gap-2">
+            {/* Botão de Pagamentos Mensais */}
+            {hasMonthlyPayments && analise.planoAtivo && analise.planoData && (
+              <TarotMonthlyPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente || analise.clientName}
+                planoData={analise.planoData}
+                startDate={analise.dataAtendimento || analise.created}
+              />
+            )}
+
+            {/* Botão de Pagamentos Semanais */}
+            {hasWeeklyPayments && analise.semanalAtivo && analise.semanalData && (
+              <TarotWeeklyPaymentButton
+                analysisId={analise.id}
+                clientName={analise.nomeCliente || analise.clientName}
+                semanalData={analise.semanalData}
+                startDate={analise.dataAtendimento || analise.created}
+              />
+            )}
+          </div>
+
+          {/* Desktop actions - hidden on mobile */}
+          <div className="hidden sm:flex justify-end">
+            <AnalysisActions
+              analise={analise}
+              onToggleFinished={onToggleFinished}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
