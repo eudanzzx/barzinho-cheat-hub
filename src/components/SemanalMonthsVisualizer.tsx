@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +35,7 @@ interface SemanalWeek {
 const SemanalMonthsVisualizer: React.FC<SemanalMonthsVisualizerProps> = ({ atendimento }) => {
   const { getPlanos, savePlanos } = useUserDataService();
   const [semanalWeeks, setSemanalWeeks] = useState<SemanalWeek[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Mudança: padrão fechado
 
   useEffect(() => {
     if (atendimento.semanalAtivo && atendimento.semanalData) {

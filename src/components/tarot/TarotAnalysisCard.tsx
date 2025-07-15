@@ -31,7 +31,7 @@ const TarotAnalysisCard = React.memo(({
   const isMobile = useIsMobile();
   const { getPlanos, savePlanos } = useUserDataService();
   const [planos, setPlanos] = useState<(PlanoMensal | PlanoSemanal)[]>([]);
-  const [isPaymentExpanded, setIsPaymentExpanded] = useState(false);
+  const [isPaymentExpanded, setIsPaymentExpanded] = useState(false); // Mudança: padrão fechado
 
   // Otimizar carregamento de planos
   useEffect(() => {
@@ -53,8 +53,6 @@ const TarotAnalysisCard = React.memo(({
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
     };
   }, [analise.id, getPlanos]);
-
-  // Removido função loadPlanos duplicada - otimização
 
   const handlePaymentToggle = useCallback((planoId: string, clientName: string, isPaid: boolean) => {
     const allPlanos = getPlanos();
@@ -84,9 +82,7 @@ const TarotAnalysisCard = React.memo(({
 
   return (
     <>
-      <Card
-        className="bg-white/80 border border-[#ede9fe] group"
-      >
+      <Card className="bg-white/80 border border-[#ede9fe] group">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row justify-between items-start gap-3">
             <div className="flex-1">
@@ -96,20 +92,21 @@ const TarotAnalysisCard = React.memo(({
                   formattedTime={formattedTime}
                   timeRemaining={timeRemaining}
                 />
-                {isMobile && hasMonthlyPayments && (
+                {/* Ícone de pagamentos sempre visível quando há pagamentos */}
+                {hasMonthlyPayments && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('TarotAnalysisCard - Button clicked:', { isMobile, hasMonthlyPayments, planos: planos.length });
                       togglePaymentExpansion();
                     }}
-                    className="p-1 h-auto ml-1"
+                    className="p-1 h-auto ml-1 hover:bg-purple-100 rounded-full"
+                    title="Ver controle de pagamentos"
                   >
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-purple-600" />
+                      <CreditCard className="h-4 w-4 text-purple-600" />
                       <Badge 
                         variant="secondary" 
                         className="bg-purple-600/10 text-purple-600 border-purple-600/20 text-xs px-1.5 py-0.5"
@@ -117,7 +114,7 @@ const TarotAnalysisCard = React.memo(({
                         {planos.length}
                       </Badge>
                       <ChevronDown className={cn(
-                        "h-4 w-4 text-purple-600",
+                        "h-3 w-3 text-purple-600 transition-transform duration-200",
                         isPaymentExpanded && "rotate-180"
                       )} />
                     </div>
@@ -135,12 +132,10 @@ const TarotAnalysisCard = React.memo(({
         </CardContent>
       </Card>
 
-      {hasMonthlyPayments && isMobile && (
+      {/* Controle de pagamentos - só aparece quando expandido */}
+      {hasMonthlyPayments && (
         <div className="mt-2">
-          <Collapsible open={isPaymentExpanded} onOpenChange={(open) => {
-            console.log('TarotAnalysisCard - Collapsible onOpenChange:', { open, analise: analise.nome });
-            setIsPaymentExpanded(open);
-          }}>
+          <Collapsible open={isPaymentExpanded} onOpenChange={setIsPaymentExpanded}>
             <CollapsibleContent>
               <Card className="border-purple-200 mb-4 bg-white shadow-sm">
                 <CardContent className="p-4">

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +34,7 @@ interface PlanoMonth {
 const PlanoMonthsVisualizer: React.FC<PlanoMonthsVisualizerProps> = ({ atendimento }) => {
   const { getPlanos, savePlanos } = useUserDataService();
   const [planoMonths, setPlanoMonths] = useState<PlanoMonth[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Mudança: padrão fechado
 
   useEffect(() => {
     if (atendimento.planoAtivo && atendimento.planoData) {
