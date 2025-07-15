@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +28,12 @@ const HeaderWeeklyPayments: React.FC = () => {
 
     window.addEventListener('planosUpdated', handlePlanosUpdated);
     window.addEventListener('atendimentosUpdated', handlePlanosUpdated);
+    window.addEventListener('weeklyPaymentsUpdated', handlePlanosUpdated);
     
     return () => {
       window.removeEventListener('planosUpdated', handlePlanosUpdated);
       window.removeEventListener('atendimentosUpdated', handlePlanosUpdated);
+      window.removeEventListener('weeklyPaymentsUpdated', handlePlanosUpdated);
     };
   }, []);
 
@@ -78,6 +79,7 @@ const HeaderWeeklyPayments: React.FC = () => {
     setTimeout(() => {
       loadPendingPlanos();
       window.dispatchEvent(new Event('planosUpdated'));
+      window.dispatchEvent(new Event('weeklyPaymentsUpdated'));
     }, 100);
   };
 
