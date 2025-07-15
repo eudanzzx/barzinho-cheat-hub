@@ -198,7 +198,7 @@ const WeeklyPaymentControl: React.FC = () => {
 
   return (
     <Card className={cn(
-      "transition-all duration-300 border-2 w-full mb-6",
+      "transition-all duration-300 border-2 w-full mb-6 block sm:block",
       isOpen 
         ? "border-[#0553C7]/40 bg-gradient-to-br from-[#0553C7]/5 to-blue-50/50 shadow-lg" 
         : "border-[#0553C7]/20 bg-white hover:border-[#0553C7]/30 hover:shadow-md"

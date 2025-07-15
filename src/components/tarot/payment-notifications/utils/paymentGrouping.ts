@@ -45,8 +45,10 @@ export const groupPaymentsByClient = (payments: (PlanoMensal | PlanoSemanal)[]):
     });
   });
 
-  // Ordena todos clientes pelo vencimento mais próximo do maisUrgent deles
-  return groupedPayments.sort((a, b) =>
-    new Date(a.mostUrgent.dueDate).getTime() - new Date(b.mostUrgent.dueDate).getTime()
-  );
+  // Ordena todos clientes pelo vencimento mais próximo do maisUrgent deles e limita a 20
+  return groupedPayments
+    .sort((a, b) =>
+      new Date(a.mostUrgent.dueDate).getTime() - new Date(b.mostUrgent.dueDate).getTime()
+    )
+    .slice(0, 20);
 };

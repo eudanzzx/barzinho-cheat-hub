@@ -28,7 +28,14 @@ export const useMainPaymentNotifications = () => {
     
     const grouped = groupPaymentsByClient(pendingNotifications);
     
-    setGroupedPayments(grouped);
+    // Ordenar por vencimento mais próximo e limitar a 20
+    const sortedAndLimited = grouped
+      .sort((a, b) => 
+        new Date(a.mostUrgent.dueDate).getTime() - new Date(b.mostUrgent.dueDate).getTime()
+      )
+      .slice(0, 20);
+    
+    setGroupedPayments(sortedAndLimited);
   }, [getPlanos, getAtendimentos]);
 
   const throttledCheck = useThrottle(checkMainPaymentNotifications, 250);
