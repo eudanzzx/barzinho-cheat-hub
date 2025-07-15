@@ -196,6 +196,14 @@ const WeeklyPaymentControl: React.FC = () => {
   const clientsWithPlanos = Object.keys(groupedPlanos);
   const pendingPlanos = planos.filter(p => p.active === true);
 
+  console.log('WeeklyPaymentControl - Render status:', {
+    clientsWithPlanos: clientsWithPlanos.length,
+    pendingPlanos: pendingPlanos.length,
+    totalPlanos: planos.length,
+    isOpen,
+    viewport: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'unknown'
+  });
+
   return (
     <Card className={cn(
       "transition-all duration-300 border-2 w-full mb-6 block sm:block",
