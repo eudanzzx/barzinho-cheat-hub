@@ -23,17 +23,18 @@ const TarotMonthlyPaymentButton: React.FC<TarotMonthlyPaymentButtonProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log('TarotMonthlyPaymentButton rendered:', { 
+  console.log('🔵 TarotMonthlyPaymentButton renderizado:', { 
     analysisId, 
     clientName, 
     planoData,
+    startDate,
     isOpen 
   });
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('TarotMonthlyPaymentButton clicked, toggling from:', isOpen, 'to:', !isOpen);
+    console.log('🔵 TarotMonthlyPaymentButton clicado, alternando de:', isOpen, 'para:', !isOpen);
     setIsOpen(!isOpen);
   };
 
@@ -43,10 +44,10 @@ const TarotMonthlyPaymentButton: React.FC<TarotMonthlyPaymentButtonProps> = ({
         variant="outline"
         size="sm"
         onClick={handleClick}
-        className="w-full border-purple-600/30 text-purple-600 hover:bg-purple-600/10 hover:border-purple-600 transition-colors duration-200 flex items-center gap-2 rounded-lg bg-purple-50/50"
+        className="w-full border-purple-600/30 text-purple-600 hover:bg-purple-600/10 hover:border-purple-600 transition-colors duration-200 flex items-center gap-2 rounded-lg bg-purple-50/50 min-h-[40px]"
       >
-        <CreditCard className="h-4 w-4" />
-        <span className="text-xs sm:text-sm">Pagamentos Mensais</span>
+        <CreditCard className="h-4 w-4 flex-shrink-0" />
+        <span className="text-xs sm:text-sm font-medium">Pagamentos Mensais</span>
       </Button>
       {isOpen && (
         <div className="mt-2 w-full">

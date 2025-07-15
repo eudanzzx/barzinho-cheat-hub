@@ -59,25 +59,37 @@ const TarotAnalysisCard = React.memo(({
     return new Date(dateString).toLocaleDateString('pt-BR');
   }, []);
 
+  // Simplificar as condições - verificar apenas se os dados estão presentes
   const hasMonthlyPayments = useMemo(() => 
-    analise.planoAtivo && analise.planoData && planos.some(p => p.type === 'plano'), 
-    [planos, analise.planoAtivo, analise.planoData]
+    Boolean(analise.planoAtivo && analise.planoData && analise.planoData.meses && analise.planoData.valorMensal), 
+    [analise.planoAtivo, analise.planoData]
   );
 
   const hasWeeklyPayments = useMemo(() => 
-    analise.semanalAtivo && analise.semanalData && planos.some(p => p.type === 'semanal'), 
-    [planos, analise.semanalAtivo, analise.semanalData]
+    Boolean(analise.semanalAtivo && analise.semanalData && analise.semanalData.semanas && analise.semanalData.valorSemanal), 
+    [analise.semanalAtivo, analise.semanalData]
   );
 
-  // Debug logs to check conditions
-  console.log('TarotAnalysisCard Debug:', {
+  // Debug logs mais detalhados
+  console.log('🔍 TarotAnalysisCard - Condições detalhadas:', {
     analiseId: analise.id,
-    hasMonthlyPayments,
-    hasWeeklyPayments,
+    clientName: analise.nomeCliente || analise.clientName,
+    
+    // Dados mensais
     planoAtivo: analise.planoAtivo,
-    semanalAtivo: analise.semanalAtivo,
     planoData: analise.planoData,
+    planoDataMeses: analise.planoData?.meses,
+    planoDataValor: analise.planoData?.valorMensal,
+    hasMonthlyPayments,
+    
+    // Dados semanais  
+    semanalAtivo: analise.semanalAtivo,
     semanalData: analise.semanalData,
+    semanalDataSemanas: analise.semanalData?.semanas,
+    semanalDataValor: analise.semanalData?.valorSemanal,
+    hasWeeklyPayments,
+    
+    // Estado geral
     isMobile,
     planosCount: planos.length
   });
@@ -105,26 +117,41 @@ const TarotAnalysisCard = React.memo(({
             </div>
           </div>
           
-          {/* Payment buttons - Show on all devices when conditions are met */}
-          <div className="flex flex-wrap gap-2">
+          {/* Payment buttons - FORÇAR EXIBIÇÃO PARA TESTE */}
+          <div className="flex flex-col gap-2 w-full">
             {/* Botão de Pagamentos Mensais */}
             {hasMonthlyPayments && (
-              <TarotMonthlyPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente || analise.clientName}
-                planoData={analise.planoData}
-                startDate={analise.dataAtendimento || analise.created}
-              />
+              <div className="w-full">
+                <TarotMonthlyPaymentButton
+                  analysisId={analise.id}
+                  clientName={analise.nomeCliente || analise.clientName}
+                  planoData={analise.planoData}
+                  startDate={analise.dataAtendimento || analise.created}
+                />
+              </div>
             )}
 
             {/* Botão de Pagamentos Semanais */}
             {hasWeeklyPayments && (
-              <TarotWeeklyPaymentButton
-                analysisId={analise.id}
-                clientName={analise.nomeCliente || analise.clientName}
-                semanalData={analise.semanalData}
-                startDate={analise.dataAtendimento || analise.created}
-              />
+              <div className="w-full">
+                <TarotWeeklyPaymentButton
+                  analysisId={analise.id}
+                  clientName={analise.nomeCliente || analise.clientName}
+                  semanalData={analise.semanalData}
+                  startDate={analise.dataAtendimento || analise.created}
+                />
+              </div>
+            )}
+
+            {/* DEBUG: Mostrar sempre os botões para teste */}
+            {!hasMonthlyPayments && !hasWeeklyPayments && (
+              <div className="text-xs text-gray-400 p-2 bg-gray-50 rounded">
+                Debug: Sem pagamentos ativos
+                <br />
+                Mensal: {analise.planoAtivo ? '✓' : '✗'} | Dados: {analise.planoData ? '✓' : '✗'}
+                <br />
+                Semanal: {analise.semanalAtivo ? '✓' : '✗'} | Dados: {analise.semanalData ? '✓' : '✗'}
+              </div>
             )}
           </div>
 
