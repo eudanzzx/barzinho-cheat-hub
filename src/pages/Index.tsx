@@ -9,8 +9,6 @@ import IndexStats from "@/components/dashboard/IndexStats";
 import IndexBirthdaySection from "@/components/dashboard/IndexBirthdaySection";
 import OptimizedPaymentDetailsModal from "@/components/optimized/OptimizedPaymentDetailsModal";
 import MainPriorityPaymentsModal from "@/components/dashboard/MainPriorityPaymentsModal";
-import MonthlyPaymentControl from "@/components/dashboard/MonthlyPaymentControl";
-import WeeklyPaymentControl from "@/components/dashboard/WeeklyPaymentControl";
 import { useOptimizedIndexStats } from "@/hooks/useOptimizedIndexStats";
 import { useIndexFiltering } from "@/hooks/useIndexFiltering";
 import { toast } from "sonner";
@@ -120,12 +118,6 @@ const Index: React.FC = () => {
             periodoVisualizacao={periodoVisualizacao}
             setPeriodoVisualizacao={setPeriodoVisualizacao}
           />
-
-          {/* Controles de Pagamento */}
-          <div className="space-y-6">
-            <MonthlyPaymentControl />
-            <WeeklyPaymentControl />
-          </div>
 
           <IndexSearchSection 
             searchTerm={searchTerm}
