@@ -60,13 +60,13 @@ const TarotAnalysisCard = React.memo(({
   }, []);
 
   const hasMonthlyPayments = useMemo(() => 
-    planos.some(p => p.type === 'plano'), 
-    [planos]
+    analise.planoAtivo && analise.planoData && planos.some(p => p.type === 'plano'), 
+    [planos, analise.planoAtivo, analise.planoData]
   );
 
   const hasWeeklyPayments = useMemo(() => 
-    planos.some(p => p.type === 'semanal'), 
-    [planos]
+    analise.semanalAtivo && analise.semanalData && planos.some(p => p.type === 'semanal'), 
+    [planos, analise.semanalAtivo, analise.semanalData]
   );
 
   // Debug logs to check conditions
@@ -78,7 +78,8 @@ const TarotAnalysisCard = React.memo(({
     semanalAtivo: analise.semanalAtivo,
     planoData: analise.planoData,
     semanalData: analise.semanalData,
-    isMobile
+    isMobile,
+    planosCount: planos.length
   });
 
   return (
@@ -93,6 +94,7 @@ const TarotAnalysisCard = React.memo(({
                 timeRemaining={timeRemaining}
               />
             </div>
+            {/* Mobile actions - show on mobile */}
             <div className="flex sm:hidden">
               <AnalysisActions
                 analise={analise}
@@ -103,10 +105,10 @@ const TarotAnalysisCard = React.memo(({
             </div>
           </div>
           
-          {/* Payment buttons - Always show on mobile if conditions are met */}
+          {/* Payment buttons - Show on all devices when conditions are met */}
           <div className="flex flex-wrap gap-2">
             {/* Botão de Pagamentos Mensais */}
-            {hasMonthlyPayments && analise.planoAtivo && analise.planoData && (
+            {hasMonthlyPayments && (
               <TarotMonthlyPaymentButton
                 analysisId={analise.id}
                 clientName={analise.nomeCliente || analise.clientName}
@@ -116,7 +118,7 @@ const TarotAnalysisCard = React.memo(({
             )}
 
             {/* Botão de Pagamentos Semanais */}
-            {hasWeeklyPayments && analise.semanalAtivo && analise.semanalData && (
+            {hasWeeklyPayments && (
               <TarotWeeklyPaymentButton
                 analysisId={analise.id}
                 clientName={analise.nomeCliente || analise.clientName}
