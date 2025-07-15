@@ -186,7 +186,7 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-gray-900 text-lg">{atendimento.nome}</h3>
-                      {isMobile && hasMonthlyPayments && (
+                      {isMobile && (hasMonthlyPayments || hasWeeklyPayments) && (
                         <Button
                           variant="ghost"
                           size="sm"
@@ -194,15 +194,30 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                           className="p-1 h-auto"
                         >
                           <div className="flex items-center gap-1">
-                            <CreditCard className="h-4 w-4 text-[#0553C7]" />
-                            <Badge 
-                              variant="secondary" 
-                              className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20 text-xs px-1.5 py-0.5"
-                            >
-                              {clientMonthlyPlanos.length}
-                            </Badge>
+                            {hasMonthlyPayments && (
+                              <>
+                                <CreditCard className="h-4 w-4 text-[#0553C7]" />
+                                <Badge 
+                                  variant="secondary" 
+                                  className="bg-[#0553C7]/10 text-[#0553C7] border-[#0553C7]/20 text-xs px-1.5 py-0.5"
+                                >
+                                  {clientMonthlyPlanos.length}
+                                </Badge>
+                              </>
+                            )}
+                            {hasWeeklyPayments && (
+                              <>
+                                <Calendar className="h-4 w-4 text-emerald-600 ml-1" />
+                                <Badge 
+                                  variant="secondary" 
+                                  className="bg-emerald-100 text-emerald-800 border-emerald-200 text-xs px-1.5 py-0.5"
+                                >
+                                  {clientWeeklyPlanos.length}
+                                </Badge>
+                              </>
+                            )}
                             <ChevronDown className={cn(
-                              "h-4 w-4 text-[#0553C7] transition-transform duration-300",
+                              "h-4 w-4 text-gray-600 transition-transform duration-300",
                               isPaymentExpanded && "rotate-180"
                             )} />
                           </div>
@@ -248,21 +263,146 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
               </div>
             </div>
 
-            {hasMonthlyPayments && (
+            {(hasMonthlyPayments || hasWeeklyPayments) && (
               <>
                 {isMobile ? (
                   <Collapsible open={isPaymentExpanded} onOpenChange={() => togglePaymentExpansion(atendimento.nome)}>
                     <CollapsibleContent>
+                      {hasMonthlyPayments && (
+                        <Card className="border-gray-200 mb-4">
+                          <CardHeader className="bg-gray-50 border-b pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
+                                <CreditCard className="h-4 w-4" />
+                                Pagamentos Mensais
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-800 ml-2">
+                                  {clientMonthlyPlanos.filter(p => !p.active).length}/{clientMonthlyPlanos.length}
+                                </Badge>
+                              </CardTitle>
+                            </div>
+                          </CardHeader>
+                          
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              {clientMonthlyPlanos.map((plano) => {
+                                const isPaid = !plano.active;
+                                return (
+                                  <Button
+                                    key={plano.id}
+                                    onClick={() => handlePaymentToggle(plano.id, atendimento.nome, !isPaid)}
+                                    variant="outline"
+                                    className={`
+                                      w-full p-4 h-auto flex items-center justify-between
+                                      ${isPaid 
+                                        ? 'bg-green-50 border-green-200 text-green-800' 
+                                        : 'bg-red-50 border-red-200 text-red-800'
+                                      }
+                                    `}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                                        {isPaid ? (
+                                          <Check className="h-4 w-4" />
+                                        ) : (
+                                          <X className="h-4 w-4" />
+                                        )}
+                                      </div>
+                                      <div className="text-left">
+                                        <div className="font-medium">
+                                          {plano.month}º Mês
+                                        </div>
+                                        <div className="text-sm opacity-75">
+                                          Vencimento: {formatDate(plano.dueDate)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Badge variant={isPaid ? "default" : "destructive"}>
+                                      {isPaid ? 'Pago' : 'Pendente'}
+                                    </Badge>
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                      
+                      {hasWeeklyPayments && (
+                        <Card className="border-gray-200">
+                          <CardHeader className="bg-gray-50 border-b pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
+                                <Calendar className="h-4 w-4" />
+                                Pagamentos Semanais
+                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 ml-2">
+                                  {clientWeeklyPlanos.filter(p => !p.active).length}/{clientWeeklyPlanos.length}
+                                </Badge>
+                              </CardTitle>
+                            </div>
+                          </CardHeader>
+                          
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              {clientWeeklyPlanos.map((plano) => {
+                                const isPaid = !plano.active;
+                                return (
+                                  <Button
+                                    key={plano.id}
+                                    onClick={() => handlePaymentToggle(plano.id, atendimento.nome, !isPaid)}
+                                    variant="outline"
+                                    className={`
+                                      w-full p-4 h-auto flex items-center justify-between
+                                      ${isPaid 
+                                        ? 'bg-green-50 border-green-200 text-green-800' 
+                                        : 'bg-red-50 border-red-200 text-red-800'
+                                      }
+                                    `}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
+                                        {isPaid ? (
+                                          <Check className="h-4 w-4" />
+                                        ) : (
+                                          <X className="h-4 w-4" />
+                                        )}
+                                      </div>
+                                      <div className="text-left">
+                                        <div className="font-medium">
+                                          {plano.week}ª Semana
+                                        </div>
+                                        <div className="text-sm opacity-75">
+                                          Vencimento: {formatDate(plano.dueDate)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Badge variant={isPaid ? "default" : "destructive"}>
+                                      {isPaid ? 'Pago' : 'Pendente'}
+                                    </Badge>
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : (
+                  <>
+                    {hasMonthlyPayments && (
                       <Card className="border-gray-200 mb-4">
                         <CardHeader className="bg-gray-50 border-b pb-3">
                           <div className="flex items-center justify-between">
                             <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
                               <CreditCard className="h-4 w-4" />
-                              Pagamentos Mensais
+                              Controle de Pagamentos Mensal - Vencimento todo {getDiaVencimentoDisplay(atendimento.planoData?.diaVencimento)}
                               <Badge variant="secondary" className="bg-blue-100 text-blue-800 ml-2">
                                 {clientMonthlyPlanos.filter(p => !p.active).length}/{clientMonthlyPlanos.length}
                               </Badge>
                             </CardTitle>
+                            <div className="text-sm text-gray-600">
+                              R$ {clientMonthlyPlanos.filter(p => !p.active).reduce((sum, p) => sum + p.amount, 0).toFixed(2)} / R$ {clientMonthlyPlanos.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
+                            </div>
                           </div>
                         </CardHeader>
                         
@@ -309,87 +449,22 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                           </div>
                         </CardContent>
                       </Card>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ) : (
-                  <Card className="border-gray-200 mb-4">
-                    <CardHeader className="bg-gray-50 border-b pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
-                          <CreditCard className="h-4 w-4" />
-                          Controle de Pagamentos Mensal - Vencimento todo {getDiaVencimentoDisplay(atendimento.planoData?.diaVencimento)}
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 ml-2">
-                            {clientMonthlyPlanos.filter(p => !p.active).length}/{clientMonthlyPlanos.length}
-                          </Badge>
-                        </CardTitle>
-                        <div className="text-sm text-gray-600">
-                          R$ {clientMonthlyPlanos.filter(p => !p.active).reduce((sum, p) => sum + p.amount, 0).toFixed(2)} / R$ {clientMonthlyPlanos.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        {clientMonthlyPlanos.map((plano) => {
-                          const isPaid = !plano.active;
-                          return (
-                            <Button
-                              key={plano.id}
-                              onClick={() => handlePaymentToggle(plano.id, atendimento.nome, !isPaid)}
-                              variant="outline"
-                              className={`
-                                w-full p-4 h-auto flex items-center justify-between
-                                ${isPaid 
-                                  ? 'bg-green-50 border-green-200 text-green-800' 
-                                  : 'bg-red-50 border-red-200 text-red-800'
-                                }
-                              `}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
-                                  {isPaid ? (
-                                    <Check className="h-4 w-4" />
-                                  ) : (
-                                    <X className="h-4 w-4" />
-                                  )}
-                                </div>
-                                <div className="text-left">
-                                  <div className="font-medium">
-                                    {plano.month}º Mês
-                                  </div>
-                                  <div className="text-sm opacity-75">
-                                    Vencimento: {formatDate(plano.dueDate)}
-                                  </div>
-                                </div>
-                              </div>
-                              <Badge variant={isPaid ? "default" : "destructive"}>
-                                {isPaid ? 'Pago' : 'Pendente'}
-                              </Badge>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
+                    )}
 
-            {hasWeeklyPayments && (
-              <>
-                {isMobile ? (
-                  <Collapsible open={isPaymentExpanded} onOpenChange={() => togglePaymentExpansion(atendimento.nome)}>
-                    <CollapsibleContent>
+                    {hasWeeklyPayments && (
                       <Card className="border-gray-200">
                         <CardHeader className="bg-gray-50 border-b pb-3">
                           <div className="flex items-center justify-between">
                             <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
                               <Calendar className="h-4 w-4" />
-                              Pagamentos Semanais
+                              Controle de Pagamentos Semanal - Vencimento toda {getDiaVencimentoSemanalDisplay(atendimento.semanalData?.diaVencimento)}
                               <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 ml-2">
                                 {clientWeeklyPlanos.filter(p => !p.active).length}/{clientWeeklyPlanos.length}
                               </Badge>
                             </CardTitle>
+                            <div className="text-sm text-gray-600">
+                              R$ {clientWeeklyPlanos.filter(p => !p.active).reduce((sum, p) => sum + p.amount, 0).toFixed(2)} / R$ {clientWeeklyPlanos.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
+                            </div>
                           </div>
                         </CardHeader>
                         
@@ -436,68 +511,8 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                           </div>
                         </CardContent>
                       </Card>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ) : (
-                  <Card className="border-gray-200">
-                    <CardHeader className="bg-gray-50 border-b pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-gray-800 text-base">
-                          <Calendar className="h-4 w-4" />
-                          Controle de Pagamentos Semanal - Vencimento toda {getDiaVencimentoSemanalDisplay(atendimento.semanalData?.diaVencimento)}
-                          <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 ml-2">
-                            {clientWeeklyPlanos.filter(p => !p.active).length}/{clientWeeklyPlanos.length}
-                          </Badge>
-                        </CardTitle>
-                        <div className="text-sm text-gray-600">
-                          R$ {clientWeeklyPlanos.filter(p => !p.active).reduce((sum, p) => sum + p.amount, 0).toFixed(2)} / R$ {clientWeeklyPlanos.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        {clientWeeklyPlanos.map((plano) => {
-                          const isPaid = !plano.active;
-                          return (
-                            <Button
-                              key={plano.id}
-                              onClick={() => handlePaymentToggle(plano.id, atendimento.nome, !isPaid)}
-                              variant="outline"
-                              className={`
-                                w-full p-4 h-auto flex items-center justify-between
-                                ${isPaid 
-                                  ? 'bg-green-50 border-green-200 text-green-800' 
-                                  : 'bg-red-50 border-red-200 text-red-800'
-                                }
-                              `}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-1 rounded-full ${isPaid ? 'bg-green-200' : 'bg-red-200'}`}>
-                                  {isPaid ? (
-                                    <Check className="h-4 w-4" />
-                                  ) : (
-                                    <X className="h-4 w-4" />
-                                  )}
-                                </div>
-                                <div className="text-left">
-                                  <div className="font-medium">
-                                    {plano.week}ª Semana
-                                  </div>
-                                  <div className="text-sm opacity-75">
-                                    Vencimento: {formatDate(plano.dueDate)}
-                                  </div>
-                                </div>
-                              </div>
-                              <Badge variant={isPaid ? "default" : "destructive"}>
-                                {isPaid ? 'Pago' : 'Pendente'}
-                              </Badge>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
+                    )}
+                  </>
                 )}
               </>
             )}
