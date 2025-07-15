@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import TarotMonthlyPaymentControl from "./TarotMonthlyPaymentControl";
 
 interface TarotMonthlyPaymentButtonProps {
@@ -10,7 +10,7 @@ interface TarotMonthlyPaymentButtonProps {
   planoData: {
     meses: string;
     valorMensal: string;
-    diaVencimento?: string;
+    diaVencimento: string;
   };
   startDate: string;
 }
@@ -33,9 +33,9 @@ const TarotMonthlyPaymentButton: React.FC<TarotMonthlyPaymentButtonProps> = ({
         variant="outline"
         size="sm"
         onClick={handleClick}
-        className="border-[#0553C7]/30 text-[#0553C7] hover:bg-[#0553C7]/10 hover:border-[#0553C7] transition-colors duration-200 flex items-center gap-2 rounded-lg bg-blue-50/50"
+        className="border-purple-600/30 text-purple-600 hover:bg-purple-600/10 hover:border-purple-600 transition-colors duration-200 flex items-center gap-2 rounded-lg bg-purple-50/50"
       >
-        <Calendar className="h-4 w-4" />
+        <CreditCard className="h-4 w-4" />
         Pagamentos Mensais
       </Button>
       {isOpen && (
