@@ -66,8 +66,8 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
               <div
                 key={analise.id}
                 className={cn(
-                  "p-4 hover:bg-gray-50 transition-colors",
-                  isFinished && "bg-green-50/30"
+                  "p-4",
+                  isFinished && "bg-green-50"
                 )}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -104,10 +104,10 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                       size="sm"
                       onClick={() => handleToggle(analise.id)}
                       className={cn(
-                        "text-xs transition-colors",
+                        "text-xs",
                         isFinished 
-                          ? "border-green-200 text-green-700 hover:bg-green-50" 
-                          : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                          ? "border-green-200 text-green-700" 
+                          : "border-blue-200 text-blue-700"
                       )}
                     >
                       {isFinished ? (
@@ -127,7 +127,7 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(analise.id)}
-                      className="text-xs border-gray-200 text-gray-700 hover:bg-gray-50"
+                      className="text-xs border-gray-200 text-gray-700"
                     >
                       <Edit className="h-3 w-3 mr-1" />
                       Editar
@@ -137,7 +137,7 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(analise.id)}
-                      className="text-xs border-red-200 text-red-700 hover:bg-red-50"
+                      className="text-xs border-red-200 text-red-700"
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
                       Excluir
