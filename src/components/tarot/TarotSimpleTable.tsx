@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import TarotMonthlyPaymentButton from "./TarotMonthlyPaymentButton";
+import TarotWeeklyPaymentButton from "./TarotWeeklyPaymentButton";
 
 interface TarotAnalise {
   id: string;
@@ -15,6 +17,18 @@ interface TarotAnalise {
   finalizado?: boolean;
   tipoServico?: string;
   dataNascimento?: string;
+  planoAtivo?: boolean;
+  planoData?: {
+    meses: string;
+    valorMensal: string;
+    diaVencimento?: string;
+  };
+  semanalAtivo?: boolean;
+  semanalData?: {
+    semanas: string;
+    valorSemanal: string;
+    diaVencimento?: string;
+  };
 }
 
 interface TarotSimpleTableProps {
@@ -94,6 +108,27 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                       <span>Valor: {formatValue(analise.valor)}</span>
                       {analise.tipoServico && (
                         <span>Tipo: {analise.tipoServico}</span>
+                      )}
+                    </div>
+
+                    {/* Controles de Pagamento */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {analise.planoAtivo && analise.planoData && (
+                        <TarotMonthlyPaymentButton
+                          analysisId={analise.id}
+                          clientName={clientName}
+                          planoData={analise.planoData}
+                          startDate={analise.dataAtendimento}
+                        />
+                      )}
+                      
+                      {analise.semanalAtivo && analise.semanalData && (
+                        <TarotWeeklyPaymentButton
+                          analysisId={analise.id}
+                          clientName={clientName}
+                          semanalData={analise.semanalData}
+                          startDate={analise.dataAtendimento}
+                        />
                       )}
                     </div>
                   </div>
