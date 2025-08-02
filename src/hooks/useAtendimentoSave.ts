@@ -25,23 +25,6 @@ export const useAtendimentoSave = () => {
   const navigate = useNavigate();
   const { getAtendimentos, saveAtendimentos, savePlanos, getPlanos } = useUserDataService();
 
-  // Função para corrigir problemas de timezone
-  const formatDateForSave = (dateString: string): string => {
-    if (!dateString) return new Date().toISOString().split('T')[0];
-    
-    // Se já está no formato correto (YYYY-MM-DD), usa direto
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return dateString;
-    }
-    
-    // Se está em outro formato, converte
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}`;
-  };
 
   const handleSaveAndFinish = ({
     formData,
@@ -60,7 +43,13 @@ export const useAtendimentoSave = () => {
       statusPagamento: formData.statusPagamento as 'pago' | 'pendente' | 'parcelado',
       signo,
       atencaoFlag: atencao,
-      data: formatDateForSave(formData.dataAtendimento),
+      data: formData.dataAtendimento || (() => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })(),
       planoAtivo,
       planoData: planoAtivo ? planoData : null,
       semanalAtivo,
