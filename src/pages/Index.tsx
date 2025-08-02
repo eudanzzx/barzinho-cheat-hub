@@ -108,9 +108,6 @@ const Index: React.FC = () => {
                 Gerencie seus atendimentos e acompanhe estatísticas
               </p>
             </div>
-            <div className="flex gap-2">
-              <MainPriorityPaymentsModal atendimentos={atendimentos} />
-            </div>
           </div>
 
           <IndexStats 
