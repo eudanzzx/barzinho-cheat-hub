@@ -35,6 +35,12 @@ export const useAtendimentoSave = () => {
     semanalAtivo,
     semanalData
   }: SaveAtendimentoParams) => {
+    console.log('🔍 DEBUG - Data recebida no save:', {
+      dataAtendimento: formData.dataAtendimento,
+      typeOfData: typeof formData.dataAtendimento,
+      formDataComplete: formData
+    });
+    
     const existingAtendimentos = getAtendimentos();
     
     const novoAtendimento: AtendimentoData = {
@@ -49,6 +55,13 @@ export const useAtendimentoSave = () => {
       semanalAtivo,
       semanalData: semanalAtivo ? semanalData : null,
     };
+    
+    console.log('💾 DEBUG - Objeto que será salvo:', {
+      id: novoAtendimento.id,
+      data: novoAtendimento.data,
+      dataAtendimento: novoAtendimento.dataAtendimento,
+      nome: novoAtendimento.nome
+    });
     
     existingAtendimentos.push(novoAtendimento);
     saveAtendimentos(existingAtendimentos);

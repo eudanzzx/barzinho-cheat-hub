@@ -46,6 +46,15 @@ const AtendimentoTableRow = memo<AtendimentoTableRowProps>(({
   const navigate = useNavigate();
 
   const formatDate = useCallback((dateString: string) => {
+    if (!dateString) return '';
+    
+    // Se já está no formato YYYY-MM-DD, converte para DD/MM/YYYY
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = dateString.split('-');
+      return `${day}/${month}/${year}`;
+    }
+    
+    // Para outros formatos, tenta conversão normal
     return new Date(dateString).toLocaleDateString('pt-BR');
   }, []);
 
