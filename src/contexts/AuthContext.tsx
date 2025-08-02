@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, ReactNode } from 'react';
 
 // Define user type
 interface User {
@@ -60,8 +60,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       localStorage.setItem('users', JSON.stringify(users));
     }
-    
-    // Carrega credenciais salvas
+  }, []);
+
+  // Login user
+  const login = useCallback(async (email: string, password: string, rememberMe = false): Promise<boolean> => {
+    try {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find((user: any) => user.email === email && user.password === password);
+      
+      if (user) {
+        const { password: _, ...userWithoutPassword } = user;
+        setCurrentUser(userWithoutPassword);
+        localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+        setIsAuthenticated(true);
+        
+        // Salvar credenciais, se rememberMe for verdadeiro
+        if (rememberMe) {
+          localStorage.setItem('savedCredentials', JSON.stringify({ email, password }));
+        } else {
+          localStorage.removeItem('savedCredentials');
+        }
+        
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+  }, []);
+
+  // Load saved credentials after login function is defined
+  useEffect(() => {
     const savedCredentials = localStorage.getItem('savedCredentials');
     if (savedCredentials) {
       try {
@@ -72,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('savedCredentials');
       }
     }
-  }, []);
+  }, [login]);
 
   // Register a new user
   const register = async (email: string, username: string, password: string): Promise<boolean> => {
@@ -108,34 +139,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Login user
-  const login = async (email: string, password: string, rememberMe = false): Promise<boolean> => {
-    try {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((user: any) => user.email === email && user.password === password);
-      
-      if (user) {
-        const { password: _, ...userWithoutPassword } = user;
-        setCurrentUser(userWithoutPassword);
-        localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-        setIsAuthenticated(true);
-        
-        // Salvar credenciais, se rememberMe for verdadeiro
-        if (rememberMe) {
-          localStorage.setItem('savedCredentials', JSON.stringify({ email, password }));
-        } else {
-          localStorage.removeItem('savedCredentials');
-        }
-        
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
-    }
-  };
 
   // Logout user
   const logout = () => {
