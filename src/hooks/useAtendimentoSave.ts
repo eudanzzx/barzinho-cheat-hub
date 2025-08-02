@@ -43,13 +43,7 @@ export const useAtendimentoSave = () => {
       statusPagamento: formData.statusPagamento as 'pago' | 'pendente' | 'parcelado',
       signo,
       atencaoFlag: atencao,
-      data: formData.dataAtendimento || (() => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      })(),
+      data: formData.dataAtendimento,
       planoAtivo,
       planoData: planoAtivo ? planoData : null,
       semanalAtivo,
