@@ -11,6 +11,8 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import AnalysisHeader from "./TarotAnalysisCard/AnalysisHeader";
 import AnalysisActions from "./TarotAnalysisCard/AnalysisActions";
+import TarotMonthlyPaymentButton from "./TarotMonthlyPaymentButton";
+import TarotWeeklyPaymentButton from "./TarotWeeklyPaymentButton";
 
 const TarotAnalysisCardOptimized = memo(({
   analise,
@@ -72,7 +74,9 @@ const TarotAnalysisCardOptimized = memo(({
     return new Date(dateString).toLocaleDateString('pt-BR');
   }, []);
 
-  const hasMonthlyPayments = planos.length > 0;
+  const hasMonthlyPayments = analise.planoAtivo && analise.planoData;
+  const hasWeeklyPayments = analise.semanalAtivo && analise.semanalData;
+  const hasAnyPayments = hasMonthlyPayments || hasWeeklyPayments;
 
   const togglePaymentExpansion = useCallback(() => {
     setIsPaymentExpanded(prev => !prev);
@@ -112,7 +116,30 @@ const TarotAnalysisCardOptimized = memo(({
                     </div>
                   </Button>
                 )}
-              </div>
+               </div>
+              
+              {/* Payment buttons for desktop */}
+              {!isMobile && hasAnyPayments && (
+                <div className="flex flex-col gap-2 mt-3">
+                  {hasMonthlyPayments && (
+                    <TarotMonthlyPaymentButton
+                      analysisId={analise.id}
+                      clientName={analise.nomeCliente || analise.clientName}
+                      planoData={analise.planoData}
+                      startDate={analise.dataAtendimento || analise.created}
+                    />
+                  )}
+                  
+                  {hasWeeklyPayments && (
+                    <TarotWeeklyPaymentButton
+                      analysisId={analise.id}
+                      clientName={analise.nomeCliente || analise.clientName}
+                      semanalData={analise.semanalData}
+                      startDate={analise.dataAtendimento || analise.created}
+                    />
+                  )}
+                </div>
+              )}
             </div>
             <AnalysisActions
               analise={analise}
