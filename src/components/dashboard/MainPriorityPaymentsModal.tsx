@@ -34,11 +34,10 @@ const MainPriorityPaymentsModal: React.FC<MainPriorityPaymentsModalProps> = ({ a
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-1 text-main-primary bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded-xl font-bold shadow border border-blue-200 transition-all text-xs h-8 min-w-fit"
+          className="flex items-center gap-2 text-main-primary bg-blue-100 hover:bg-blue-200 px-4 py-2 rounded-xl font-bold shadow border border-blue-200 transition-all text-base"
         >
-          <Bell className="h-4 w-4 text-[#0ea5e9] flex-shrink-0" />
-          <span className="hidden sm:inline whitespace-nowrap">Próximos Vencimentos</span>
-          <span className="sm:hidden whitespace-nowrap">Vencimentos</span>
+          <Bell className="h-5 w-5 text-[#0ea5e9] mr-1" />
+          Próximos Vencimentos
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] sm:max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
