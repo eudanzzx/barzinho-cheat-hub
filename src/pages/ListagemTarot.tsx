@@ -1,15 +1,15 @@
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ClientBirthdayAlert from "@/components/ClientBirthdayAlert";
 import TarotStatsCards from "@/components/tarot/TarotStatsCards";
 import AutomaticPaymentNotifications from "@/components/AutomaticPaymentNotifications";
 import TarotListingHeader from "@/components/tarot/listing/TarotListingHeader";
 import TarotListingSearch from "@/components/tarot/listing/TarotListingSearch";
-import TarotListingContent from "@/components/tarot/listing/TarotListingContent";
-import PaymentDetailsModal from "@/components/PaymentDetailsModal";
+import OptimizedPaymentDetailsModal from "@/components/optimized/OptimizedPaymentDetailsModal";
 import { useNavigate } from "react-router-dom";
 import { useTarotAnalises } from "@/hooks/useTarotAnalises";
+import TarotMegaOptimized from "@/components/tarot/TarotMegaOptimized";
 
 const ListagemTarot = React.memo(() => {
   const navigate = useNavigate();
@@ -34,31 +34,45 @@ const ListagemTarot = React.memo(() => {
 
   const counts = useMemo(() => getStatusCounts, [getStatusCounts]);
 
+  const handleOpenModal = useCallback((event: CustomEvent) => {
+    setSelectedPayment(event.detail.payment);
+    setIsPaymentModalOpen(true);
+  }, []);
+
+  const handleDataCleanup = useCallback(() => {
+    window.location.reload();
+  }, []);
+
   useEffect(() => {
-    const handleOpenPaymentDetailsModal = (event: CustomEvent) => {
-      setSelectedPayment(event.detail.payment);
-      setIsPaymentModalOpen(true);
-    };
-
-    const handleDataCleanup = () => {
-      window.location.reload();
-    };
-
-    window.addEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+    window.addEventListener('open-payment-details-modal', handleOpenModal as EventListener);
     window.addEventListener('payment-notifications-cleared', handleDataCleanup as EventListener);
     
     return () => {
-      window.removeEventListener('open-payment-details-modal', handleOpenPaymentDetailsModal as EventListener);
+      window.removeEventListener('open-payment-details-modal', handleOpenModal as EventListener);
       window.removeEventListener('payment-notifications-cleared', handleDataCleanup as EventListener);
     };
+  }, [handleOpenModal, handleDataCleanup]);
+
+  const handleEdit = useCallback((id: string) => {
+    navigate(`/editar-analise-frequencial/${id}`);
+  }, [navigate]);
+
+  const handleMarkAsPaid = useCallback((id: string) => {
+    window.dispatchEvent(new CustomEvent('mark-payment-as-paid', { detail: { id } }));
+    setIsPaymentModalOpen(false);
   }, []);
 
-  const handleTabChange = (tab: string) => {
+  const handleDeleteNotification = useCallback((id: string) => {
+    window.dispatchEvent(new CustomEvent('delete-payment-notification', { detail: { id } }));
+    setIsPaymentModalOpen(false);
+  }, []);
+
+  const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab as 'todas' | 'finalizadas' | 'em-andamento');
-  };
+  }, [setActiveTab]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
       <AutomaticPaymentNotifications />
 
@@ -72,8 +86,15 @@ const ListagemTarot = React.memo(() => {
         )}
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <TarotListingHeader />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Análises de Tarot
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Gerencie suas análises e acompanhe estatísticas
+              </p>
+            </div>
           </div>
 
           <TarotStatsCards
@@ -94,37 +115,25 @@ const ListagemTarot = React.memo(() => {
             onSearchChange={setSearchTerm}
           />
 
-          <TarotListingContent
-            tabAnalises={tabAnalises}
+          <TarotMegaOptimized
+            analises={tabAnalises}
             searchTerm={searchTerm}
             activeTab={activeTab}
             setActiveTab={handleTabChange}
             counts={counts}
             onToggleFinished={handleToggleFinished}
-            onEdit={(id) => navigate(`/editar-analise-frequencial/${id}`)}
+            onEdit={handleEdit}
             onDelete={handleDelete}
           />
         </div>
       </main>
       
-      <PaymentDetailsModal
+      <OptimizedPaymentDetailsModal
         payment={selectedPayment}
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
-        onMarkAsPaid={(id: string) => {
-          const event = new CustomEvent('mark-payment-as-paid', {
-            detail: { id }
-          });
-          window.dispatchEvent(event);
-          setIsPaymentModalOpen(false);
-        }}
-        onDeleteNotification={(id: string) => {
-          const event = new CustomEvent('delete-payment-notification', {
-            detail: { id }
-          });
-          window.dispatchEvent(event);
-          setIsPaymentModalOpen(false);
-        }}
+        onMarkAsPaid={handleMarkAsPaid}
+        onDeleteNotification={handleDeleteNotification}
       />
     </div>
   );
