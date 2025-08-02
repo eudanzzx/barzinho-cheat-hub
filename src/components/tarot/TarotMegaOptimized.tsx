@@ -38,6 +38,7 @@ const TarotMegaOptimized: React.FC<TarotMegaOptimizedProps> = memo(({
       if (activeTab === 'finalizadas' && !analise.finalizado) return false;
       if (activeTab === 'em-andamento' && analise.finalizado) return false;
       if (activeTab === 'pendentes' && analise.finalizado) return false;
+      if (activeTab === 'atencao' && !analise.atencaoFlag && !analise.attentionFlag) return false;
       
       // Filtro por busca
       if (searchTerm.trim()) {

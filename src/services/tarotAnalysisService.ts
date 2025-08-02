@@ -15,6 +15,7 @@ interface TarotAnalysis {
   treatment?: string;
   indication?: string;
   attentionFlag?: boolean;
+  atencaoFlag?: boolean;
   planoAtivo?: boolean;
   planoData?: {
     meses: string;

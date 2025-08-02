@@ -102,7 +102,7 @@ export const useTarotAnalises = () => {
   const getStatusCounts = useMemo(() => ({
     finalizados: analises.filter(a => a.finalizado).length,
     emAndamento: analises.filter(a => !a.finalizado).length,
-    atencao: 0,
+    atencao: analises.filter(a => a.atencaoFlag || a.attentionFlag).length,
   }), [analises]);
 
   const handleDelete = async (id: string) => {
