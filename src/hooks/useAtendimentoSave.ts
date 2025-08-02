@@ -42,7 +42,7 @@ export const useAtendimentoSave = () => {
       statusPagamento: formData.statusPagamento as 'pago' | 'pendente' | 'parcelado',
       signo,
       atencaoFlag: atencao,
-      data: new Date().toISOString(),
+      data: formData.dataAtendimento || new Date().toISOString().split('T')[0],
       planoAtivo,
       planoData: planoAtivo ? planoData : null,
       semanalAtivo,
