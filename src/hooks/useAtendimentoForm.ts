@@ -10,6 +10,7 @@ interface FormData {
   dataAtendimento: string;
   valor: string;
   destino: string;
+  cidade: string;
   ano: string;
   atencaoNota: string;
   detalhes: string;
@@ -43,6 +44,7 @@ const useAtendimentoForm = () => {
     dataAtendimento: "",
     valor: "",
     destino: "",
+    cidade: "",
     ano: "",
     atencaoNota: "",
     detalhes: "",

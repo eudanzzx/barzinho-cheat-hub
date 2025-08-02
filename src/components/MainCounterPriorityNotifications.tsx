@@ -31,18 +31,8 @@ const MainCounterPriorityNotifications: React.FC<MainCounterPriorityNotification
     setIsModalOpen(true);
   };
 
-  // Só mostrar notificações principais na página principal
-  const isMainPage = location.pathname === '/';
-  
-  if (!isMainPage) {
-    return null;
-  }
-
-
-  // Se não há notificações pendentes, não mostrar o componente
-  if (groupedPayments.length === 0) {
-    return null;
-  }
+  // Não mostrar este componente na página principal - apenas no modal
+  return null;
 
   return (
     <Card className="mb-6 border-main-primary bg-main-accent">

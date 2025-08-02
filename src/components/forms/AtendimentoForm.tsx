@@ -175,11 +175,22 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="destino" className="text-slate-700 font-medium">Cidade</Label>
+              <Label htmlFor="destino" className="text-slate-700 font-medium">Destino</Label>
               <Input 
                 id="destino" 
-                placeholder="Cidade do cliente" 
+                placeholder="Destino do cliente" 
                 value={formData.destino}
+                onChange={onInputChange}
+                className="bg-white/50 border-white/20 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cidade" className="text-slate-700 font-medium">Cidade</Label>
+              <Input 
+                id="cidade" 
+                placeholder="Cidade do cliente" 
+                value={formData.cidade}
                 onChange={onInputChange}
                 className="bg-white/50 border-white/20 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20"
               />
