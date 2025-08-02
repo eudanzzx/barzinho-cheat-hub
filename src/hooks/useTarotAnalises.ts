@@ -66,22 +66,36 @@ export const useTarotAnalises = () => {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
+    const getAnalysisDate = (analise: any) => {
+      return new Date(analise.dataAtendimento || analise.analysisDate || analise.data || '');
+    };
+
     const filteredAnalises = tabAnalises.filter(analise => {
       if (selectedPeriod === 'total') return true;
       
-      const analiseDate = new Date(analise.dataAtendimento);
-      if (selectedPeriod === 'semana') return analiseDate >= startOfWeek;
-      if (selectedPeriod === 'mes') return analiseDate >= startOfMonth;
-      if (selectedPeriod === 'ano') return analiseDate >= startOfYear;
+      const analiseDate = getAnalysisDate(analise);
+      if (selectedPeriod === 'semana') return analiseDate.getTime() >= startOfWeek.getTime();
+      if (selectedPeriod === 'mes') return analiseDate.getTime() >= startOfMonth.getTime();
+      if (selectedPeriod === 'ano') return analiseDate.getTime() >= startOfYear.getTime();
       
       return true;
     });
 
+    const getAnalysisValue = (analise: any) => {
+      return Number(analise.valor || analise.value || analise.preco || 0);
+    };
+
+    const totalAll = tabAnalises.reduce((sum, analise) => sum + getAnalysisValue(analise), 0);
+    const totalSemana = tabAnalises.filter(a => new Date(a.dataAtendimento || a.analysisDate || a.data || '').getTime() >= startOfWeek.getTime()).reduce((sum, a) => sum + getAnalysisValue(a), 0);
+    const totalMes = tabAnalises.filter(a => new Date(a.dataAtendimento || a.analysisDate || a.data || '').getTime() >= startOfMonth.getTime()).reduce((sum, a) => sum + getAnalysisValue(a), 0);
+    const totalAno = tabAnalises.filter(a => new Date(a.dataAtendimento || a.analysisDate || a.data || '').getTime() >= startOfYear.getTime()).reduce((sum, a) => sum + getAnalysisValue(a), 0);
+
     return {
-      total: filteredAnalises.reduce((sum, analise) => sum + (Number(analise.valor) || 0), 0),
-      semana: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfWeek).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
-      mes: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfMonth).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
-      ano: tabAnalises.filter(a => new Date(a.dataAtendimento) >= startOfYear).reduce((sum, a) => sum + (Number(a.valor) || 0), 0),
+      total: totalAll,
+      semana: totalSemana,
+      mes: totalMes,
+      ano: totalAno,
+      current: filteredAnalises.reduce((sum, analise) => sum + getAnalysisValue(analise), 0)
     };
   }, [tabAnalises, selectedPeriod]);
 

@@ -37,6 +37,8 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
         return totalRecebidoMes;
       case "ano":
         return totalRecebidoAno;
+      case "total":
+        return totalRecebido;
       default:
         return totalRecebido;
     }
