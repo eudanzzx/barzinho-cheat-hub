@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import TarotMonthlyPaymentButton from "./TarotMonthlyPaymentButton";
-import TarotWeeklyPaymentButton from "./TarotWeeklyPaymentButton";
+import PlanoPaymentButton from "./PlanoPaymentButton";
+import SemanalPaymentButton from "./SemanalPaymentButton";
 
 interface TarotAnalise {
   id: string;
@@ -114,7 +114,7 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                     {/* Controles de Pagamento */}
                     <div className="flex flex-wrap gap-2 mt-2">
                       {analise.planoAtivo && analise.planoData && (
-                        <TarotMonthlyPaymentButton
+                        <PlanoPaymentButton
                           analysisId={analise.id}
                           clientName={clientName}
                           planoData={analise.planoData}
@@ -123,7 +123,7 @@ const TarotSimpleTable: React.FC<TarotSimpleTableProps> = memo(({
                       )}
                       
                       {analise.semanalAtivo && analise.semanalData && (
-                        <TarotWeeklyPaymentButton
+                        <SemanalPaymentButton
                           analysisId={analise.id}
                           clientName={clientName}
                           semanalData={analise.semanalData}
