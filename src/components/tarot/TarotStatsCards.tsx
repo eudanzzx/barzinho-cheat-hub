@@ -43,71 +43,81 @@ const TarotStatsCards: React.FC<TarotStatsCardsProps> = ({
   };
 
   return (
-    <div className="mb-8 animate-fade-in">
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <>
+      {/* Dropdown principal */}
+      <div className="flex justify-start mb-2">
+        <div className="w-fit">
+          <PeriodDropdown
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={onPeriodChange}
+            variant="tarot"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Recebido */}
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-shadow duration-300 group">
-          <CardContent className="p-3 flex flex-col space-y-2 min-h-[78px] items-start justify-between">
-            <div className="w-full flex flex-row items-center justify-between">
-              <div>
-                <div className="text-xs font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">Recebido</div>
-                <div className="text-lg md:text-xl font-bold text-slate-800 group-hover:text-[#6B21A8] transition-colors duration-300">
+        <Card className="bg-tarot-accent border-tarot-primary border-2 shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Recebido</p>
+                <p className="text-xl font-bold tarot-primary">
                   R$ {getRecebido().toFixed(2)}
-                </div>
+                </p>
               </div>
-              <div className="rounded-xl p-1.5 bg-[#6B21A8]/10 group-hover:bg-[#6B21A8]/20 transition-colors duration-300">
-                <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-[#6B21A8]" />
+              <div className="p-2 rounded-lg bg-tarot-accent">
+                <DollarSign className="h-6 w-6 tarot-primary" />
               </div>
-            </div>
-            {/* Dropdown de período with tarot styling */}
-            <div className="w-full mt-1">
-              <PeriodDropdown
-                selectedPeriod={selectedPeriod}
-                onPeriodChange={onPeriodChange}
-                variant="tarot"
-              />
             </div>
           </CardContent>
         </Card>
+
         {/* Total Análises */}
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-shadow duration-300 group">
-          <CardContent className="p-3 flex flex-row items-center justify-between min-h-[78px]">
-            <div>
-              <div className="text-xs font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">Total Análises</div>
-              <div className="text-lg md:text-xl font-bold text-slate-800 group-hover:text-[#6B21A8] transition-colors duration-300">{totalAnalises}</div>
-            </div>
-            <div className="rounded-xl p-1.5 bg-[#6B21A8]/10 group-hover:bg-[#6B21A8]/20 transition-colors duration-300">
-              <Users className="w-5 h-5 md:w-6 md:h-6 text-[#6B21A8]" />
+        <Card className="bg-tarot-accent border-tarot-primary border-2 shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Análises</p>
+                <p className="text-xl font-bold tarot-primary">{totalAnalises}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-tarot-accent">
+                <Users className="h-6 w-6 tarot-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
+
         {/* Finalizados */}
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-shadow duration-300 group">
-          <CardContent className="p-3 flex flex-row items-center justify-between min-h-[78px]">
-            <div>
-              <div className="text-xs font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">Finalizados</div>
-              <div className="text-lg md:text-xl font-bold text-slate-800 group-hover:text-[#6B21A8] transition-colors duration-300">{finalizados}</div>
-            </div>
-            <div className="rounded-xl p-1.5 bg-[#6B21A8]/10 group-hover:bg-[#6B21A8]/20 transition-colors duration-300">
-              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-[#6B21A8]" />
+        <Card className="bg-tarot-accent border-tarot-primary border-2 shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Finalizados</p>
+                <p className="text-xl font-bold tarot-primary">{finalizados}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-tarot-accent">
+                <CheckCircle className="h-6 w-6 tarot-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
+
         {/* Lembretes */}
-        <Card className="bg-white/90 backdrop-blur-sm border border-white/30 shadow-xl rounded-2xl hover:shadow-2xl transition-shadow duration-300 group">
-          <CardContent className="p-3 flex flex-row items-center justify-between min-h-[78px]">
-            <div>
-              <div className="text-xs font-medium text-slate-600 mb-1 group-hover:text-slate-700 transition-colors duration-300">Lembretes</div>
-              <div className="text-lg md:text-xl font-bold text-slate-800 group-hover:text-[#6B21A8] transition-colors duration-300">{lembretes}</div>
-            </div>
-            <div className="rounded-xl p-1.5 bg-[#6B21A8]/10 group-hover:bg-[#6B21A8]/20 transition-colors duration-300">
-              <BellRing className="w-5 h-5 md:w-6 md:h-6 text-[#6B21A8]" />
+        <Card className="bg-tarot-accent border-tarot-primary border-2 shadow-sm hover:shadow-md transition-all duration-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-600 mb-1">Lembretes</p>
+                <p className="text-xl font-bold tarot-primary">{lembretes}</p>
+              </div>
+              <div className="p-2 rounded-lg bg-tarot-accent">
+                <BellRing className="h-6 w-6 tarot-primary" />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 };
 
