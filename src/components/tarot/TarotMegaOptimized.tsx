@@ -73,7 +73,7 @@ const TarotMegaOptimized: React.FC<TarotMegaOptimizedProps> = memo(({
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 bg-white border border-gray-200 rounded-lg mb-4 gap-1 p-1 h-auto">
           <TabsTrigger
             value="todas"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
+            className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
           >
             <div className="flex flex-col items-center">
               <span className="text-xs sm:text-sm">Todas</span>
@@ -82,7 +82,7 @@ const TarotMegaOptimized: React.FC<TarotMegaOptimizedProps> = memo(({
           </TabsTrigger>
           <TabsTrigger
             value="finalizadas"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
+            className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
           >
             <div className="flex flex-col items-center">
               <span className="text-xs sm:text-sm">Finalizadas</span>
@@ -91,7 +91,7 @@ const TarotMegaOptimized: React.FC<TarotMegaOptimizedProps> = memo(({
           </TabsTrigger>
           <TabsTrigger
             value="pendentes"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
+            className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
           >
             <div className="flex flex-col items-center">
               <span className="text-xs sm:text-sm">Pendentes</span>
@@ -100,7 +100,7 @@ const TarotMegaOptimized: React.FC<TarotMegaOptimizedProps> = memo(({
           </TabsTrigger>
           <TabsTrigger
             value="atencao"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
+            className="data-[state=active]:bg-tarot-primary data-[state=active]:text-white text-xs px-2 py-2 h-auto min-h-[2.5rem]"
           >
             <div className="flex flex-col items-center">
               <span className="text-xs sm:text-sm">Atenção</span>
