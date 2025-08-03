@@ -117,6 +117,11 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
   };
 
   const handleSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    console.log('🔍 FrequencyAnalysisForm - handleSubmit started with values:', values);
+    console.log('🔍 FrequencyAnalysisForm - startDate raw:', values.startDate);
+    console.log('🔍 FrequencyAnalysisForm - startDate formatted:', format(values.startDate, 'yyyy-MM-dd'));
+    console.log('🔍 FrequencyAnalysisForm - price value:', values.price);
+    
     setIsSubmitting(true);
     try {
       const analysisData: TarotAnalysis = {
@@ -147,7 +152,10 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
         lembretes: values.lembretes,
       };
 
-      console.log('Dados da análise a serem salvos:', analysisData);
+      console.log('🔍 FrequencyAnalysisForm - analysisData created:', analysisData);
+      console.log('🔍 FrequencyAnalysisForm - analysisDate final:', analysisData.analysisDate);
+      console.log('🔍 FrequencyAnalysisForm - value final:', analysisData.value);
+      
       saveTarotAnalysisWithPlan(analysisData);
 
       toast.success(`Análise ${initialData ? 'atualizada' : 'criada'} com sucesso!`);

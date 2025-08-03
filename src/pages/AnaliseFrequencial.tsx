@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -311,10 +312,10 @@ const AnaliseFrequencial = () => {
         id: novoId,
         // Required TarotAnalysis properties
         clientName: nomeCliente,
-        analysisDate: new Date().toISOString(),
+        analysisDate: format(new Date(dataInicio), 'yyyy-MM-dd'),
         analysisType: "Análise Frequencial",
         paymentStatus: 'pago' as const,
-        value: preco || "150",
+        value: preco || undefined,
         // Legacy fields for backward compatibility
         nomeCliente,
         dataNascimento,
@@ -323,7 +324,7 @@ const AnaliseFrequencial = () => {
         dataInicio,
         dataAtendimento: dataInicio,
         data: new Date().toISOString(),
-        preco: preco || "150",
+        preco: preco || undefined,
         pergunta: "Análise Frequencial",
         resposta: analiseAntes + (analiseDepois ? ` | Depois: ${analiseDepois}` : ""),
         dataAnalise: new Date().toISOString(),
