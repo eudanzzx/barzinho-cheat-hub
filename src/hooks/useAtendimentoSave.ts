@@ -43,13 +43,27 @@ export const useAtendimentoSave = () => {
     
     const existingAtendimentos = getAtendimentos();
     
+    // Corrigir problema de timezone na data - garantir formato correto
+    let dataCorrigida = formData.dataAtendimento;
+    if (dataCorrigida) {
+      // Se a data for string no formato YYYY-MM-DD, manter como está
+      // Se for Date, converter para string no formato local
+      if (dataCorrigida instanceof Date) {
+        const year = dataCorrigida.getFullYear();
+        const month = String(dataCorrigida.getMonth() + 1).padStart(2, '0');
+        const day = String(dataCorrigida.getDate()).padStart(2, '0');
+        dataCorrigida = `${year}-${month}-${day}`;
+      }
+    }
+    
     const novoAtendimento: AtendimentoData = {
       id: Date.now().toString(),
       ...formData,
       statusPagamento: formData.statusPagamento as 'pago' | 'pendente' | 'parcelado',
       signo,
       atencaoFlag: atencao,
-      data: formData.dataAtendimento,
+      data: dataCorrigida,
+      dataAtendimento: dataCorrigida,
       planoAtivo,
       planoData: planoAtivo ? planoData : null,
       semanalAtivo,

@@ -350,7 +350,7 @@ const EditarAnaliseFrequencial = () => {
       finalizado: false,
       status: 'ativo' as const,
       atencaoFlag: atencao,
-      valor: preco || "150",
+      valor: preco || "",
       tipoServico: "Tarot Frequencial"
     };
 

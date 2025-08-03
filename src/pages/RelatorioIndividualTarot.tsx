@@ -49,8 +49,8 @@ const RelatorioIndividualTarot = () => {
     
     return clientesUnicos.reduce((total, cliente) => {
       const clienteTotal = cliente.analises.reduce((sum, analise) => {
-        const preco = parseFloat(analise.preco || analise.valor || "150");
-        return sum + (isNaN(preco) ? 150 : preco);
+        const preco = parseFloat(analise.preco || analise.valor || "0");
+        return sum + (isNaN(preco) ? 0 : preco);
       }, 0);
       return total + clienteTotal;
     }, 0);

@@ -74,7 +74,7 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-emerald-600" />
           <span className="font-medium text-emerald-600">
-            R$ {parseFloat(analise.preco || "150").toFixed(2)}
+            R$ {parseFloat(analise.preco || "0").toFixed(2)}
           </span>
         </div>
         <div className="flex items-center gap-2">

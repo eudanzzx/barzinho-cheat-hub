@@ -16,14 +16,14 @@ const RelatorioGeralTarot = () => {
 
   const calcularEstatisticas = () => {
     const hoje = new Date();
-    const receitaTotal = analises.reduce((sum, analise) => sum + parseFloat(analise.preco || "150"), 0);
+    const receitaTotal = analises.reduce((sum, analise) => sum + parseFloat(analise.preco || "0"), 0);
     
     const receitaMesAtual = analises
       .filter(analise => {
         const data = new Date(analise.dataInicio);
         return data.getMonth() === hoje.getMonth() && data.getFullYear() === hoje.getFullYear();
       })
-      .reduce((sum, analise) => sum + parseFloat(analise.preco || "150"), 0);
+      .reduce((sum, analise) => sum + parseFloat(analise.preco || "0"), 0);
 
     const analisesFinalizadas = analises.filter(a => a.finalizado === true).length;
     const analisesPendentes = analises.filter(a => a.finalizado !== true).length;

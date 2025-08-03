@@ -64,9 +64,17 @@ const useAtendimentoForm = () => {
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
+    
+    // Corrigir problema de timezone para campos de data
+    let correctedValue = value;
+    if (id === 'dataAtendimento' && value && e.target.type === 'date') {
+      // Para campos de data, garantir que seja salvo no formato correto sem problemas de timezone
+      correctedValue = value; // Manter como string YYYY-MM-DD
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [id]: value,
+      [id]: correctedValue,
     }));
   }, []);
 

@@ -19,7 +19,7 @@ const TarotClientCard: React.FC<TarotClientCardProps> = ({
 }) => {
   const calcularTotalCliente = (analises: any[]) => {
     return analises.reduce((total, analise) => {
-      const preco = parseFloat(analise.preco || "150");
+      const preco = parseFloat(analise.preco || "0");
       return total + preco;
     }, 0);
   };

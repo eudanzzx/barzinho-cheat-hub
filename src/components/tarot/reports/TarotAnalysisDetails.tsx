@@ -22,7 +22,7 @@ const TarotAnalysisDetails: React.FC<TarotAnalysisDetailsProps> = ({ cliente }) 
                 </div>
                 <div>
                   <span className="font-medium text-purple-600">Valor:</span>
-                  <span className="ml-2 text-slate-700">R$ {parseFloat(analise.preco || "150").toFixed(2)}</span>
+                  <span className="ml-2 text-slate-700">R$ {parseFloat(analise.preco || "0").toFixed(2)}</span>
                 </div>
                 
                 {analise.signo && (
