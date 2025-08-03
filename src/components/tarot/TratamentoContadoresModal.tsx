@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bell, Clock, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,15 +7,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import useUserDataService from "@/services/userDataService";
+import { calculateDaysRemaining } from "@/utils/dateFormatter";
 
 function getDiasRestantes(dataInicio: string, dias: number) {
-  if (!dataInicio) return 999; // Para ordenação, valores inválidos ficam por último
-  const inicio = new Date(dataInicio);
-  const hoje = new Date();
-  const dataAlvo = new Date(inicio);
-  dataAlvo.setDate(inicio.getDate() + dias);
-  const diffTime = dataAlvo.getTime() - hoje.getTime();
-  return Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 0);
+  return calculateDaysRemaining(dataInicio, dias);
 }
 
 const TratamentoContadoresModal = ({

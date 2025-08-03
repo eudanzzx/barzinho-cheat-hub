@@ -2,6 +2,7 @@
 import React from "react";
 import { Calendar, DollarSign, Sparkles, AlertTriangle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatDateString } from "@/utils/dateFormatter";
 
 interface AnalysisHeaderProps {
   analise: any;
@@ -65,10 +66,7 @@ const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-[#673193]" />
           <span>
-            {analise.dataInicio
-              ? new Date(analise.dataInicio).toLocaleDateString('pt-BR')
-              : 'Data não informada'
-            }
+            {formatDateString(analise.dataInicio || '')}
           </span>
         </div>
         <div className="flex items-center gap-2">
