@@ -11,27 +11,16 @@ interface PaymentCardProps {
 
 export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional = false }) => {
   const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return {
-          date: 'Data inválida',
-          time: '00:00'
-        };
-      }
-      return {
-        date: date.toLocaleDateString('pt-BR'),
-        time: date.toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      };
-    } catch (error) {
-      return {
-        date: 'Data inválida',
-        time: '00:00'
-      };
+    if (!dateString) return '';
+    
+    // Se já está no formato YYYY-MM-DD, converte para DD/MM/YYYY
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = dateString.split('-');
+      return `${day}/${month}/${year}`;
     }
+    
+    // Para outros formatos, tenta conversão normal
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   const getDaysUntilDue = (dueDate: string) => {
@@ -75,7 +64,7 @@ export const PaymentCard: React.FC<PaymentCardProps> = ({ payment, isAdditional 
       <div className="flex items-center gap-2 text-sm tarot-primary font-medium mb-1 mt-1">
         <Calendar className="h-4 w-4" />
         <span>
-          {formattedDate.date}
+          {formattedDate}
         </span>
       </div>
       <div className="text-sm mt-0.5 font-medium tarot-primary mb-1">
