@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import AtendimentosTableOptimized from "@/components/dashboard/AtendimentosTableOptimized";
 import AtendimentosCompactTable from "@/components/dashboard/AtendimentosCompactTable";
+import MonthlyPaymentControl from "@/components/dashboard/MonthlyPaymentControl";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface IndexMainContentProps {
@@ -39,7 +40,11 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
   }
 
   return (
-    <div className="px-2 sm:px-0">
+    <div className="px-2 sm:px-0 space-y-4">
+      {/* Controle de Pagamentos Mensais */}
+      <MonthlyPaymentControl />
+      
+      {/* Tabela de Atendimentos */}
       {isMobile ? (
         <AtendimentosCompactTable 
           atendimentos={filteredAtendimentos}
