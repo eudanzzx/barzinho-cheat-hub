@@ -87,12 +87,12 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
     defaultValues: {
       clientName: initialData?.nomeCliente || initialData?.clientName || "",
       birthDate: initialData?.dataNascimento || initialData?.clientBirthdate ? 
-        new Date(initialData?.dataNascimento || initialData?.clientBirthdate + 'T12:00:00') : undefined,
+        new Date(new Date(initialData?.dataNascimento || initialData?.clientBirthdate).getTime() + 12 * 60 * 60 * 1000) : undefined,
       sign: initialData?.signo || initialData?.clientSign || "",
       startDate: initialData?.dataInicio || initialData?.analysisDate ? 
-        new Date(initialData?.dataInicio || initialData?.analysisDate + 'T12:00:00') : new Date(),
+        new Date(new Date(initialData?.dataInicio || initialData?.analysisDate).getTime() + 12 * 60 * 60 * 1000) : new Date(),
       treatmentDays: 10,
-      price: Number(initialData?.preco || initialData?.value || "150"),
+      price: Number(initialData?.preco || initialData?.value) || undefined,
       finalizado: initialData?.finalizado || false,
       beforeAnalysis: initialData?.analiseAntes || "",
       afterAnalysis: initialData?.analiseDepois || "",
@@ -127,7 +127,7 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
         analysisDate: format(values.startDate, 'yyyy-MM-dd'),
         analysisType: "frequencial",
         paymentStatus: "pendente",
-        value: values.price?.toString() || "150",
+        value: values.price?.toString() || undefined,
         finalizado: values.finalizado,
         treatmentDays: values.treatmentDays,
         atencaoFlag: values.attention,
