@@ -18,6 +18,8 @@ type Props = {
   setValor: (val: string) => void;
   destino: string;
   setDestino: (val: string) => void;
+  cidade: string;
+  setCidade: (val: string) => void;
   ano: string;
   setAno: (val: string) => void;
   statusPagamento: string;
@@ -39,6 +41,8 @@ const ClienteFields = ({
   setValor,
   destino,
   setDestino,
+  cidade,
+  setCidade,
   ano,
   setAno,
   statusPagamento,
@@ -115,6 +119,13 @@ const ClienteFields = ({
       <Label htmlFor="destino" className="text-slate-700">Destino</Label>
       <Input id="destino" placeholder="Destino do cliente" value={destino}
         onChange={(e) => setDestino(e.target.value)}
+        className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
+      />
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="cidade" className="text-slate-700">Cidade</Label>
+      <Input id="cidade" placeholder="Cidade do cliente" value={cidade}
+        onChange={(e) => setCidade(e.target.value)}
         className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
       />
     </div>

@@ -41,6 +41,7 @@ interface Atendimento {
   dataNascimento?: string;
   signo?: string;
   destino?: string;
+  cidade?: string;
   ano?: string;
   detalhes?: string;
   tratamento?: string;
@@ -81,6 +82,7 @@ const EditarAtendimento = () => {
   const [dataAtendimento, setDataAtendimento] = useState("");
   const [valor, setValor] = useState("");
   const [destino, setDestino] = useState("");
+  const [cidade, setCidade] = useState("");
   const [ano, setAno] = useState("");
   const [atencaoNota, setAtencaoNota] = useState("");
   const [detalhes, setDetalhes] = useState("");
@@ -157,6 +159,7 @@ const EditarAtendimento = () => {
             setDataAtendimento(atendimentoEncontrado.dataAtendimento || "");
             setValor(atendimentoEncontrado.valor || "");
             setDestino(atendimentoEncontrado.destino || "");
+            setCidade(atendimentoEncontrado.cidade || "");
             setAno(atendimentoEncontrado.ano || "");
             setAtencaoNota(atendimentoEncontrado.atencaoNota || "");
             setDetalhes(atendimentoEncontrado.detalhes || "");
@@ -302,6 +305,7 @@ const EditarAtendimento = () => {
         dataAtendimento,
         valor,
         destino,
+        cidade,
         ano,
         atencaoNota,
         detalhes,
@@ -417,6 +421,8 @@ const EditarAtendimento = () => {
                 setValor={setValor}
                 destino={destino}
                 setDestino={setDestino}
+                cidade={cidade}
+                setCidade={setCidade}
                 ano={ano}
                 setAno={setAno}
                 statusPagamento={statusPagamento}

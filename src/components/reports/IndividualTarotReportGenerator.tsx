@@ -22,11 +22,12 @@ const IndividualTarotReportGenerator: React.FC<IndividualTarotReportGeneratorPro
     }
     
     try {
-      const dataObj = new Date(data);
-      if (isNaN(dataObj.getTime())) {
-        return 'N/A';
+      // Usar diretamente a data sem construtor Date para evitar timezone
+      const [ano, mes, dia] = data.split('-');
+      if (ano && mes && dia) {
+        return `${dia}/${mes}/${ano}`;
       }
-      return format(dataObj, 'dd/MM/yyyy', { locale: ptBR });
+      return 'N/A';
     } catch (error) {
       return 'N/A';
     }

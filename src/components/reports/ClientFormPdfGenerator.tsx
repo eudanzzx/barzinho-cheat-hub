@@ -106,9 +106,10 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       let dataNascimento = 'Não informada';
       if (ultimoAtendimento.dataNascimento) {
         try {
-          const date = new Date(ultimoAtendimento.dataNascimento);
-          if (!isNaN(date.getTime())) {
-            dataNascimento = date.toLocaleDateString('pt-BR');
+          // Usar diretamente a data sem construtor Date para evitar timezone
+          const [ano, mes, dia] = ultimoAtendimento.dataNascimento.split('-');
+          if (ano && mes && dia) {
+            dataNascimento = `${dia}/${mes}/${ano}`;
           }
         } catch (error) {
           console.error('Erro ao formatar data de nascimento:', error);
@@ -124,9 +125,10 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       let dataAtendimento = 'Não informada';
       if (ultimoAtendimento.dataAtendimento) {
         try {
-          const date = new Date(ultimoAtendimento.dataAtendimento);
-          if (!isNaN(date.getTime())) {
-            dataAtendimento = date.toLocaleDateString('pt-BR');
+          // Usar diretamente a data sem construtor Date para evitar timezone
+          const [ano, mes, dia] = ultimoAtendimento.dataAtendimento.split('-');
+          if (ano && mes && dia) {
+            dataAtendimento = `${dia}/${mes}/${ano}`;
           }
         } catch (error) {
           console.error('Erro ao formatar data do atendimento:', error);
@@ -138,6 +140,7 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       addField('Valor Cobrado', valorFormatado);
       addField('Status de Pagamento', ultimoAtendimento.statusPagamento);
       addField('Destino', ultimoAtendimento.destino);
+      addField('Cidade', ultimoAtendimento.cidade);
       addField('Ano', ultimoAtendimento.ano);
       
       // Plano Mensal - verificação corrigida

@@ -22,11 +22,12 @@ const TarotFormPdfGenerator: React.FC<TarotFormPdfGeneratorProps> = ({ cliente, 
     }
     
     try {
-      const dataObj = new Date(data);
-      if (isNaN(dataObj.getTime())) {
-        return '_____/_____/_____';
+      // Usar diretamente a data sem construtor Date para evitar timezone
+      const [ano, mes, dia] = data.split('-');
+      if (ano && mes && dia) {
+        return `${dia}/${mes}/${ano}`;
       }
-      return format(dataObj, 'dd/MM/yyyy', { locale: ptBR });
+      return '_____/_____/_____';
     } catch (error) {
       return '_____/_____/_____';
     }
