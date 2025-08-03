@@ -163,9 +163,8 @@ const useAtendimentoForm = () => {
     }
     
     if (value) {
-      const date = new Date(value);
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
+      // Corrigir problema de timezone - processar data como string sem conversão
+      const [year, month, day] = value.split('-').map(Number);
       
       let signoCalculado = "";
       if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) signoCalculado = "Áries";

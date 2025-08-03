@@ -46,9 +46,13 @@ export const useAtendimentoSave = () => {
     // Corrigir problema de timezone na data - garantir formato correto
     let dataCorrigida = formData.dataAtendimento;
     if (dataCorrigida) {
-      // Se a data for string no formato YYYY-MM-DD, manter como está
-      // Se for Date, converter para string no formato local
-      if (dataCorrigida instanceof Date) {
+      // Garantir que a data seja mantida exatamente como inserida (YYYY-MM-DD)
+      // Sem conversões de timezone que podem alterar o dia
+      if (typeof dataCorrigida === 'string' && dataCorrigida.includes('-')) {
+        // Se já está no formato YYYY-MM-DD, manter
+        dataCorrigida = dataCorrigida;
+      } else if (dataCorrigida instanceof Date) {
+        // Se for Date, converter para string local sem timezone
         const year = dataCorrigida.getFullYear();
         const month = String(dataCorrigida.getMonth() + 1).padStart(2, '0');
         const day = String(dataCorrigida.getDate()).padStart(2, '0');
