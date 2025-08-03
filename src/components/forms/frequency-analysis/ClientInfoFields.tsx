@@ -89,7 +89,15 @@ const ClientInfoFields: React.FC<ClientInfoFieldsProps> = ({ form }) => {
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    if (date) {
+                      // Força o horário para meio-dia para evitar problemas de timezone
+                      const adjustedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+                      field.onChange(adjustedDate);
+                    } else {
+                      field.onChange(date);
+                    }
+                  }}
                   disabled={(date) =>
                     date > new Date() || date < new Date("1900-01-01")
                   }
@@ -132,7 +140,15 @@ const ClientInfoFields: React.FC<ClientInfoFieldsProps> = ({ form }) => {
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    if (date) {
+                      // Força o horário para meio-dia para evitar problemas de timezone
+                      const adjustedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+                      field.onChange(adjustedDate);
+                    } else {
+                      field.onChange(date);
+                    }
+                  }}
                   initialFocus
                   className="p-3 pointer-events-auto"
                 />
