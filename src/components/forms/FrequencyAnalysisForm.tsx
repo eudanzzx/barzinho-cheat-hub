@@ -86,9 +86,11 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       clientName: initialData?.nomeCliente || initialData?.clientName || "",
-      birthDate: initialData?.dataNascimento || initialData?.clientBirthdate ? new Date(initialData?.dataNascimento || initialData?.clientBirthdate) : undefined,
+      birthDate: initialData?.dataNascimento || initialData?.clientBirthdate ? 
+        new Date(initialData?.dataNascimento || initialData?.clientBirthdate + 'T12:00:00') : undefined,
       sign: initialData?.signo || initialData?.clientSign || "",
-      startDate: initialData?.dataInicio || initialData?.analysisDate ? new Date(initialData?.dataInicio || initialData?.analysisDate) : new Date(),
+      startDate: initialData?.dataInicio || initialData?.analysisDate ? 
+        new Date(initialData?.dataInicio || initialData?.analysisDate + 'T12:00:00') : new Date(),
       treatmentDays: 10,
       price: Number(initialData?.preco || initialData?.value || "150"),
       finalizado: initialData?.finalizado || false,
