@@ -13,6 +13,7 @@ interface TarotAnalysis {
   attentionNote?: string;
   details?: string;
   treatment?: string;
+  treatmentDays?: number;
   indication?: string;
   attentionFlag?: boolean;
   atencaoFlag?: boolean;
