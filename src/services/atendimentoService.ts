@@ -9,6 +9,7 @@ interface AtendimentoData {
   dataAtendimento: string;
   valor: string;
   destino?: string;
+  cidade?: string;
   ano?: string;
   atencaoNota?: string;
   detalhes?: string;

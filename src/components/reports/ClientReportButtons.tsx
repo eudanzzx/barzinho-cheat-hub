@@ -61,10 +61,24 @@ const ClientReportButtons: React.FC<ClientReportButtonsProps> = ({
       doc.text(`Total: R$ ${totalValue.toFixed(2)}`, 120, 65);
 
       // Tabela simplificada e elegante
+      // Função para formatar data de forma segura
+      const formatarDataSegura = (data: string) => {
+        if (!data || data.trim() === '') return 'N/A';
+        try {
+          const [ano, mes, dia] = data.split('-');
+          if (ano && mes && dia) {
+            return `${dia}/${mes}/${ano}`;
+          }
+          return 'N/A';
+        } catch (error) {
+          return 'N/A';
+        }
+      };
+
       const tableData = clientConsultations.map(consultation => {
         const dataAtendimento = consultation.dataAtendimento || consultation.dataInicio;
         return [
-          dataAtendimento ? new Date(dataAtendimento).toLocaleDateString('pt-BR') : 'N/A',
+          formatarDataSegura(dataAtendimento),
           consultation.tipoServico?.replace('-', ' ') || 'Análise',
           `R$ ${parseFloat(consultation.valor || consultation.preco || "0").toFixed(2)}`
         ];

@@ -83,10 +83,24 @@ const DetailedClientReportGenerator: React.FC<DetailedClientReportGeneratorProps
       doc.text(`Valor Médio: R$ ${(totalValue / clientConsultations.length).toFixed(2)}`, 20, 75);
 
       // Tabela de atendimentos
+      // Função para formatar data de forma segura
+      const formatarDataSegura = (data: string) => {
+        if (!data || data.trim() === '') return 'N/A';
+        try {
+          const [ano, mes, dia] = data.split('-');
+          if (ano && mes && dia) {
+            return `${dia}/${mes}/${ano}`;
+          }
+          return 'N/A';
+        } catch (error) {
+          return 'N/A';
+        }
+      };
+
       const tableData = clientConsultations.map(consultation => {
         const dataAtendimento = consultation.dataAtendimento || consultation.dataInicio;
         return [
-          dataAtendimento ? new Date(dataAtendimento).toLocaleDateString('pt-BR') : 'N/A',
+          formatarDataSegura(dataAtendimento),
           consultation.tipoServico || 'N/A',
           `R$ ${parseFloat(consultation.valor || consultation.preco || "0").toFixed(2)}`,
           consultation.statusPagamento || (consultation.finalizado ? 'Finalizada' : 'Pendente')
@@ -175,9 +189,23 @@ const DetailedClientReportGenerator: React.FC<DetailedClientReportGeneratorProps
       doc.text(`Valor Total: R$ ${totalValue.toFixed(2)}`, 20, yPos);
       yPos += 15;
       
+      // Função para formatar data de forma segura
+      const formatarDataSegura = (data: string) => {
+        if (!data || data.trim() === '') return 'N/A';
+        try {
+          const [ano, mes, dia] = data.split('-');
+          if (ano && mes && dia) {
+            return `${dia}/${mes}/${ano}`;
+          }
+          return 'N/A';
+        } catch (error) {
+          return 'N/A';
+        }
+      };
+
       // Tabela das análises do cliente
       const tableData = consultations.map(consultation => [
-        consultation.dataInicio ? new Date(consultation.dataInicio).toLocaleDateString('pt-BR') : 'N/A',
+        formatarDataSegura(consultation.dataInicio),
         `R$ ${parseFloat(consultation.preco || "150").toFixed(2)}`,
         consultation.finalizado ? 'Finalizada' : 'Pendente'
       ]);
@@ -209,7 +237,10 @@ const DetailedClientReportGenerator: React.FC<DetailedClientReportGeneratorProps
     
     addFooter(doc);
     
-    const fileName = `Relatorio_Geral_Consolidado_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`;
+    // Formatar data atual de forma segura
+    const hoje = new Date();
+    const dataAtual = `${hoje.getDate().toString().padStart(2, '0')}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}-${hoje.getFullYear()}`;
+    const fileName = `Relatorio_Geral_Consolidado_${dataAtual}.pdf`;
     doc.save(fileName);
     
     toast.success("Relatorio geral consolidado gerado com sucesso!");
@@ -221,8 +252,12 @@ const DetailedClientReportGenerator: React.FC<DetailedClientReportGeneratorProps
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
+      // Formatar data atual de forma segura
+      const hoje = new Date();
+      const dataAtual = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth() + 1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+      
       doc.text(
-        `Libertá - Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} - Página ${i} de ${totalPages}`,
+        `Libertá - Relatório gerado em ${dataAtual} - Página ${i} de ${totalPages}`,
         105,
         doc.internal.pageSize.height - 10,
         { align: 'center' }

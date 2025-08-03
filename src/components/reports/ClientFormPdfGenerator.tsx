@@ -253,8 +253,12 @@ const ClientFormPdfGenerator: React.FC<ClientFormPdfGeneratorProps> = ({ cliente
       yPosition = doc.internal.pageSize.height - 20;
       doc.setFontSize(8);
       doc.setTextColor(lightGray.r, lightGray.g, lightGray.b);
+      // Formatar data atual de forma segura
+      const hoje = new Date();
+      const dataAtual = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth() + 1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+      
       doc.text(
-        `Liberta Espaco Terapeutico - Formulario gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+        `Liberta Espaco Terapeutico - Formulario gerado em ${dataAtual}`,
         pageWidth / 2,
         yPosition,
         { align: 'center' }

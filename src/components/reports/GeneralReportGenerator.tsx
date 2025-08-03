@@ -65,10 +65,24 @@ const GeneralReportGenerator: React.FC<GeneralReportGeneratorProps> = ({ atendim
       doc.setTextColor(34, 197, 94);
       doc.text(paidConsultations.toString(), 167, 75, { align: 'center' });
       
+      // Função para formatar data de forma segura
+      const formatarDataSegura = (data: string) => {
+        if (!data || data.trim() === '') return 'N/A';
+        try {
+          const [ano, mes, dia] = data.split('-');
+          if (ano && mes && dia) {
+            return `${dia}/${mes}/${ano}`;
+          }
+          return 'N/A';
+        } catch (error) {
+          return 'N/A';
+        }
+      };
+
       // Tabela com serviços corrigidos
       const tableData = atendimentos.slice(0, 20).map(a => [
         a.nome || 'N/A',
-        a.dataAtendimento ? new Date(a.dataAtendimento).toLocaleDateString('pt-BR') : 'N/A',
+        formatarDataSegura(a.dataAtendimento),
         a.tipoServico ? a.tipoServico.replace(/[-_]/g, ' ') : 'Consulta Geral',
         `R$ ${parseFloat(a.valor || "0").toFixed(2)}`
       ]);
@@ -101,15 +115,22 @@ const GeneralReportGenerator: React.FC<GeneralReportGeneratorProps> = ({ atendim
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
+        // Formatar data atual de forma segura
+        const hoje = new Date();
+        const dataAtual = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth() + 1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+        
         doc.text(
-          `Libertá - Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} - Página ${i} de ${totalPages}`,
+          `Libertá - Relatório gerado em ${dataAtual} - Página ${i} de ${totalPages}`,
           105,
           doc.internal.pageSize.height - 10,
           { align: 'center' }
         );
       }
       
-      doc.save(`Relatorio_Geral_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+      // Formatar data atual de forma segura para nome do arquivo
+      const hoje = new Date();
+      const dataArquivo = `${hoje.getDate().toString().padStart(2, '0')}-${(hoje.getMonth() + 1).toString().padStart(2, '0')}-${hoje.getFullYear()}`;
+      doc.save(`Relatorio_Geral_${dataArquivo}.pdf`);
       
       toast.success("Relatório geral gerado com sucesso!");
     } catch (error) {
