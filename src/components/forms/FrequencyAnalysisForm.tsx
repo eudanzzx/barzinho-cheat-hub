@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -119,9 +120,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
       const analysisData: TarotAnalysis = {
         id: initialData?.id || Date.now().toString(),
         clientName: values.clientName,
-        clientBirthdate: values.birthDate ? values.birthDate.toISOString().split('T')[0] : undefined,
+        clientBirthdate: values.birthDate ? format(values.birthDate, 'yyyy-MM-dd') : undefined,
         clientSign: values.sign,
-        analysisDate: values.startDate.toISOString().split('T')[0],
+        analysisDate: format(values.startDate, 'yyyy-MM-dd'),
         analysisType: "frequencial",
         paymentStatus: "pendente",
         value: values.price?.toString() || "150",
@@ -134,9 +135,9 @@ const FrequencyAnalysisForm: React.FC<FrequencyAnalysisFormProps> = ({
         semanalData: semanalAtivo ? semanalData : null,
         // Legacy fields for backward compatibility
         nomeCliente: values.clientName,
-        dataNascimento: values.birthDate ? values.birthDate.toISOString().split('T')[0] : undefined,
+        dataNascimento: values.birthDate ? format(values.birthDate, 'yyyy-MM-dd') : undefined,
         signo: values.sign,
-        dataInicio: values.startDate.toISOString().split('T')[0],
+        dataInicio: format(values.startDate, 'yyyy-MM-dd'),
         preco: values.price?.toString(),
         analiseAntes: values.beforeAnalysis,
         analiseDepois: values.afterAnalysis,
