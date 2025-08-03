@@ -323,7 +323,7 @@ const EditarAnaliseFrequencial = () => {
       id: id,
       // Required TarotAnalysis properties
       clientName: nomeCliente,
-      analysisDate: format(new Date(dataInicio), 'yyyy-MM-dd'),
+      analysisDate: dataInicio, // Usar diretamente a string sem conversão
       analysisType: "Análise Frequencial",
       paymentStatus: 'pago' as const,
       value: preco || undefined,
