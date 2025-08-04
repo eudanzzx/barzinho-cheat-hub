@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import AtendimentosTableOptimized from "@/components/dashboard/AtendimentosTableOptimized";
@@ -18,6 +19,11 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
   onDeleteAtendimento
 }) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const handleEditAtendimento = (id: string) => {
+    navigate(`/editar-atendimento/${id}`);
+  };
 
   if (filteredAtendimentos.length === 0) {
     return (
@@ -44,6 +50,7 @@ const IndexMainContent: React.FC<IndexMainContentProps> = React.memo(({
       {isMobile ? (
         <AtendimentosCompactTable 
           atendimentos={filteredAtendimentos}
+          onEditAtendimento={handleEditAtendimento}
           onDeleteAtendimento={onDeleteAtendimento}
         />
       ) : (

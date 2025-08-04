@@ -34,6 +34,10 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState<'semana' | 'mes' | 'ano' | 'total'>('total');
 
+  const handleEditAtendimento = (id: string) => {
+    navigate(`/editar-atendimento/${id}`);
+  };
+
   useEffect(() => {
     loadAtendimentos();
   }, []);
@@ -239,6 +243,7 @@ const Dashboard = () => {
               ) : (
                 <AtendimentosCompactTable 
                   atendimentos={filteredAtendimentos}
+                  onEditAtendimento={handleEditAtendimento}
                   onDeleteAtendimento={handleDeleteAtendimento}
                 />
               )}
