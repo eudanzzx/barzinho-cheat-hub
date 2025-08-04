@@ -17,18 +17,29 @@ const RelatorioIndividual = () => {
   const [expandedClient, setExpandedClient] = useState<string | null>(null);
   const [analises] = useState(getAtendimentos());
 
-  // Função para formatar data de forma segura
+  // Função para formatar data de forma segura (igual à parte principal)
   const formatarDataSegura = (data: string) => {
     if (!data || data.trim() === '') {
       return 'Data não informada';
     }
     
     try {
+      // Se já está no formato YYYY-MM-DD, converte para DD/MM/YYYY
+      if (data.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = data.split('-');
+        return `${day}/${month}/${year}`;
+      }
+      
+      // Para outros formatos, usar o padrão manual para evitar timezone
       const dataObj = new Date(data);
       if (isNaN(dataObj.getTime())) {
         return 'Data não informada';
       }
-      return format(dataObj, 'dd/MM/yyyy', { locale: ptBR });
+      
+      const day = dataObj.getDate().toString().padStart(2, '0');
+      const month = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+      const year = dataObj.getFullYear();
+      return `${day}/${month}/${year}`;
     } catch (error) {
       console.error('Erro ao formatar data:', error);
       return 'Data não informada';
