@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Check, X, Clock } from "lucide-react";
+import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Check, X, Clock, Package } from "lucide-react";
+import AtendimentoPacoteButton from "./AtendimentoPacoteButton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -286,7 +287,14 @@ const AtendimentosTableOptimized = memo<AtendimentosTableOptimizedProps>(({ aten
                             {atendimento.semanalData.semanas}s
                           </Badge>
                         )}
-                        {((atendimento.planoAtivo && atendimento.planoData) || (atendimento.semanalAtivo && atendimento.semanalData)) && (
+                        {atendimento.pacoteAtivo && atendimento.pacoteData && (
+                          <AtendimentoPacoteButton 
+                            pacoteData={atendimento.pacoteData}
+                            clientName={atendimento.nome}
+                            atendimentoId={atendimento.id}
+                          />
+                        )}
+                        {((atendimento.planoAtivo && atendimento.planoData) || (atendimento.semanalAtivo && atendimento.semanalData) || (atendimento.pacoteAtivo && atendimento.pacoteData)) && (
                           <Button
                             variant="ghost"
                             size="sm"
