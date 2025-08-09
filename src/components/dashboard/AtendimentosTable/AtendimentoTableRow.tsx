@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import PaymentStatusDropdown from './PaymentStatusDropdown';
+import AtendimentoPacoteButton from "@/components/dashboard/AtendimentoPacoteButton";
 
 interface Atendimento {
   id: string;
@@ -25,6 +26,15 @@ interface Atendimento {
   semanalData?: {
     semanas: string;
     valorSemanal: string;
+  } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
   } | null;
 }
 
@@ -97,6 +107,7 @@ const AtendimentoTableRow = memo<AtendimentoTableRowProps>(({
   }, [onDelete, atendimento.id]);
 
   const hasPlans = atendimento.planoAtivo && atendimento.planoData || atendimento.semanalAtivo && atendimento.semanalData;
+  const hasPacote = atendimento.pacoteAtivo && atendimento.pacoteData;
 
   return (
     <TableRow className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
@@ -134,7 +145,7 @@ const AtendimentoTableRow = memo<AtendimentoTableRowProps>(({
         </div>
       </TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {atendimento.planoAtivo && atendimento.planoData && (
             <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
               <CreditCard className="h-3 w-3 mr-1" />
@@ -146,6 +157,13 @@ const AtendimentoTableRow = memo<AtendimentoTableRowProps>(({
               <Calendar className="h-3 w-3 mr-1" />
               {atendimento.semanalData.semanas}s
             </Badge>
+          )}
+          {hasPacote && (
+            <AtendimentoPacoteButton 
+              pacoteData={atendimento.pacoteData}
+              clientName={atendimento.nome}
+              atendimentoId={atendimento.id}
+            />
           )}
           {hasPlans && (
             <Button

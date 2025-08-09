@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Package, ChevronDown, ChevronUp } from "lucide-react";
+import { Package, ChevronDown, ChevronUp, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import PacoteEditModal from "./PacoteEditModal";
+import { toast } from "sonner";
+import useUserDataService from "@/services/userDataService";
 
 interface PacoteDia {
   id: string;
@@ -17,13 +20,17 @@ interface PacoteData {
 interface AtendimentoPacoteButtonProps {
   pacoteData: PacoteData;
   clientName: string;
+  atendimentoId?: string;
 }
 
 const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
   pacoteData,
-  clientName
+  clientName,
+  atendimentoId
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { getAtendimentos } = useUserDataService();
 
   const formatarDataSegura = (data: string) => {
     if (!data || data.trim() === '') return '';
@@ -41,6 +48,24 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
 
   const diasComData = pacoteData.pacoteDias.filter(dia => dia.data && dia.data.trim() !== '');
   const diasSemData = pacoteData.pacoteDias.filter(dia => !dia.data || dia.data.trim() === '');
+
+  const findAtendimentoId = () => {
+    if (atendimentoId) return atendimentoId;
+    
+    // Se não foi passado o ID, tentar encontrar pelo nome do cliente
+    const atendimentos = getAtendimentos();
+    const atendimento = atendimentos.find(a => a.nome === clientName && a.pacoteAtivo);
+    return atendimento?.id || '';
+  };
+
+  const handleEditClick = () => {
+    const foundId = findAtendimentoId();
+    if (!foundId) {
+      toast.error("Não foi possível identificar o atendimento para edição.");
+      return;
+    }
+    setIsEditModalOpen(true);
+  };
 
   return (
     <div className="space-y-2">
@@ -63,9 +88,20 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
             <h4 className="text-sm font-medium text-slate-700">
               Pacote de {clientName}
             </h4>
-            <Badge variant="secondary" className="bg-[#8B5CF6]/10 text-[#8B5CF6]">
-              {pacoteData.dias} sessões
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-[#8B5CF6]/10 text-[#8B5CF6]">
+                {pacoteData.dias} sessões
+              </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleEditClick}
+                className="h-6 px-2 text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+              >
+                <Edit className="h-3 w-3 mr-1" />
+                Editar
+              </Button>
+            </div>
           </div>
 
           {diasComData.length > 0 && (
@@ -127,6 +163,16 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
             </div>
           )}
         </div>
+      )}
+
+      {isEditModalOpen && (
+        <PacoteEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          atendimentoId={findAtendimentoId()}
+          clientName={clientName}
+          pacoteData={pacoteData}
+        />
       )}
     </div>
   );

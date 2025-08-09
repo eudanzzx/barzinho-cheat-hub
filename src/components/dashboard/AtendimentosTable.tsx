@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Check, X, Clock } from "lucide-react";
+import { Edit, Trash2, Calendar, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Check, X, Clock, Package } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PlanoMonthsVisualizer from "@/components/PlanoMonthsVisualizer";
 import SemanalMonthsVisualizer from "@/components/SemanalMonthsVisualizer";
+import AtendimentoPacoteButton from "@/components/dashboard/AtendimentoPacoteButton";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 
@@ -60,6 +61,15 @@ interface Atendimento {
   semanalData?: {
     semanas: string;
     valorSemanal: string;
+  } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
   } | null;
 }
 
@@ -256,7 +266,7 @@ const AtendimentosTable: React.FC<AtendimentosTableProps> = ({ atendimentos, onD
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         {atendimento.planoAtivo && atendimento.planoData && (
                           <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">
                             <CreditCard className="h-3 w-3 mr-1" />
@@ -268,6 +278,13 @@ const AtendimentosTable: React.FC<AtendimentosTableProps> = ({ atendimentos, onD
                             <Calendar className="h-3 w-3 mr-1" />
                             {atendimento.semanalData.semanas}s
                           </Badge>
+                        )}
+                        {atendimento.pacoteAtivo && atendimento.pacoteData && (
+                          <AtendimentoPacoteButton 
+                            pacoteData={atendimento.pacoteData}
+                            clientName={atendimento.nome}
+                            atendimentoId={atendimento.id}
+                          />
                         )}
                         {((atendimento.planoAtivo && atendimento.planoData) || (atendimento.semanalAtivo && atendimento.semanalData)) && (
                           <Button
