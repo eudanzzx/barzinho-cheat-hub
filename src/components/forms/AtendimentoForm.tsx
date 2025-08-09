@@ -70,6 +70,9 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
   onPacoteDataChange,
   onPacoteDiaChange,
 }) => {
+  // Debug logs para pacotes
+  console.log('🔍 PACOTES - Renderizando AtendimentoForm:', { pacoteAtivo, pacoteData });
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pago":
@@ -382,7 +385,10 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                 </Label>
                 <Switch 
                   checked={pacoteAtivo} 
-                  onCheckedChange={onPacoteAtivoChange} 
+                  onCheckedChange={(value) => {
+                    console.log('🔍 PACOTES - Switch alterado para:', value);
+                    onPacoteAtivoChange(value);
+                  }}
                   className="data-[state=checked]:bg-[#8B5CF6]"
                 />
               </div>
@@ -391,7 +397,13 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                 <div className="space-y-4 mt-2 p-4 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-lg">
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Quantidade de Dias</Label>
-                    <Select onValueChange={(value) => onPacoteDataChange("dias", value)} value={pacoteData.dias}>
+                    <Select 
+                      onValueChange={(value) => {
+                        console.log('🔍 PACOTES - Quantidade de dias alterada para:', value);
+                        onPacoteDataChange("dias", value);
+                      }} 
+                      value={pacoteData.dias}
+                    >
                       <SelectTrigger className="bg-[#8B5CF6]/10 border-[#8B5CF6]/30 focus:border-[#8B5CF6]">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>

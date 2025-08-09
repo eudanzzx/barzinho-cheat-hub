@@ -248,13 +248,22 @@ const useAtendimentoForm = () => {
     handleSelectChange,
     handlePlanoDataChange,
     handleSemanalDataChange,
-    handlePacoteDataChange,
-    handlePacoteDiaChange,
+    handlePacoteDataChange: (field: string, value: string) => {
+      console.log('🔍 HOOK - handlePacoteDataChange chamado:', { field, value });
+      handlePacoteDataChange(field, value);
+    },
+    handlePacoteDiaChange: (id: string, field: string, value: string) => {
+      console.log('🔍 HOOK - handlePacoteDiaChange chamado:', { id, field, value });
+      handlePacoteDiaChange(id, field, value);
+    },
     handleDataNascimentoChange,
     setAtencao,
     setPlanoAtivo,
     setSemanalAtivo,
-    setPacoteAtivo,
+    setPacoteAtivo: (value: boolean) => {
+      console.log('🔍 HOOK - setPacoteAtivo chamado:', value);
+      setPacoteAtivo(value);
+    },
   };
 };
 
