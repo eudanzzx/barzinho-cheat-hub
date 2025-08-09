@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, CreditCard, Calendar } from "lucide-react";
+import { AlertTriangle, CreditCard, Calendar, Package } from "lucide-react";
 
 interface AtendimentoFormProps {
   formData: any;
@@ -25,14 +25,26 @@ interface AtendimentoFormProps {
     valorSemanal: string;
     diaVencimento: string;
   };
+  pacoteAtivo: boolean;
+  pacoteData: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
+  };
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSelectChange: (field: string, value: string) => void;
   onDataNascimentoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAtencaoChange: (value: boolean) => void;
   onPlanoAtivoChange: (value: boolean) => void;
   onSemanalAtivoChange: (value: boolean) => void;
+  onPacoteAtivoChange: (value: boolean) => void;
   onPlanoDataChange: (field: string, value: string) => void;
   onSemanalDataChange: (field: string, value: string) => void;
+  onPacoteDataChange: (field: string, value: string) => void;
+  onPacoteDiaChange: (id: string, field: string, value: string) => void;
 }
 
 const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
@@ -42,16 +54,21 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
   atencao,
   planoAtivo,
   semanalAtivo,
+  pacoteAtivo,
   planoData,
   semanalData,
+  pacoteData,
   onInputChange,
   onSelectChange,
   onDataNascimentoChange,
   onAtencaoChange,
   onPlanoAtivoChange,
   onSemanalAtivoChange,
+  onPacoteAtivoChange,
   onPlanoDataChange,
   onSemanalDataChange,
+  onPacoteDataChange,
+  onPacoteDiaChange,
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -353,6 +370,75 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2 flex flex-col">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="pacote" className="text-slate-700 font-medium flex items-center">
+                  <Package className={`mr-2 h-4 w-4 ${pacoteAtivo ? "text-[#8B5CF6]" : "text-slate-400"}`} />
+                  PACOTES
+                </Label>
+                <Switch 
+                  checked={pacoteAtivo} 
+                  onCheckedChange={onPacoteAtivoChange} 
+                  className="data-[state=checked]:bg-[#8B5CF6]"
+                />
+              </div>
+              
+              {pacoteAtivo && (
+                <div className="space-y-4 mt-2">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-slate-600">Quantidade de Dias</Label>
+                    <Select onValueChange={(value) => onPacoteDataChange("dias", value)}>
+                      <SelectTrigger className="bg-[#8B5CF6]/10 border-[#8B5CF6]/30 focus:border-[#8B5CF6]">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[...Array(30)].map((_, i) => (
+                          <SelectItem key={i + 1} value={(i + 1).toString()}>
+                            {i + 1} {i === 0 ? 'dia' : 'dias'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {pacoteData.pacoteDias.length > 0 && (
+                    <div className="space-y-3 max-h-64 overflow-y-auto border border-[#8B5CF6]/20 rounded-lg p-3 bg-[#8B5CF6]/5">
+                      <Label className="text-sm font-medium text-slate-700">Configuração dos Dias</Label>
+                      {pacoteData.pacoteDias.map((dia, index) => (
+                        <div key={dia.id} className="grid grid-cols-3 gap-2 p-3 bg-white rounded-lg border border-[#8B5CF6]/20">
+                          <div className="space-y-1">
+                            <Label className="text-xs text-slate-600">Dia {index + 1}</Label>
+                            <div className="text-xs text-slate-500 p-2 bg-slate-50 rounded">
+                              Sessão {index + 1}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-slate-600">Data</Label>
+                            <Input 
+                              type="date" 
+                              value={dia.data}
+                              onChange={(e) => onPacoteDiaChange(dia.id, "data", e.target.value)}
+                              className="bg-white border-[#8B5CF6]/30 focus:border-[#8B5CF6] focus:ring-[#8B5CF6]/20 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-slate-600">Valor (R$)</Label>
+                            <Input 
+                              type="number" 
+                              placeholder="0.00" 
+                              value={dia.valor}
+                              onChange={(e) => onPacoteDiaChange(dia.id, "valor", e.target.value)}
+                              className="bg-white border-[#8B5CF6]/30 focus:border-[#8B5CF6] focus:ring-[#8B5CF6]/20 text-sm"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

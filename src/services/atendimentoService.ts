@@ -31,6 +31,15 @@ interface AtendimentoData {
     valorSemanal: string;
     diaVencimento?: string;
   } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
+  } | null;
 }
 
 export const useAtendimentoService = () => {

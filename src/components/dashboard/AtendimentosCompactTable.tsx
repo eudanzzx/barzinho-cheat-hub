@@ -10,6 +10,7 @@ import useUserDataService from "@/services/userDataService";
 import { PlanoMensal, PlanoSemanal } from "@/types/payment";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import AtendimentoPacoteButton from "./AtendimentoPacoteButton";
 
 interface AtendimentoData {
   id: string;
@@ -30,6 +31,15 @@ interface AtendimentoData {
     semanas: string;
     valorSemanal: string;
     diaVencimento?: string;
+  } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
   } | null;
 }
 
@@ -524,6 +534,16 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                   </>
                 )}
               </>
+            )}
+
+            {/* Pacotes Section */}
+            {atendimento.pacoteAtivo && atendimento.pacoteData && (
+              <div className="mt-4">
+                <AtendimentoPacoteButton
+                  pacoteData={atendimento.pacoteData}
+                  clientName={atendimento.nome}
+                />
+              </div>
             )}
           </div>
         );

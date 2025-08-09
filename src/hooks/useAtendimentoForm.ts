@@ -31,12 +31,22 @@ interface SemanalData {
   diaVencimento: string;
 }
 
+interface PacoteData {
+  dias: string;
+  pacoteDias: Array<{
+    id: string;
+    data: string;
+    valor: string;
+  }>;
+}
+
 const useAtendimentoForm = () => {
   const [dataNascimento, setDataNascimento] = useState("");
   const [signo, setSigno] = useState("");
   const [atencao, setAtencao] = useState(false);
   const [planoAtivo, setPlanoAtivo] = useState(false);
   const [semanalAtivo, setSemanalAtivo] = useState(false);
+  const [pacoteAtivo, setPacoteAtivo] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     nome: "",
     dataNascimento: "",
@@ -62,6 +72,10 @@ const useAtendimentoForm = () => {
     semanas: "",
     valorSemanal: "",
     diaVencimento: "",
+  });
+  const [pacoteData, setPacoteData] = useState<PacoteData>({
+    dias: "",
+    pacoteDias: [],
   });
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -98,6 +112,37 @@ const useAtendimentoForm = () => {
     setSemanalData(prev => ({
       ...prev,
       [field]: value,
+    }));
+  }, []);
+
+  const handlePacoteDataChange = useCallback((field: string, value: string) => {
+    if (field === "dias") {
+      const numDias = parseInt(value) || 0;
+      const novosPacoteDias = Array.from({ length: numDias }, (_, index) => ({
+        id: `pacote-dia-${Date.now()}-${index}`,
+        data: "",
+        valor: "",
+      }));
+      
+      setPacoteData(prev => ({
+        ...prev,
+        dias: value,
+        pacoteDias: novosPacoteDias,
+      }));
+    } else {
+      setPacoteData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
+  }, []);
+
+  const handlePacoteDiaChange = useCallback((id: string, field: string, value: string) => {
+    setPacoteData(prev => ({
+      ...prev,
+      pacoteDias: prev.pacoteDias.map(dia => 
+        dia.id === id ? { ...dia, [field]: value } : dia
+      ),
     }));
   }, []);
 
@@ -195,16 +240,21 @@ const useAtendimentoForm = () => {
     atencao,
     planoAtivo,
     semanalAtivo,
+    pacoteAtivo,
     planoData,
     semanalData,
+    pacoteData,
     handleInputChange,
     handleSelectChange,
     handlePlanoDataChange,
     handleSemanalDataChange,
+    handlePacoteDataChange,
+    handlePacoteDiaChange,
     handleDataNascimentoChange,
     setAtencao,
     setPlanoAtivo,
     setSemanalAtivo,
+    setPacoteAtivo,
   };
 };
 

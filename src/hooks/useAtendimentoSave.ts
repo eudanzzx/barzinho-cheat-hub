@@ -19,6 +19,15 @@ interface SaveAtendimentoParams {
     valorSemanal: string;
     diaVencimento: string;
   };
+  pacoteAtivo: boolean;
+  pacoteData: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
+  };
 }
 
 export const useAtendimentoSave = () => {
@@ -33,7 +42,9 @@ export const useAtendimentoSave = () => {
     planoAtivo,
     planoData,
     semanalAtivo,
-    semanalData
+    semanalData,
+    pacoteAtivo,
+    pacoteData
   }: SaveAtendimentoParams) => {
     console.log('🔍 DEBUG - Data recebida no save:', {
       dataAtendimento: formData.dataAtendimento,
@@ -72,6 +83,8 @@ export const useAtendimentoSave = () => {
       planoData: planoAtivo ? planoData : null,
       semanalAtivo,
       semanalData: semanalAtivo ? semanalData : null,
+      pacoteAtivo,
+      pacoteData: pacoteAtivo ? pacoteData : null,
     };
     
     console.log('💾 DEBUG - Objeto que será salvo:', {
@@ -148,8 +161,10 @@ export const useAtendimentoSave = () => {
     }
     
     // Se nenhum plano foi criado
-    if (!planoAtivo && !semanalAtivo) {
+    if (!planoAtivo && !semanalAtivo && !pacoteAtivo) {
       toast.success("Atendimento salvo com sucesso!");
+    } else if (pacoteAtivo && pacoteData.pacoteDias.length > 0) {
+      toast.success(`Atendimento salvo! Pacote de ${pacoteData.dias} dias criado com sucesso.`);
     }
     
     navigate("/");

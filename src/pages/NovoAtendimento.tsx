@@ -19,16 +19,21 @@ const NovoAtendimento = () => {
     atencao,
     planoAtivo,
     semanalAtivo,
+    pacoteAtivo,
     planoData,
     semanalData,
+    pacoteData,
     handleInputChange,
     handleSelectChange,
     handlePlanoDataChange,
     handleSemanalDataChange,
+    handlePacoteDataChange,
+    handlePacoteDiaChange,
     handleDataNascimentoChange,
     setAtencao,
     setPlanoAtivo,
     setSemanalAtivo,
+    setPacoteAtivo,
   } = useAtendimentoForm();
 
   const onSave = () => {
@@ -39,7 +44,9 @@ const NovoAtendimento = () => {
       planoAtivo,
       planoData,
       semanalAtivo,
-      semanalData
+      semanalData,
+      pacoteAtivo,
+      pacoteData
     });
   };
 
@@ -64,16 +71,21 @@ const NovoAtendimento = () => {
           atencao={atencao}
           planoAtivo={planoAtivo}
           semanalAtivo={semanalAtivo}
+          pacoteAtivo={pacoteAtivo}
           planoData={planoData}
           semanalData={semanalData}
+          pacoteData={pacoteData}
           onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
           onDataNascimentoChange={handleDataNascimentoChange}
           onAtencaoChange={setAtencao}
           onPlanoAtivoChange={setPlanoAtivo}
           onSemanalAtivoChange={setSemanalAtivo}
+          onPacoteAtivoChange={setPacoteAtivo}
           onPlanoDataChange={handlePlanoDataChange}
           onSemanalDataChange={handleSemanalDataChange}
+          onPacoteDataChange={handlePacoteDataChange}
+          onPacoteDiaChange={handlePacoteDiaChange}
         />
 
         <NovoAtendimentoFooter onSave={onSave} />
