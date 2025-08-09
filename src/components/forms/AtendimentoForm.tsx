@@ -72,6 +72,7 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
 }) => {
   // Debug logs para pacotes
   console.log('🔍 PACOTES - Renderizando AtendimentoForm:', { pacoteAtivo, pacoteData });
+  console.log('🔍 PACOTES - Props recebidas:', { onPacoteAtivoChange, onPacoteDataChange, onPacoteDiaChange });
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -377,10 +378,11 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
               )}
             </div>
 
-            <div className="space-y-2 flex flex-col">
+            <div className="space-y-2 flex flex-col border-2 border-red-500 p-4 bg-red-50">
+              <div className="text-lg font-bold text-red-600">DEBUG: SEÇÃO PACOTES</div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="pacote" className="text-slate-700 font-medium flex items-center">
-                  <Package className={`mr-2 h-4 w-4 ${pacoteAtivo ? "text-[#8B5CF6]" : "text-slate-400"}`} />
+                <Label htmlFor="pacote" className="text-slate-700 font-medium flex items-center text-lg">
+                  <Package className={`mr-2 h-5 w-5 ${pacoteAtivo ? "text-[#8B5CF6]" : "text-slate-400"}`} />
                   PACOTES
                 </Label>
                 <Switch 
