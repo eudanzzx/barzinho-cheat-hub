@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Package, ChevronDown, Edit } from "lucide-react";
+import { Package, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import PacoteEditModal from "./PacoteEditModal";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface PacoteDia {
   id: string;
@@ -29,12 +30,11 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
   atendimentoId
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const { getAtendimentos } = useUserDataService();
+  const [localPacoteData, setLocalPacoteData] = useState<PacoteData>(pacoteData);
+  const { getAtendimentos, saveAtendimentos } = useUserDataService();
 
   const formatarDataSegura = (data: string) => {
     if (!data || data.trim() === '') return '';
-    
     try {
       const [ano, mes, dia] = data.split('-');
       if (ano && mes && dia) {
@@ -46,13 +46,8 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
     }
   };
 
-  const diasComData = pacoteData.pacoteDias.filter(dia => dia.data && dia.data.trim() !== '');
-  const diasSemData = pacoteData.pacoteDias.filter(dia => !dia.data || dia.data.trim() === '');
-
   const findAtendimentoId = () => {
     if (atendimentoId) return atendimentoId;
-    
-    // Se não foi passado o ID, tentar encontrar pelo nome do cliente
     const atendimentos = getAtendimentos();
     const atendimento = atendimentos.find(a => a.nome === clientName && a.pacoteAtivo);
     return atendimento?.id || '';
@@ -61,18 +56,39 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Sempre sincroniza os dados locais com os props ao abrir
+    if (!isExpanded) setLocalPacoteData(pacoteData);
     setIsExpanded(!isExpanded);
   };
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const foundId = findAtendimentoId();
-    if (!foundId) {
-      toast.error("Não foi possível identificar o atendimento para edição.");
+  const handlePacoteDiaChange = (id: string, field: string, value: string) => {
+    setLocalPacoteData(prev => ({
+      ...prev,
+      pacoteDias: prev.pacoteDias.map(dia =>
+        dia.id === id ? { ...dia, [field]: value } : dia
+      ),
+    }));
+  };
+
+  const handleSave = () => {
+    const id = findAtendimentoId();
+    if (!id) {
+      toast.error("Não foi possível identificar o atendimento para salvar.");
       return;
     }
-    setIsEditModalOpen(true);
+    const atendimentos = getAtendimentos();
+    const updatedAtendimentos = atendimentos.map(a =>
+      a.id === id
+        ? {
+            ...a,
+            pacoteAtivo: true,
+            pacoteData: localPacoteData,
+          }
+        : a
+    );
+    saveAtendimentos(updatedAtendimentos);
+    toast.success("Configuração do pacote salva!");
+    setIsExpanded(false);
   };
 
   return (
@@ -90,96 +106,73 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
       </Button>
 
       {isExpanded && (
-        <div className="absolute top-full left-0 mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-slate-700">
-              Pacote de {clientName}
-            </h4>
-            <div className="flex items-center gap-2">
+        <div
+          className="fixed inset-0 z-[9999] flex items-start justify-center pt-20"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsExpanded(false);
+          }}
+        >
+          <div className="w-[95vw] max-w-[640px] bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-slate-700">Pacote de {clientName}</h4>
               <Badge variant="secondary" className="bg-[#8B5CF6]/10 text-[#8B5CF6]">
-                {pacoteData.dias} sessões
+                {localPacoteData.dias} sessões
               </Badge>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleEditClick}
-                className="h-6 px-2 text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
-                title="Editar pacote"
-              >
-                ✏️
+            </div>
+
+            {localPacoteData.pacoteDias.length > 0 ? (
+              <div className="space-y-3 border border-[#8B5CF6]/20 rounded-lg p-4 bg-[#8B5CF6]/5">
+                <Label className="text-sm font-medium text-slate-700">Configuração dos Dias</Label>
+                <div className="max-h-96 overflow-y-auto space-y-3">
+                  {localPacoteData.pacoteDias.map((dia, index) => (
+                    <div key={dia.id} className="grid grid-cols-3 gap-3 p-3 bg-white rounded-lg border border-[#8B5CF6]/20">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-slate-600">Dia {index + 1}</Label>
+                        <div className="text-xs text-slate-500 p-2 bg-slate-50 rounded">
+                          Sessão {index + 1}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-slate-600">Data</Label>
+                        <Input
+                          type="date"
+                          value={dia.data}
+                          onChange={(e) => handlePacoteDiaChange(dia.id, "data", e.target.value)}
+                          className="bg-white border-[#8B5CF6]/30 focus:border-[#8B5CF6] focus:ring-[#8B5CF6]/20 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-slate-600">Valor (R$)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={dia.valor}
+                          onChange={(e) => handlePacoteDiaChange(dia.id, "valor", e.target.value)}
+                          className="bg-white border-[#8B5CF6]/30 focus:border-[#8B5CF6] focus:ring-[#8B5CF6]/20 text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-slate-500">
+                <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Nenhuma sessão configurada</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-4 border-t mt-4">
+              <Button variant="outline" size="sm" onClick={() => setIsExpanded(false)}>
+                Cancelar
+              </Button>
+              <Button size="sm" onClick={handleSave} className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white">
+                Salvar Configuração
               </Button>
             </div>
           </div>
-
-          {diasComData.length > 0 && (
-            <div className="space-y-2">
-              <h5 className="text-xs font-medium text-slate-600">Sessões Agendadas</h5>
-              <div className="grid gap-2">
-                {diasComData.map((dia, index) => (
-                  <div
-                    key={dia.id}
-                    className="flex items-center justify-between p-2 bg-white rounded border border-[#8B5CF6]/20"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        #{index + 1}
-                      </Badge>
-                      <span className="text-sm text-slate-700">
-                        {formatarDataSegura(dia.data)}
-                      </span>
-                    </div>
-                    <div className="text-sm font-medium text-[#8B5CF6]">
-                      {dia.valor ? `R$ ${dia.valor}` : 'Valor não definido'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {diasSemData.length > 0 && (
-            <div className="space-y-2">
-              <h5 className="text-xs font-medium text-slate-600">Sessões Pendentes</h5>
-              <div className="grid gap-2">
-                {diasSemData.map((dia, index) => (
-                  <div
-                    key={dia.id}
-                    className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-200"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs bg-slate-100">
-                        #{diasComData.length + index + 1}
-                      </Badge>
-                      <span className="text-sm text-slate-500">
-                        Data não definida
-                      </span>
-                    </div>
-                    <div className="text-sm text-slate-400">
-                      {dia.valor ? `R$ ${dia.valor}` : 'Valor não definido'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {pacoteData.pacoteDias.length === 0 && (
-            <div className="text-center py-4 text-slate-500">
-              <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Nenhuma sessão configurada</p>
-            </div>
-          )}
         </div>
-      )}
-
-      {isEditModalOpen && (
-        <PacoteEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          atendimentoId={findAtendimentoId()}
-          clientName={clientName}
-          pacoteData={pacoteData}
-        />
       )}
     </div>
   );
