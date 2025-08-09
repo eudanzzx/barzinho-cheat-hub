@@ -90,7 +90,7 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
       </Button>
 
       {isExpanded && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 sm:left-0 sm:transform-none mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+        <div className="absolute top-full left-0 mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg p-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-medium text-slate-700">
               Pacote de {clientName}
@@ -104,9 +104,9 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
                 variant="outline"
                 onClick={handleEditClick}
                 className="h-6 px-2 text-xs border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/10"
+                title="Editar pacote"
               >
-                <Edit className="h-3 w-3 mr-1" />
-                Editar
+                ✏️
               </Button>
             </div>
           </div>
