@@ -24,6 +24,15 @@ interface AtendimentoData {
   valor: string;
   planoAtivo?: boolean;
   semanalAtivo?: boolean;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
+  };
 }
 
 const Dashboard = () => {

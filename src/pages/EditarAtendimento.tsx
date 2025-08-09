@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Save, AlertTriangle, Cake, CreditCard, Calendar } from "lucide-react";
+import { ArrowLeft, Save, AlertTriangle, Cake, CreditCard, Calendar, Package } from "lucide-react";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
 import { updateAtendimentoWithPlans } from "@/utils/updateAtendimentoWithPlans";
@@ -29,6 +29,7 @@ import Logo from "@/components/Logo";
 import ClienteFields from "@/components/atendimento/ClienteFields";
 import PlanoMensalSection from "@/components/atendimento/PlanoMensalSection";
 import PlanoSemanalSection from "@/components/atendimento/PlanoSemanalSection";
+import PacoteSection from "@/components/atendimento/PacoteSection";
 import DetalhesSection from "@/components/atendimento/DetalhesSection";
 
 interface Atendimento {
@@ -60,6 +61,15 @@ interface Atendimento {
     semanas: string;
     valorSemanal: string;
     diaVencimento?: string;
+  } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
   } | null;
 }
 
@@ -96,6 +106,7 @@ const EditarAtendimento = () => {
   // Novos estados para planos
   const [planoAtivo, setPlanoAtivo] = useState(false);
   const [semanalAtivo, setSemanalAtivo] = useState(false);
+  const [pacoteAtivo, setPacoteAtivo] = useState(false);
   const [planoData, setPlanoData] = useState<{
     meses: string;
     valorMensal: string;
@@ -113,6 +124,17 @@ const EditarAtendimento = () => {
     semanas: "",
     valorSemanal: "",
     diaVencimento: "sexta",
+  });
+  const [pacoteData, setPacoteData] = useState<{
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
+  }>({
+    dias: "",
+    pacoteDias: [],
   });
 
   // Alterado: todos os dias do mês, de 1 a 31
@@ -172,6 +194,7 @@ const EditarAtendimento = () => {
             setAtencaoFlag(Boolean(atendimentoEncontrado.atencaoFlag));
             setPlanoAtivo(Boolean(atendimentoEncontrado.planoAtivo));
             setSemanalAtivo(Boolean(atendimentoEncontrado.semanalAtivo));
+            setPacoteAtivo(Boolean(atendimentoEncontrado.pacoteAtivo));
 
             if (atendimentoEncontrado.planoData) {
               setPlanoData({
@@ -186,6 +209,13 @@ const EditarAtendimento = () => {
                 semanas: atendimentoEncontrado.semanalData.semanas || "",
                 valorSemanal: atendimentoEncontrado.semanalData.valorSemanal || "",
                 diaVencimento: atendimentoEncontrado.semanalData.diaVencimento || "sexta",
+              });
+            }
+
+            if (atendimentoEncontrado.pacoteData) {
+              setPacoteData({
+                dias: atendimentoEncontrado.pacoteData.dias || "",
+                pacoteDias: atendimentoEncontrado.pacoteData.pacoteDias || [],
               });
             }
 
@@ -272,6 +302,37 @@ const EditarAtendimento = () => {
     }));
   };
 
+  const handlePacoteDataChange = (field: string, value: string) => {
+    if (field === "dias") {
+      const numDias = parseInt(value) || 0;
+      const novosPacoteDias = Array.from({ length: numDias }, (_, index) => ({
+        id: `pacote-dia-${Date.now()}-${index}`,
+        data: "",
+        valor: "",
+      }));
+      
+      setPacoteData(prev => ({
+        ...prev,
+        dias: value,
+        pacoteDias: novosPacoteDias,
+      }));
+    } else {
+      setPacoteData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
+  };
+
+  const handlePacoteDiaChange = (id: string, field: string, value: string) => {
+    setPacoteData(prev => ({
+      ...prev,
+      pacoteDias: prev.pacoteDias.map(dia => 
+        dia.id === id ? { ...dia, [field]: value } : dia
+      ),
+    }));
+  };
+
   const handleSemanalDataChange = (field: string, value: string) => {
     setSemanalData(prev => ({
       ...prev,
@@ -321,6 +382,8 @@ const EditarAtendimento = () => {
         planoData: planoAtivo ? planoData : null,
         semanalAtivo,
         semanalData: semanalAtivo ? semanalData : null,
+        pacoteAtivo,
+        pacoteData: pacoteAtivo ? pacoteData : null,
       };
       
       console.log('Dados do formulário que serão salvos:', formData);
@@ -479,6 +542,14 @@ const EditarAtendimento = () => {
                 semanalData={semanalData}
                 handleSemanalDataChange={handleSemanalDataChange}
                 diasSemana={diasSemana}
+              />
+
+              <PacoteSection
+                pacoteAtivo={pacoteAtivo}
+                setPacoteAtivo={setPacoteAtivo}
+                pacoteData={pacoteData}
+                handlePacoteDataChange={handlePacoteDataChange}
+                handlePacoteDiaChange={handlePacoteDiaChange}
               />
             </div>
 

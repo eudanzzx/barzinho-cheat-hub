@@ -542,6 +542,7 @@ const AtendimentosCompactTable: React.FC<AtendimentosCompactTableProps> = ({
                 <AtendimentoPacoteButton
                   pacoteData={atendimento.pacoteData}
                   clientName={atendimento.nome}
+                  atendimentoId={atendimento.id}
                 />
               </div>
             )}
