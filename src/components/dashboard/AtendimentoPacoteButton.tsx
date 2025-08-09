@@ -76,13 +76,13 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
   };
 
   return (
-    <div className="relative inline-block w-full">
+    <div className="relative inline-block">
       <Button
         variant="outline"
         size="sm"
         onClick={handleToggle}
         type="button"
-        className="w-full border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center justify-center gap-1 px-2 py-1.5 text-xs h-8"
+        className="border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center justify-center gap-1 px-2 py-1.5 text-xs h-8"
       >
         <Package className="h-3 w-3" />
         <span className="font-medium text-xs">Pacote ({pacoteData.dias})</span>
