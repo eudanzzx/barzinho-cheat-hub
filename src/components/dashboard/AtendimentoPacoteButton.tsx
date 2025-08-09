@@ -58,7 +58,15 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
     return atendimento?.id || '';
   };
 
-  const handleEditClick = () => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const foundId = findAtendimentoId();
     if (!foundId) {
       toast.error("Não foi possível identificar o atendimento para edição.");
@@ -72,7 +80,8 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
       <Button
         variant="outline"
         size="sm"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={handleToggle}
+        type="button"
         className="w-full border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center justify-center gap-1 px-2 py-1.5 text-xs h-8"
       >
         <Package className="h-3 w-3" />
