@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Package, ChevronDown, ChevronUp, Edit } from "lucide-react";
+import { Package, ChevronDown, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import PacoteEditModal from "./PacoteEditModal";
 import { toast } from "sonner";
@@ -68,22 +68,20 @@ const AtendimentoPacoteButton: React.FC<AtendimentoPacoteButtonProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="relative inline-block w-full">
       <Button
         variant="outline"
         size="sm"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full justify-between bg-[#8B5CF6]/10 border-[#8B5CF6]/30 text-[#8B5CF6] hover:bg-[#8B5CF6]/20"
+        className="w-full border-purple-500/30 text-purple-700 hover:bg-purple-50 hover:border-purple-500 transition-colors duration-200 flex items-center justify-center gap-1 px-2 py-1.5 text-xs h-8"
       >
-        <div className="flex items-center gap-2">
-          <Package className="h-4 w-4" />
-          <span className="font-medium">Pacote ({pacoteData.dias} dias)</span>
-        </div>
-        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        <Package className="h-3 w-3" />
+        <span className="font-medium text-xs">Pacote ({pacoteData.dias})</span>
+        <ChevronDown className={`h-3 w-3 transition-transform duration-200 flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
       </Button>
 
       {isExpanded && (
-        <div className="space-y-3 p-3 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-lg">
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 sm:left-0 sm:transform-none mt-2 z-[9999] w-[95vw] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg p-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-medium text-slate-700">
               Pacote de {clientName}
