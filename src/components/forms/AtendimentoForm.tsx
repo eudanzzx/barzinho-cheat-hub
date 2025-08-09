@@ -117,6 +117,17 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="telefone" className="text-slate-700 font-medium">Telefone</Label>
+              <Input 
+                id="telefone" 
+                placeholder="(00) 00000-0000" 
+                value={formData.telefone}
+                onChange={onInputChange}
+                className="bg-white/50 border-white/20 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="tipoServico" className="text-slate-700 font-medium">Tipo de Serviço</Label>
               <Select onValueChange={(value) => onSelectChange("tipoServico", value)}>
                 <SelectTrigger className="bg-white/50 border-white/20 focus:border-[#0EA5E9]">

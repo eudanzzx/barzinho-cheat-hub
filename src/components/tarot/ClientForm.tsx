@@ -8,11 +8,13 @@ interface ClientFormProps {
   nomeCliente: string;
   dataNascimento: string;
   signo: string;
+  telefone: string;
   atencao: boolean;
   dataInicio: string;
   preco: string;
   onNomeClienteChange: (value: string) => void;
   onDataNascimentoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTelefoneChange: (value: string) => void;
   onAtencaoChange: (value: boolean) => void;
   onDataInicioChange: (value: string) => void;
   onPrecoChange: (value: string) => void;
@@ -22,11 +24,13 @@ const ClientForm: React.FC<ClientFormProps> = memo(({
   nomeCliente,
   dataNascimento,
   signo,
+  telefone,
   atencao,
   dataInicio,
   preco,
   onNomeClienteChange,
   onDataNascimentoChange,
+  onTelefoneChange,
   onAtencaoChange,
   onDataInicioChange,
   onPrecoChange
@@ -62,6 +66,17 @@ const ClientForm: React.FC<ClientFormProps> = memo(({
           value={signo} 
           readOnly 
           className="bg-slate-50 border-slate-200" 
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="telefone" className="text-slate-700">Telefone</Label>
+        <Input 
+          id="telefone" 
+          placeholder="(00) 00000-0000" 
+          value={telefone}
+          onChange={(e) => onTelefoneChange(e.target.value)}
+          className="bg-white/50 border-slate-200 focus:border-tarot-primary focus:ring-tarot-primary/20 transition-colors duration-200"
         />
       </div>
 

@@ -3,6 +3,7 @@ interface TarotAnalysis {
   id: string;
   clientName: string;
   clientBirthdate?: string;
+  telefone?: string;
   clientSign?: string;
   analysisDate: string;
   analysisType: string;

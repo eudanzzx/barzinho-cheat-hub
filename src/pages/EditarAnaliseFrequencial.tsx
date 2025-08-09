@@ -89,6 +89,7 @@ const EditarAnaliseFrequencial = () => {
   const navigate = useNavigate();
   const [nomeCliente, setNomeCliente] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [signo, setSigno] = useState("");
   const [atencao, setAtencao] = useState(false);
   const [dataInicio, setDataInicio] = useState("");
@@ -131,6 +132,7 @@ const EditarAnaliseFrequencial = () => {
 
     setNomeCliente(analise.nomeCliente || analise.clientName || "");
     setDataNascimento(analise.dataNascimento || analise.clientBirthdate || "");
+    setTelefone(analise.telefone || "");
     setSigno(analise.signo || analise.clientSign || "");
     setAtencao(analise.atencao || analise.attentionFlag || false);
     setDataInicio(analise.dataInicio || analise.analysisDate || "");
@@ -330,6 +332,7 @@ const EditarAnaliseFrequencial = () => {
       // Legacy fields for backward compatibility
       nomeCliente,
       dataNascimento,
+      telefone,
       signo,
       atencao,
       dataInicio,
@@ -478,11 +481,13 @@ const EditarAnaliseFrequencial = () => {
               nomeCliente={nomeCliente}
               dataNascimento={dataNascimento}
               signo={signo}
+              telefone={telefone}
               atencao={atencao}
               dataInicio={dataInicio}
               preco={preco}
               onNomeClienteChange={setNomeCliente}
               onDataNascimentoChange={handleDataNascimentoChange}
+              onTelefoneChange={setTelefone}
               onAtencaoChange={setAtencao}
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}

@@ -98,6 +98,7 @@ const AnaliseFrequencial = () => {
   const isMobile = useIsMobile();
   const [nomeCliente, setNomeCliente] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [signo, setSigno] = useState("");
   const [atencao, setAtencao] = useState(false);
   const [dataInicio, setDataInicio] = useState("");
@@ -319,6 +320,7 @@ const AnaliseFrequencial = () => {
         // Legacy fields for backward compatibility
         nomeCliente,
         dataNascimento,
+        telefone,
         signo,
         atencao,
         dataInicio,
@@ -434,6 +436,7 @@ const AnaliseFrequencial = () => {
       // Limpar o formulário
       setNomeCliente("");
       setDataNascimento("");
+      setTelefone("");
       setSigno("");
       setAtencao(false);
       setDataInicio("");
@@ -509,11 +512,13 @@ const AnaliseFrequencial = () => {
               nomeCliente={nomeCliente}
               dataNascimento={dataNascimento}
               signo={signo}
+              telefone={telefone}
               atencao={atencao}
               dataInicio={dataInicio}
               preco={preco}
               onNomeClienteChange={setNomeCliente}
               onDataNascimentoChange={handleDataNascimentoChange}
+              onTelefoneChange={setTelefone}
               onAtencaoChange={setAtencao}
               onDataInicioChange={setDataInicio}
               onPrecoChange={setPreco}

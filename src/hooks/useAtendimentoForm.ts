@@ -5,6 +5,7 @@ import { toast } from "sonner";
 interface FormData {
   nome: string;
   dataNascimento: string;
+  telefone: string;
   tipoServico: string;
   statusPagamento: 'pago' | 'pendente' | 'parcelado' | "";
   dataAtendimento: string;
@@ -39,6 +40,7 @@ const useAtendimentoForm = () => {
   const [formData, setFormData] = useState<FormData>({
     nome: "",
     dataNascimento: "",
+    telefone: "",
     tipoServico: "",
     statusPagamento: "",
     dataAtendimento: "",

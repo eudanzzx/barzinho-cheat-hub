@@ -3,6 +3,7 @@ interface AtendimentoData {
   id: string;
   nome: string;
   dataNascimento?: string;
+  telefone?: string;
   signo?: string;
   tipoServico: string;
   statusPagamento: 'pago' | 'pendente' | 'parcelado';

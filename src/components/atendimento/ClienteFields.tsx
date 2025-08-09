@@ -10,6 +10,8 @@ type Props = {
   dataNascimento: string;
   handleDataNascimentoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   signo: string;
+  telefone: string;
+  setTelefone: (val: string) => void;
   tipoServico: string;
   setTipoServico: (val: string) => void;
   dataAtendimento: string;
@@ -33,6 +35,8 @@ const ClienteFields = ({
   dataNascimento,
   handleDataNascimentoChange,
   signo,
+  telefone,
+  setTelefone,
   tipoServico,
   setTipoServico,
   dataAtendimento,
@@ -67,6 +71,13 @@ const ClienteFields = ({
     <div className="space-y-2">
       <Label htmlFor="signo" className="text-slate-700">Signo</Label>
       <Input id="signo" value={signo} readOnly className="bg-slate-50 border-slate-200" />
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="telefone" className="text-slate-700">Telefone</Label>
+      <Input id="telefone" placeholder="(00) 00000-0000" value={telefone}
+        onChange={(e) => setTelefone(e.target.value)}
+        className="bg-white/50 border-slate-200 focus:border-[#0EA5E9] focus:ring-[#0EA5E9]/20 transition-all duration-200"
+      />
     </div>
     <div className="space-y-2">
       <Label htmlFor="tipoServico" className="text-slate-700">Tipo de Serviço</Label>

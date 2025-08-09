@@ -39,6 +39,7 @@ interface Atendimento {
   valor: string;
   statusPagamento?: 'pago' | 'pendente' | 'parcelado';
   dataNascimento?: string;
+  telefone?: string;
   signo?: string;
   destino?: string;
   cidade?: string;
@@ -77,6 +78,7 @@ const EditarAtendimento = () => {
   // Individual form states for better control
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [tipoServico, setTipoServico] = useState("");
   const [statusPagamento, setStatusPagamento] = useState("");
   const [dataAtendimento, setDataAtendimento] = useState("");
@@ -154,6 +156,7 @@ const EditarAtendimento = () => {
           if (!hasLoadedData.current) {
             setNome(atendimentoEncontrado.nome || "");
             setDataNascimento(atendimentoEncontrado.dataNascimento || "");
+            setTelefone(atendimentoEncontrado.telefone || "");
             setTipoServico(atendimentoEncontrado.tipoServico || "");
             setStatusPagamento(atendimentoEncontrado.statusPagamento || "");
             setDataAtendimento(atendimentoEncontrado.dataAtendimento || "");
@@ -300,6 +303,7 @@ const EditarAtendimento = () => {
       const formData = {
         nome: nome.trim(),
         dataNascimento,
+        telefone,
         tipoServico,
         statusPagamento: statusPagamento as 'pago' | 'pendente' | 'parcelado',
         dataAtendimento,
@@ -413,6 +417,8 @@ const EditarAtendimento = () => {
                 dataNascimento={dataNascimento}
                 handleDataNascimentoChange={handleDataNascimentoChange}
                 signo={signo}
+                telefone={telefone}
+                setTelefone={setTelefone}
                 tipoServico={tipoServico}
                 setTipoServico={setTipoServico}
                 dataAtendimento={dataAtendimento}
