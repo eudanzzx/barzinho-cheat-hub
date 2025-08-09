@@ -388,10 +388,10 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
               </div>
               
               {pacoteAtivo && (
-                <div className="space-y-4 mt-2">
+                <div className="space-y-4 mt-2 p-4 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-lg">
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Quantidade de Dias</Label>
-                    <Select onValueChange={(value) => onPacoteDataChange("dias", value)}>
+                    <Select onValueChange={(value) => onPacoteDataChange("dias", value)} value={pacoteData.dias}>
                       <SelectTrigger className="bg-[#8B5CF6]/10 border-[#8B5CF6]/30 focus:border-[#8B5CF6]">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
