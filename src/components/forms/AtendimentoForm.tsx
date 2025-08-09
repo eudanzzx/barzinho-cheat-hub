@@ -70,10 +70,6 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
   onPacoteDataChange,
   onPacoteDiaChange,
 }) => {
-  // Debug logs para pacotes
-  console.log('🔍 PACOTES - Renderizando AtendimentoForm:', { pacoteAtivo, pacoteData });
-  console.log('🔍 PACOTES - Props recebidas:', { onPacoteAtivoChange, onPacoteDataChange, onPacoteDiaChange });
-  
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pago":
@@ -378,19 +374,15 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
               )}
             </div>
 
-            <div className="space-y-2 flex flex-col border-2 border-red-500 p-4 bg-red-50">
-              <div className="text-lg font-bold text-red-600">DEBUG: SEÇÃO PACOTES</div>
+            <div className="space-y-2 flex flex-col">
               <div className="flex items-center justify-between">
-                <Label htmlFor="pacote" className="text-slate-700 font-medium flex items-center text-lg">
-                  <Package className={`mr-2 h-5 w-5 ${pacoteAtivo ? "text-[#8B5CF6]" : "text-slate-400"}`} />
+                <Label htmlFor="pacote" className="text-slate-700 font-medium flex items-center">
+                  <Package className={`mr-2 h-4 w-4 ${pacoteAtivo ? "text-[#8B5CF6]" : "text-slate-400"}`} />
                   PACOTES
                 </Label>
                 <Switch 
                   checked={pacoteAtivo} 
-                  onCheckedChange={(value) => {
-                    console.log('🔍 PACOTES - Switch alterado para:', value);
-                    onPacoteAtivoChange(value);
-                  }}
+                  onCheckedChange={onPacoteAtivoChange}
                   className="data-[state=checked]:bg-[#8B5CF6]"
                 />
               </div>
@@ -399,13 +391,7 @@ const AtendimentoForm: React.FC<AtendimentoFormProps> = ({
                 <div className="space-y-4 mt-2 p-4 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-lg">
                   <div className="space-y-1">
                     <Label className="text-sm text-slate-600">Quantidade de Dias</Label>
-                    <Select 
-                      onValueChange={(value) => {
-                        console.log('🔍 PACOTES - Quantidade de dias alterada para:', value);
-                        onPacoteDataChange("dias", value);
-                      }} 
-                      value={pacoteData.dias}
-                    >
+                    <Select onValueChange={(value) => onPacoteDataChange("dias", value)} value={pacoteData.dias}>
                       <SelectTrigger className="bg-[#8B5CF6]/10 border-[#8B5CF6]/30 focus:border-[#8B5CF6]">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>

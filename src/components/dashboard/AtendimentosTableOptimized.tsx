@@ -33,6 +33,7 @@ import PlanoMonthsVisualizer from "@/components/PlanoMonthsVisualizer";
 import SemanalMonthsVisualizer from "@/components/SemanalMonthsVisualizer";
 import { toast } from "sonner";
 import useUserDataService from "@/services/userDataService";
+import PacoteConfigModal from "./PacoteConfigModal";
 
 interface Atendimento {
   id: string;
@@ -59,6 +60,15 @@ interface Atendimento {
   semanalData?: {
     semanas: string;
     valorSemanal: string;
+  } | null;
+  pacoteAtivo?: boolean;
+  pacoteData?: {
+    dias: string;
+    pacoteDias: Array<{
+      id: string;
+      data: string;
+      valor: string;
+    }>;
   } | null;
 }
 
@@ -197,6 +207,15 @@ const AtendimentosTableOptimized = memo<AtendimentosTableOptimizedProps>(({ aten
                           {atendimento.signo && (
                             <div className="text-sm text-slate-500">{atendimento.signo}</div>
                           )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <PacoteConfigModal 
+                              atendimento={atendimento}
+                              onUpdate={() => {
+                                // Força atualização da tabela
+                                window.location.reload();
+                              }}
+                            />
+                          </div>
                         </div>
                         {atendimento.atencaoFlag && (
                           <AlertTriangle className="h-4 w-4 text-red-500" />
